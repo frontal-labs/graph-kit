@@ -44,7 +44,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "neo4j-driver": "^5.14.0"
+    "neo4j-driver": "^6.3.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
