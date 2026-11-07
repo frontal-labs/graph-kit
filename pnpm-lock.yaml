@@ -68,8 +68,8 @@ importers:
         specifier: workspace:*
         version: link:../packages/sdk
       commander:
-        specifier: ^11.0.0
-        version: 11.1.0
+        specifier: ^15.0.0
+        version: 15.1.0
     devDependencies:
       '@types/node':
         specifier: ^20.10.0
@@ -1649,12 +1649,8 @@ packages:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
     engines: {node: '>= 0.8'}
 
-  commander@11.1.0:
-    resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
-    engines: {node: '>=16'}
-
-  commander@15.0.0:
-    resolution: {integrity: sha512-z67u4ZhzCL/Tydu1lJARtEZYWbWaN7oYLHbsuzocr6y4N6WZAagG3RQ4FW61V1/0+jImpj293XfrcYnd1qxtPg==}
+  commander@15.1.0:
+    resolution: {integrity: sha512-cgnQ88TRrWcC7pVq46RzJVRMktu3W2RcbnoidnfBsl1bmDCBwJS/udcIZpKoCrbAYYaCqsz1yZCVIgbIaU3ddQ==}
     engines: {node: '>=22.12.0'}
 
   commander@4.1.1:
@@ -4244,9 +4240,7 @@ snapshots:
     dependencies:
       delayed-stream: 1.0.0
 
-  commander@11.1.0: {}
-
-  commander@15.0.0: {}
+  commander@15.1.0: {}
 
   commander@4.1.1: {}
 
@@ -5521,7 +5515,7 @@ snapshots:
     dependencies:
       '@clack/prompts': 1.8.1
       cli-truncate: 6.1.1
-      commander: 15.0.0
+      commander: 15.1.0
       deepmerge: 4.3.1
       empathic: 2.1.0
       execa: 10.2.0
