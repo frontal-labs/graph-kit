@@ -174,7 +174,7 @@
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.11",
-    "neo4j-driver": "^5.14.0",
+    "neo4j-driver": "^6.3.0",
     "typescript": "^5.9.3",
     "zod": "^4.6.7"
   }
