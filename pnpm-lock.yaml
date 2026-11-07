@@ -15,6 +15,11 @@ overrides:
   tar@7: ^7.5.21
   '@opentelemetry/core@2': ^2.8.0
 
+patchedDependencies:
+  deepmerge@4.3.1:
+    hash: woqqqyurvrm6s4v6eocim453km
+    path: patches/deepmerge@4.3.1.patch
+
 importers:
 
   .:
@@ -4283,7 +4288,7 @@ snapshots:
 
   deep-extend@0.6.0: {}
 
-  deepmerge@4.3.1: {}
+  deepmerge@4.3.1(patch_hash=woqqqyurvrm6s4v6eocim453km): {}
 
   define-data-property@1.1.4:
     dependencies:
@@ -5516,7 +5521,7 @@ snapshots:
       '@clack/prompts': 1.8.1
       cli-truncate: 6.1.1
       commander: 15.1.0
-      deepmerge: 4.3.1
+      deepmerge: 4.3.1(patch_hash=woqqqyurvrm6s4v6eocim453km)
       empathic: 2.1.0
       execa: 10.2.0
       fast-glob: 3.3.3

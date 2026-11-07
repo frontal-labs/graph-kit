@@ -1,0 +1,47 @@
+diff --git a/dist/cjs.js b/dist/cjs.js
+index 7c36cbdd06cc22c92d590be3f87a08a91ca06b40..565c8a5791bd28835dcb9789de951e6af0914c86 100644
+--- a/dist/cjs.js
++++ b/dist/cjs.js
+@@ -76,15 +76,23 @@ function propertyIsUnsafe(target, key) {
+ 			&& Object.propertyIsEnumerable.call(target, key)) // and also unsafe if they're nonenumerable.
+ }
+ 
++// Keys that would reach Object.prototype through assignment are never copied
++function isPrototypeKey(key) {
++	return key === "__proto__" || key === "constructor" || key === "prototype"
++}
++
+ function mergeObject(target, source, options) {
+ 	var destination = {};
+ 	if (options.isMergeableObject(target)) {
+ 		getKeys(target).forEach(function(key) {
++			if (isPrototypeKey(key)) {
++				return
++			}
+ 			destination[key] = cloneUnlessOtherwiseSpecified(target[key], options);
+ 		});
+ 	}
+ 	getKeys(source).forEach(function(key) {
+-		if (propertyIsUnsafe(target, key)) {
++		if (isPrototypeKey(key) || propertyIsUnsafe(target, key)) {
+ 			return
+ 		}
+ 
+diff --git a/dist/umd.js b/dist/umd.js
+index 4071e7c56ec8e5273fe166f6e723ac460fab8b72..1de4f573b609033c3a53ffb0b485af09a1371fd3 100644
+--- a/dist/umd.js
++++ b/dist/umd.js
+@@ -80,7 +80,12 @@
+ 				&& Object.propertyIsEnumerable.call(target, key)) // and also unsafe if they're nonenumerable.
+ 	}
+ 
+-	function mergeObject(target, source, options) {
++	// Keys that would reach Object.prototype through assignment are never copied
++function isPrototypeKey(key) {
++	return key === "__proto__" || key === "constructor" || key === "prototype"
++}
++
++function mergeObject(target, source, options) {
+ 		var destination = {};
+ 		if (options.isMergeableObject(target)) {
+ 			getKeys(target).forEach(function(key) {
