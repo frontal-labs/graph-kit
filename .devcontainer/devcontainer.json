@@ -1,5 +1,5 @@
 {
-  "name": "Metal OGM Development",
+  "name": "Graph-OM Development",
   "build": {
     "dockerfile": "Dockerfile",
     "context": ".."
@@ -47,5 +47,5 @@
   "forwardPorts": [7687, 7474, 3000],
   "postCreateCommand": "pnpm install && pnpm build",
   "remoteUser": "node",
-  "workspaceFolder": "/workspaces/metal"
+  "workspaceFolder": "/workspaces/graph-om"
 }

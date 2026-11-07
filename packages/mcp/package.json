@@ -1,0 +1,59 @@
+{
+  "name": "@graph-om/mcp",
+  "version": "1.0.0",
+  "description": "Graph-OM MCP (Model Context Protocol) server",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/frontal-labs/graph-om.git",
+    "directory": "packages/mcp"
+  },
+  "homepage": "https://github.com/frontal-labs/graph-om/tree/master/packages/mcp#readme",
+  "bugs": {
+    "url": "https://github.com/frontal-labs/graph-om/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "graph-om",
+    "graph-database"
+  ],
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "clean": "rm -rf dist .turbo coverage",
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:ci": "vitest run --reporter=verbose",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0"
+  },
+  "devDependencies": {
+    "@graph-om/graph-om": "workspace:*",
+    "@types/node": "^20.10.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

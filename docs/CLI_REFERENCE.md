@@ -1,10 +1,10 @@
 # CLI Reference
 
-The Metal CLI (`@metal/cli`) provides `metal init` and `metal generate` commands.
+The Graph-OM CLI (`@graph-om/cli`) provides `graph-om init` and `graph-om generate` commands.
 
 ## Installation
 
-The CLI is installed as part of the Metal monorepo:
+The CLI is installed as part of the Graph-OM monorepo:
 
 ```bash
 pnpm install
@@ -13,15 +13,15 @@ pnpm install
 Or for a standalone project:
 
 ```bash
-pnpm add @metal/cli
+pnpm add @graph-om/cli
 ```
 
-## `metal init <directory>`
+## `graph-om init <directory>`
 
-Scaffolds a new Metal project.
+Scaffolds a new Graph-OM project.
 
 ```
-metal init <directory> [--database <type>]
+graph-om init <directory> [--database <type>]
 ```
 
 | Argument | Description | Default |
@@ -34,11 +34,11 @@ metal init <directory> [--database <type>]
 
 **Generated files:**
 
-- `package.json` — Project manifest with Metal dependencies
+- `package.json` — Project manifest with Graph-OM dependencies
 - `tsconfig.json` — TypeScript configuration
 - `src/schema.ts` — Graph schema definition
 - `src/index.ts` — Application entrypoint
-- `metal.config.ts` — Metal configuration
+- `graph-om.config.ts` — Graph-OM configuration
 - `.env.example` — Environment variable template
 
 **Next steps after init:**
@@ -51,12 +51,12 @@ cp .env.example .env
 npx tsx src/index.ts
 ```
 
-## `metal generate`
+## `graph-om generate`
 
 Generates types and client code from your schema.
 
 ```
-metal generate [--watch]
+graph-om generate [--watch]
 ```
 
 | Option | Description |
@@ -82,7 +82,7 @@ export interface User {
 }
 
 // src/__generated__/client.ts
-export async function createClient(config?: ClientConfig): Promise<MetalClient> {
+export async function createClient(config?: ClientConfig): Promise<GraphClient> {
   const driver = createNeo4jDriver({
     uri: config.uri || env.NEO4J_URI,
     username: config.username || env.NEO4J_USER,
@@ -90,7 +90,7 @@ export async function createClient(config?: ClientConfig): Promise<MetalClient> 
     database: config.database,
   });
   await driver.connect();
-  const client = new MetalClient(driver, nodeConfigs);
+  const client = new GraphClient(driver, nodeConfigs);
   return client;
 }
 ```
@@ -98,7 +98,7 @@ export async function createClient(config?: ClientConfig): Promise<MetalClient> 
 ## Programmatic API
 
 ```ts
-import { createProgram } from '@metal/cli';
+import { createProgram } from '@graph-om/cli';
 
 const program = createProgram();
 program.parse();

@@ -8,8 +8,8 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
-  external: ['zod', '@metal/core'],
+  external: ['zod', '@graph-om/core'],
   banner: {
-    js: '// @metal/zod - Zod validation integration for Metal OGM',
+    js: '// @graph-om/zod - Zod validation integration for Graph-OM',
   },
 });

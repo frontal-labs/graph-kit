@@ -1,5 +1,5 @@
-// @metal/zod/src/index.ts
-// Zod validation integration for Metal
+// @graph-om/zod/src/index.ts
+// Zod validation integration for Graph-OM
 
 import type {
   CreateInput,
@@ -7,7 +7,7 @@ import type {
   PropertyConfig,
   PropertyType,
   UpdateInput,
-} from '@metal/core';
+} from '@graph-om/core';
 import { z } from 'zod';
 
 type PropertyTypeToZodType<T extends PropertyType> = T extends 'string'

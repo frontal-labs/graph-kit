@@ -1,13 +1,13 @@
 # Configuration
 
-Metal configuration is centered around `defineConfig` and environment variables loaded via `env`.
+Graph-OM configuration is centered around `defineConfig` and environment variables loaded via `env`.
 
 ## defineConfig
 
-`defineConfig` is an identity function that provides type-safety for your Metal project configuration. It does not perform validation at runtime — validation happens through the `env` object.
+`defineConfig` is an identity function that provides type-safety for your Graph-OM project configuration. It does not perform validation at runtime — validation happens through the `env` object.
 
 ```ts
-import { defineConfig, env } from '@metal/core';
+import { defineConfig, env } from '@graph-om/core';
 
 export default defineConfig({
   schema: './src/schema.ts',
@@ -24,29 +24,29 @@ export default defineConfig({
     maxConnectionLifetime: undefined,
     maxTransactionRetryTime: undefined,
   },
-  debug: env.METAL_DEBUG,
+  debug: env.GRAPH_OM_DEBUG,
   exclude: [],
 });
 ```
 
-## MetalConfig
+## GraphConfig
 
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `schema` | string | Yes | Path to your schema file |
-| `output` | MetalOutputConfig | No | Output configuration |
-| `driver` | MetalDriverConfig | No | Database driver configuration |
+| `output` | GraphOutputConfig | No | Output configuration |
+| `driver` | GraphDriverConfig | No | Database driver configuration |
 | `debug` | boolean | No | Enable debug logging |
 | `exclude` | string[] | No | Glob patterns to exclude from generation |
 
-### MetalOutputConfig
+### GraphOutputConfig
 
 | Field | Type | Default | Description |
 |---|---|---|---|
 | `directory` | string | `./src/__generated__` | Output directory for generated files |
 | `zod` | boolean | `false` | Generate zod schemas alongside types |
 
-### MetalDriverConfig
+### GraphDriverConfig
 
 | Field | Type | Required | Description |
 |---|---|---|---|
@@ -63,14 +63,14 @@ export default defineConfig({
 All environment variables are parsed and validated by `@t3-oss/env-core` + zod. See `packages/core/src/config/keys.ts` for the full schema.
 
 ```ts
-import { env } from '@metal/core';
+import { env } from '@graph-om/core';
 
 // All values are typed and have defaults where applicable
 env.NEO4J_URI;        // string
 env.NEO4J_USER;       // string
 env.NEO4J_PASSWORD;   // string
-env.NEO4J_DATABASE;   // string \| undefined
-env.METAL_DEBUG;      // boolean
+env.NEO4J_DATABASE;   // string | undefined
+env.GRAPH_OM_DEBUG;   // boolean
 ```
 
 Create a `.env` file in your project root:
@@ -80,17 +80,17 @@ NEO4J_URI=bolt://localhost:7687
 NEO4J_USER=neo4j
 NEO4J_PASSWORD=password
 NEO4J_DATABASE=neo4j
-METAL_DEBUG=false
+GRAPH_OM_DEBUG=false
 ```
 
-Copy `.env.example` to `.env` after running `metal init`.
+Copy `.env.example` to `.env` after running `graph-om init`.
 
 ## resolveConfig
 
-`resolveConfig` takes a `MetalConfig` and returns a fully-resolved config with defaults applied:
+`resolveConfig` takes a `GraphConfig` and returns a fully-resolved config with defaults applied:
 
 ```ts
-import { resolveConfig } from '@metal/core';
+import { resolveConfig } from '@graph-om/core';
 
 const config = resolveConfig({
   schema: './src/schema.ts',
@@ -110,13 +110,13 @@ const config = resolveConfig({
 
 `loadConfig` attempts to load a config file from the project root. Supported formats:
 
-- `metal.config.ts`
-- `metal.config.mjs`
-- `metal.config.js`
-- `metal.config.json`
+- `graph-om.config.ts`
+- `graph-om.config.mjs`
+- `graph-om.config.js`
+- `graph-om.config.json`
 
 ```ts
-import { loadConfig } from '@metal/core';
+import { loadConfig } from '@graph-om/core';
 
 const config = await loadConfig(); // or loadConfig('/path/to/project')
 ```

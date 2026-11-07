@@ -41,6 +41,14 @@
       "dependsOn": ["^build"],
       "cache": true,
       "outputs": [".turbo/**"]
+    },
+    "benchmark": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "benchmark:ci": {
+      "dependsOn": ["build"],
+      "cache": false
     }
   },
   "globalEnv": ["NODE_ENV", "NEO4J_URI", "NEO4J_USER", "NEO4J_PASSWORD"]

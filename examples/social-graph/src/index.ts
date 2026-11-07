@@ -1,8 +1,28 @@
 // index.ts - Social Graph Example
-// Demonstrates all major features of the Metal OGM library
+// Basic getting started example for Graph-OM
+//
+// For more comprehensive examples, see:
+// - src/comprehensive.ts  - All features in one file
+// - src/pagination.ts     - Pagination techniques
+// - src/aggregations.ts   - Aggregation operations
+// - src/includes.ts       - Complex relationship loading
+// - src/transactions.ts   - Transaction patterns
+// - src/graphql.ts        - GraphQL integration
+// - src/testing.ts        - Testing with mock driver
+// - src/migrations.ts     - Schema migrations
+//
+// Run examples with:
+//   pnpm start:comprehensive
+//   pnpm start:pagination
+//   pnpm start:aggregations
+//   pnpm start:includes
+//   pnpm start:transactions
+//   pnpm start:graphql
+//   pnpm start:testing
+//   pnpm start:migrations
 
-import { MetalClient } from '@metal/core';
-import { createNeo4jDriver } from '@metal/neo4j-driver';
+import { GraphClient } from '@graph-om/core';
+import { createNeo4jDriver } from '@graph-om/neo4j';
 import { graph } from './schema.js';
 
 const URI = process.env.NEO4J_URI || 'bolt://localhost:7687';
@@ -28,7 +48,7 @@ type PostRow = {
 async function main() {
   const driver = createNeo4jDriver({ uri: URI, username: USER, password: PASSWORD });
   await driver.connect();
-  const client = new MetalClient(driver, graph);
+  const client = new GraphClient(driver, graph);
 
   // 1. Find all users
   const allUsers = await client.findMany<UserRow>('User', { limit: 10 });
@@ -63,7 +83,7 @@ async function main() {
   });
   console.log(
     `\n6. Alice's network (up to 3 hops):`,
-    network.map((n) => String(n['name'])).join(' -> '),
+    network.map((n) => String(n.name)).join(' -> '),
   );
 
   // 7. Update a user

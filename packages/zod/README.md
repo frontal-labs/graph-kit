@@ -1,9 +1,9 @@
-# @metal/zod
+# @graph-om/zod
 
-Zod validation integration for Metal OGM. Converts `NodeConfig` objects into Zod schemas and provides create/update validators.
+Zod validation integration for Graph-OM. Converts `NodeConfig` objects into Zod schemas and provides create/update validators.
 
 ```ts
-import { toZodSchema, toCreateSchema, toUpdateSchema, validateCreate, validateUpdate, validationHooks } from '@metal/zod';
+import { toZodSchema, toCreateSchema, toUpdateSchema, validateCreate, validateUpdate, validationHooks } from '@graph-om/zod';
 import { User } from './schema.js';
 
 const schema = toZodSchema(User);

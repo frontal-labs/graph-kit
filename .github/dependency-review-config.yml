@@ -1,0 +1,56 @@
+# Dependency Review Configuration
+
+# Severity levels that will fail the review
+fail-on-severity: high
+
+# Allow list for known safe packages
+allow:
+  # TypeScript and build tools
+  - "typescript"
+  - "tsup"
+  - "vitest"
+  - "@types/node"
+  
+  # Linting
+  - "@biomejs/biome"
+  - "ultracite"
+  
+  # Testing
+  - "vitest"
+  - "@vitest/coverage-v8"
+  
+  # Neo4j driver
+  - "neo4j-driver"
+  
+  # Zod validation
+  - "zod"
+  
+  # Environment config
+  - "@t3-oss/env-core"
+  
+  # CLI
+  - "commander"
+  
+  # Release management
+  - "@changesets/cli"
+  
+  # Turbo
+  - "turbo"
+  
+  # Git hooks
+  - "husky"
+
+# Deny list for known problematic packages
+deny: []
+
+# License configuration
+licenses:
+  allowed:
+    - MIT
+    - Apache-2.0
+    - BSD-2-Clause
+    - BSD-3-Clause
+    - ISC
+    - CC0-1.0
+    - Unlicense
+  denied: []

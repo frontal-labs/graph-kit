@@ -1,25 +1,37 @@
 {
   "name": "example-social-graph",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "start": "tsx src/index.ts",
+    "start:comprehensive": "tsx src/comprehensive.ts",
+    "start:pagination": "tsx src/pagination.ts",
+    "start:aggregations": "tsx src/aggregations.ts",
+    "start:includes": "tsx src/includes.ts",
+    "start:transactions": "tsx src/transactions.ts",
+    "start:graphql": "tsx src/graphql.ts",
+    "start:testing": "tsx src/testing.ts",
+    "start:migrations": "tsx src/migrations.ts",
     "seed": "tsx src/seed.ts",
-    "generate": "metal generate",
+    "generate": "graph-om generate",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf .turbo"
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "clean": "rm -rf .turbo dist"
   },
   "dependencies": {
-    "@metal/core": "workspace:*",
-    "@metal/neo4j-driver": "workspace:*",
-    "@metal/zod": "workspace:*",
+    "@graph-om/graph-om": "workspace:*",
+    "@graph-om/neo4j": "workspace:*",
+    "@graph-om/zod": "workspace:*",
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@metal/cli": "workspace:*",
+    "@graph-om/cli": "workspace:*",
     "tsx": "^4.0.0",
     "typescript": "^5.3.0",
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "vitest": "^1.0.0",
+    "@apollo/server": "^4.0.0"
   }
 }

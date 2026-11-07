@@ -13,9 +13,9 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
-  external: ['@metal/core', '@metal/neo4j-driver'],
+  external: ['@graph-om/core', '@graph-om/neo4j'],
   banner: { js: '#!/usr/bin/env node' },
   define: {
-    __METAL_CLI_VERSION__: JSON.stringify(pkg.version),
+    __GRAPH_OM_CLI_VERSION__: JSON.stringify(pkg.version),
   },
 });

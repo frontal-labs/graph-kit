@@ -5,7 +5,16 @@
     "moduleResolution": "NodeNext",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@graph-om/graph-om": ["../../packages/graph-om/src/index.ts"],
+      "@graph-om/neo4j": ["../../packages/neo4j/src/index.ts"],
+      "@graph-om/zod": ["../../packages/zod/src/index.ts"],
+      "@graph-om/testing": ["../../packages/testing/src/index.ts"],
+      "@graph-om/migrate": ["../../packages/migrate/src/index.ts"],
+      "@graph-om/graphql": ["../../packages/graph-om/src/graphql/index.ts"]
+    }
   },
   "include": ["src"]
 }

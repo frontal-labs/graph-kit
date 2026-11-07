@@ -2,9 +2,9 @@
 ARG NODE_VERSION=20
 FROM node:${NODE_VERSION}-slim AS base
 
-LABEL org.opencontainers.image.description="Metal OGM - Prisma-like DX for graph databases"
-LABEL org.opencontainers.image.url="https://github.com/gabrielvfonseca/metal"
-LABEL org.opencontainers.image.source="https://github.com/gabrielvfonseca/metal.git"
+LABEL org.opencontainers.image.description="Graph-OM - Prisma-like DX for graph databases"
+LABEL org.opencontainers.image.url="https://github.com/frontal-labs/graph-om"
+LABEL org.opencontainers.image.source="https://github.com/frontal-labs/graph-om.git"
 
 WORKDIR /app
 
@@ -48,7 +48,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 RUN addgroup --system --gid 1001 nodejs \
-    && adduser --system --uid 1001 metal
+    && adduser --system --uid 1001 graph-om
 
 COPY --from=builder /app/packages ./packages
 COPY --from=builder /app/cli ./cli
@@ -57,7 +57,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
-USER metal
+USER graph-om
 
 EXPOSE 3000
 

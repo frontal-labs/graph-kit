@@ -1,16 +1,20 @@
-// @metal/cli/src/index.ts
+// @graph-om/cli/src/index.ts
 // CLI entry point
 
 import { Command } from 'commander';
+import { createDiffCommand } from './commands/diff.js';
 import { generateCommand } from './commands/generate.js';
 import { initCommand } from './commands/init.js';
+import { createMigrateCommand } from './commands/migrate.js';
+import { createSeedCommand } from './commands/seed.js';
+import { createStudioCommand } from './commands/studio.js';
 
 // Injected at build time by tsup; falls back in dev/test.
-declare const __METAL_CLI_VERSION__: string | undefined;
+declare const __GRAPH_OM_CLI_VERSION__: string | undefined;
 
 function readPackageVersion(): string {
   try {
-    return typeof __METAL_CLI_VERSION__ !== 'undefined' ? __METAL_CLI_VERSION__ : '0.0.0';
+    return typeof __GRAPH_OM_CLI_VERSION__ !== 'undefined' ? __GRAPH_OM_CLI_VERSION__ : '0.0.0';
   } catch {
     return '0.0.0';
   }
@@ -20,13 +24,13 @@ export function createProgram(): Command {
   const program = new Command();
 
   program
-    .name('metal')
-    .description('Metal OGM - Prisma-like DX for graph databases')
+    .name('graph-om')
+    .description('Graph-OM - Prisma-like DX for graph databases')
     .version(readPackageVersion());
 
   program
     .command('init')
-    .description('Initialize a new Metal project')
+    .description('Initialize a new Graph-OM project')
     .argument('[directory]', 'Project directory', '.')
     .option('--database <type>', 'Database type (neo4j)', 'neo4j')
     .action(initCommand);
@@ -37,13 +41,18 @@ export function createProgram(): Command {
     .option('--watch', 'Watch mode for auto-generation')
     .action(generateCommand);
 
+  program.addCommand(createMigrateCommand());
+  program.addCommand(createSeedCommand());
+  program.addCommand(createStudioCommand());
+  program.addCommand(createDiffCommand());
+
   return program;
 }
 
 function isExecutedDirectly(): boolean {
   const entry = process.argv[1];
   if (!entry) return false;
-  return /[\\/]metal$/.test(entry) || /[\\/]index\.(mjs|cjs|js)$/.test(entry);
+  return /[\\/]graph-om$/.test(entry) || /[\\/]index\.(mjs|cjs|js)$/.test(entry);
 }
 
 if (isExecutedDirectly()) {

@@ -1,43 +1,47 @@
-# Metal
+# GraphOM
 
-**Prisma-like DX for graph databases.** Metal is a TypeScript OGM (Object Graph Mapper) for Neo4j — a fluent schema builder, a typed client, a Cypher query compiler, and first-class codegen.
+![Frontal Banner](./banner.jpg)
+
+**A modern, type-safe data access layer for graph databases.**
+
+A schema-first TypeScript library for modelling, querying, and traversing graph data. It provides a fluent API, strong type inference, and a powerful query builder to make graph database development more predictable and enjoyable, without sacrificing the flexibility of native graph queries.
 
 ```
 ┌──────────────┐     ┌───────────────┐     ┌──────────────────┐
-│  schema.ts   │────▶│  metal CLI    │────▶│ __generated__/   │
+│  schema.ts   │────▶│  graph CLI    │────▶│ __generated__/   │
 │ (node(),     │     │  generate     │     │  types.ts        │
 │  relation()) │     └───────────────┘     │  client.ts       │
 └──────────────┘                           │  zod.ts          │
        │                                   └──────────────────┘
-       ▼                                          │
-┌──────────────┐     ┌───────────────┐            ▼
-│ @metal/core  │────▶│ DriverAdapter │◀─── MetalClient(driver, nodes)
-│ QueryCompiler│     └───────────────┘
-└──────────────┘            ▲
+       ▼                                            │
+┌────────────────┐     ┌───────────────┐            ▼
+│ @graph-om/core │────▶│ DriverAdapter │◀─── GraphClient(driver, nodes)
+│ QueryCompiler  │     └───────────────┘
+└────────────────┘            ▲
                             │
-                  ┌───────────────────┐
-                  │ @metal/neo4j-driver│
-                  └───────────────────┘
+                  ┌────────────────────────┐
+                  │ @graph-om/neo4j        │
+                  └────────────────────────┘
 ```
 
 ## Packages
 
 | Package | Description |
 | --- | --- |
-| [`@metal/core`](./packages/core) | Schema DSL, Cypher query compiler, typed client, config system |
-| [`@metal/cli`](./cli) | `metal init` and `metal generate` codegen |
-| [`@metal/neo4j-driver`](./packages/neo4j-driver) | Neo4j driver adapter implementing `DriverAdapter` |
-| [`@metal/zod`](./packages/zod) | Zod schema generation and validation from node configs |
+| [`@graph-om/core`](./packages/core) | Schema DSL, Cypher query compiler, typed client, config system |
+| [`@graph-om/cli`](./cli) | `graph init` and `graph generate` codegen |
+| [`@graph-om/neo4j`](./adapters/neo4j) | Neo4j driver adapter implementing `DriverAdapter` |
+| [`@graph-om/zod`](./packages/zod) | Zod schema generation and validation from node configs |
 
 ## Quick start
 
 ```bash
 # scaffold a project
-npx @metal/cli init my-graph
+npx @graph-om/cli init my-graph
 cd my-graph
 pnpm install          # or npm / yarn
 cp .env.example .env  # set NEO4J_URI / NEO4J_USER / NEO4J_PASSWORD
-npx metal generate
+npx graph generate
 npx tsx src/index.ts
 ```
 
@@ -45,7 +49,7 @@ npx tsx src/index.ts
 
 ```ts
 // src/schema.ts
-import { node, relation, schema as sch, string, boolean, date } from '@metal/core';
+import { node, relation, schema as sch, string, boolean, date } from '@graph-om/core';
 
 export const User = node('User')
   .add('id', string({ primary: true }))
@@ -67,8 +71,8 @@ export const graph = sch().add('User', User).add('Post', Post).build();
 ### Query the graph
 
 ```ts
-import { MetalClient } from '@metal/core';
-import { createNeo4jDriver } from '@metal/neo4j-driver';
+import { GraphClient } from '@graph-om/core';
+import { createNeo4jDriver } from '@graph-om/neo4j';
 import { graph } from './schema.js';
 
 const driver = createNeo4jDriver({
@@ -77,7 +81,7 @@ const driver = createNeo4jDriver({
   password: process.env.NEO4J_PASSWORD!,
 });
 await driver.connect();
-const client = new MetalClient(driver, graph);
+const client = new GraphClient(driver, graph);
 
 const users = await client.findMany('User', {
   where: { name: { contains: 'Ali' } },
@@ -110,7 +114,7 @@ await client.transaction(async (tx) => {
 ### Validate with Zod
 
 ```ts
-import { toCreateSchema, validateCreate } from '@metal/zod';
+import { toCreateSchema, validateCreate } from '@graph-om/zod';
 import { User } from './schema.js';
 
 const result = validateCreate(User, { id: '1', name: 'Alice' });
@@ -119,10 +123,10 @@ if (!result.success) console.error(result.error.flatten());
 
 ## Configuration
 
-`metal.config.ts` drives codegen:
+`graph.config.ts` drives codegen:
 
 ```ts
-import { defineConfig } from '@metal/core';
+import { defineConfig } from '@graph-om/core';
 
 export default defineConfig({
   schema: './src/schema.ts',
@@ -176,4 +180,4 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
 
-[MIT](./LICENSE) © Gabriel Fonseca
+Apache 2.0

@@ -1,12 +1,12 @@
-# Contributing to Metal
+# Contributing to Graph-OM
 
 Thanks for your interest in contributing!
 
 ## Getting started
 
 ```bash
-git clone https://github.com/gabrielvfonseca/metal.git
-cd metal
+git clone https://github.com/frontal-labs/graph-om.git
+cd graph-om
 pnpm install
 pnpm build
 pnpm test
@@ -36,8 +36,11 @@ Requirements: **Node.js ≥ 20** and **pnpm 9** (`corepack enable` recommended).
 ## Project layout
 
 - `packages/core` — schema DSL, Cypher compiler, client, config
-- `cli` — `metal init` / `metal generate`
-- `packages/neo4j-driver` — Neo4j `DriverAdapter`
+- `cli` — `graph-om init` / `graph-om generate`
+- `adapters/neo4j` — Neo4j `DriverAdapter`
+- `adapters/memgraph` — Memgraph `DriverAdapter`
+- `adapters/falkordb` — FalkorDB `DriverAdapter`
+- `adapters/arangodb` — ArangoDB `DriverAdapter`
 - `packages/zod` — Zod validation integration
 - `examples/social-graph` — end-to-end example app
 

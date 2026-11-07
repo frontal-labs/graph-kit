@@ -173,12 +173,12 @@ describe('validationHooks', () => {
   it('creates beforeCreate hook', () => {
     const hooks = validationHooks(mockNodeConfig);
     expect(hooks.beforeCreate).toBeDefined();
-    expect(() => hooks.beforeCreate!({})).toThrow();
+    expect(() => hooks.beforeCreate?.({})).toThrow();
   });
 
   it('beforeCreate validates and returns data', () => {
     const hooks = validationHooks(mockNodeConfig);
-    const data = hooks.beforeCreate!({
+    const data = hooks.beforeCreate?.({
       id: 'abc',
       name: 'Alice',
       email: 'alice@test.com',

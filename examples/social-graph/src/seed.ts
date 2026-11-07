@@ -1,7 +1,7 @@
 // seed.ts - Seed the social graph database
 
-import { MetalClient } from '@metal/core';
-import { createNeo4jDriver } from '@metal/neo4j-driver';
+import { GraphClient } from '@graph-om/core';
+import { createNeo4jDriver } from '@graph-om/neo4j';
 import { graph } from './schema.js';
 
 const URI = process.env.NEO4J_URI || 'bolt://localhost:7687';
@@ -11,7 +11,7 @@ const PASSWORD = process.env.NEO4J_PASSWORD || 'password';
 async function seed() {
   const driver = createNeo4jDriver({ uri: URI, username: USER, password: PASSWORD });
   await driver.connect();
-  const client = new MetalClient(driver, graph);
+  const client = new GraphClient(driver, graph);
 
   console.log('Seeding social graph...');
 
@@ -41,7 +41,7 @@ async function seed() {
   console.log('Created follow relationships');
 
   // Create posts
-  const post1 = await client.create('Post', {
+  const _post1 = await client.create('Post', {
     data: {
       id: 'post-1',
       title: 'Graph Databases 101',
@@ -49,7 +49,7 @@ async function seed() {
       published: true,
     },
   });
-  const post2 = await client.create('Post', {
+  const _post2 = await client.create('Post', {
     data: {
       id: 'post-2',
       title: 'Cypher Query Tips',
@@ -57,7 +57,7 @@ async function seed() {
       published: true,
     },
   });
-  const post3 = await client.create('Post', {
+  const _post3 = await client.create('Post', {
     data: { id: 'post-3', title: 'Draft Post', content: 'Not yet published', published: false },
   });
 

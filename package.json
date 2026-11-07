@@ -1,12 +1,12 @@
 {
-  "name": "metal",
-  "version": "0.1.0",
+  "name": "graph-om",
+  "version": "1.0.0",
   "private": true,
-  "description": "Metal - Prisma-like DX for graph databases (monorepo)",
+  "description": "Graph-OM - Prisma-like DX for graph databases (monorepo)",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/gabrielvfonseca/metal.git"
+    "url": "https://github.com/frontal-labs/graph-om.git"
   },
   "scripts": {
     "prepare": "husky",
@@ -18,6 +18,8 @@
     "test:coverage": "turbo run test:coverage",
     "test:root": "vitest run",
     "test:root:ci": "vitest run --reporter=verbose",
+    "benchmark": "node -e \"require('@graph-om/graph-om/benchmark').runCIOBenchmarks(require('@graph-om/neo4j').createNeo4jDriver({uri:process.env.NEO4J_URI,username:process.env.NEO4J_USER,password:process.env.NEO4J_PASSWORD}))\"",
+    "benchmark:ci": "node -e \"require('@graph-om/graph-om/benchmark').runCIOBenchmarks(require('@graph-om/neo4j').createNeo4jDriver({uri:process.env.NEO4J_URI,username:process.env.NEO4J_USER,password:process.env.NEO4J_PASSWORD}),{threshold:20,failOnRegression:true,outputFormat:'github-actions'})\"",
     "lint": "ultracite check",
     "typecheck": "turbo run typecheck",
     "format": "ultracite fix",

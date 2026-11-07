@@ -1,16 +1,20 @@
-# Metal — Prisma-like DX for Graph Databases
+# Graph-OM — Prisma-like DX for Graph Databases
 
-Metal is a TypeScript OGM (Object-Graph Mapper) for graph databases, starting with Neo4j. It provides a schema DSL, Cypher query compiler, type-safe client, and CLI tooling for init and code generation.
+Graph-OM is a TypeScript OGM (Object-Graph Mapper) for graph databases, starting with Neo4j. It provides a schema DSL, Cypher query compiler, type-safe client, and CLI tooling for init and code generation.
 
 ## Project Layout
 
 ```
-metal/
-├── cli/                  # @metal/cli — metal init / metal generate
+graph-om/
+├── cli/                  # @graph-om/cli — graph-om init / graph-om generate
 ├── packages/
-│   ├── core/             # @metal/core — schema DSL, Cypher compiler, client, config
-│   ├── neo4j-driver/     # @metal/neo4j-driver — Neo4j DriverAdapter
-│   └── zod/              # @metal/zod — Zod validation integration
+│   ├── core/             # @graph-om/core — schema DSL, Cypher compiler, client, config
+│   └── zod/              # @graph-om/zod — Zod validation integration
+├── adapters/
+│   ├── neo4j/            # @graph-om/neo4j — Neo4j DriverAdapter
+│   ├── memgraph/         # @graph-om/memgraph — Memgraph DriverAdapter
+│   ├── falkordb/         # @graph-om/falkordb — FalkorDB DriverAdapter
+│   └── arangodb/         # @graph-om/arangodb — ArangoDB DriverAdapter
 ├── examples/
 │   └── social-graph/     # End-to-end example app
 ├── docs/                 # This documentation
@@ -31,8 +35,8 @@ metal/
 ### Installation
 
 ```bash
-git clone https://github.com/gabrielvfonseca/metal.git
-cd metal
+git clone https://github.com/frontal-labs/graph-om.git
+cd graph-om
 pnpm install
 pnpm build
 ```
@@ -40,7 +44,7 @@ pnpm build
 ### Initialize a New Project
 
 ```bash
-npx @metal/cli init my-graph
+npx @graph-om/cli init my-graph
 cd my-graph
 pnpm install
 cp .env.example .env
@@ -53,16 +57,16 @@ npx tsx src/index.ts
 
 ### Environment Variables
 
-All environment variables are validated through `@t3-oss/env-core` + zod in `packages/core/src/config/keys.ts`. Export `env` from `@metal/core`:
+All environment variables are validated through `@t3-oss/env-core` + zod in `packages/core/src/config/keys.ts`. Export `env` from `@graph-om/core`:
 
 ```ts
-import { env } from '@metal/core';
+import { env } from '@graph-om/core';
 
 console.log(env.NEO4J_URI);      // bolt://localhost:7687 (default)
 console.log(env.NEO4J_USER);     // neo4j (default)
 console.log(env.NEO4J_PASSWORD); // password (default)
 console.log(env.NEO4J_DATABASE); // optional
-console.log(env.METAL_DEBUG);    // boolean, from METAL_DEBUG=true
+console.log(env.GRAPH_OM_DEBUG);    // boolean, from GRAPH_OM_DEBUG=true
 ```
 
 | Variable | Type | Default | Required |
@@ -71,12 +75,12 @@ console.log(env.METAL_DEBUG);    // boolean, from METAL_DEBUG=true
 | `NEO4J_USER` | string | `neo4j` | No |
 | `NEO4J_PASSWORD` | string | `password` | No |
 | `NEO4J_DATABASE` | string \| undefined | `undefined` | No |
-| `METAL_DEBUG` | boolean | `false` | No |
+| `GRAPH_OM_DEBUG` | boolean | `false` | No |
 
-### metal.config.ts
+### graph-om.config.ts
 
 ```ts
-import { defineConfig, env } from '@metal/core';
+import { defineConfig, env } from '@graph-om/core';
 
 export default defineConfig({
   schema: './src/schema.ts',
@@ -91,7 +95,7 @@ export default defineConfig({
     password: env.NEO4J_PASSWORD,
     database: env.NEO4J_DATABASE,
   },
-  debug: env.METAL_DEBUG,
+  debug: env.GRAPH_OM_DEBUG,
   exclude: [],
 });
 ```
@@ -101,7 +105,7 @@ export default defineConfig({
 Define your graph schema with the `node`, `defineRel`, and `schema` helpers:
 
 ```ts
-import { node, defineRel, schema, string, number, date } from '@metal/core';
+import { node, defineRel, schema, string, number, date } from '@graph-om/core';
 
 const User = node('User')
   .add('id', string({ primary: true }))
@@ -130,8 +134,8 @@ const graph = schema()
 ## Client
 
 ```ts
-import { MetalClient } from '@metal/core';
-import { createNeo4jDriver } from '@metal/neo4j-driver';
+import { GraphClient } from '@graph-om/core';
+import { createNeo4jDriver } from '@graph-om/neo4j';
 import { graph } from './schema.js';
 
 const driver = createNeo4jDriver({
@@ -141,7 +145,7 @@ const driver = createNeo4jDriver({
 });
 await driver.connect();
 
-const client = new MetalClient(driver, graph);
+const client = new GraphClient(driver, graph);
 
 const users = await client.findMany('User', { limit: 10 });
 await client.disconnect();
@@ -149,11 +153,11 @@ await client.disconnect();
 
 ## CLI
 
-### `metal init <directory>`
+### `graph-om init <directory>`
 
-Scaffolds a new Metal project with schema, config, env example, and entrypoint.
+Scaffolds a new Graph-OM project with schema, config, env example, and entrypoint.
 
-### `metal generate`
+### `graph-om generate`
 
 Generates types and client code from your schema. Supports `--watch` for auto-regeneration.
 

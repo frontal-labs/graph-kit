@@ -1,4 +1,4 @@
-// @metal/cli/src/commands/init.ts
+// @graph-om/cli/src/commands/init.ts
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -18,21 +18,21 @@ export async function initCommand(directory: string, _options: InitOptions): Pro
 
   const packageJson = {
     name: path.basename(targetDir),
-    version: '0.1.0',
+    version: '1.0.0',
     private: true,
     type: 'module',
     scripts: {
-      generate: 'metal generate',
-      build: 'metal generate && tsc --noEmit',
+      generate: 'graph-om generate',
+      build: 'graph-om generate && tsc --noEmit',
       start: 'tsx src/index.ts',
       typecheck: 'tsc --noEmit',
     },
     dependencies: {
-      '@metal/core': 'latest',
-      '@metal/neo4j-driver': 'latest',
+      '@graph-om/core': 'latest',
+      '@graph-om/neo4j': 'latest',
     },
     devDependencies: {
-      '@metal/cli': 'latest',
+      '@graph-om/cli': 'latest',
       typescript: '^5.3.0',
       tsx: '^4.0.0',
       '@types/node': '^20.0.0',
@@ -41,7 +41,7 @@ export async function initCommand(directory: string, _options: InitOptions): Pro
 
   fs.writeFileSync(
     path.join(targetDir, 'package.json'),
-    JSON.stringify(packageJson, null, 2) + '\n',
+    `${JSON.stringify(packageJson, null, 2)}\n`,
   );
 
   const tsconfig = {
@@ -57,12 +57,12 @@ export async function initCommand(directory: string, _options: InitOptions): Pro
     include: ['src'],
   };
 
-  fs.writeFileSync(path.join(targetDir, 'tsconfig.json'), JSON.stringify(tsconfig, null, 2) + '\n');
+  fs.writeFileSync(path.join(targetDir, 'tsconfig.json'), `${JSON.stringify(tsconfig, null, 2)}\n`);
 
   fs.mkdirSync(path.join(targetDir, 'src'), { recursive: true });
 
-  const schemaContent = `// metal/schema.ts - Define your graph schema
-import { node, defineRel, schema as sch, string, number, date } from '@metal/core';
+  const schemaContent = `// graph-om/schema.ts - Define your graph schema
+import { node, defineRel, schema as sch, string, number, date } from '@graph-om/core';
 
 export const User = node('User')
   .add('id', string({ primary: true }))
@@ -79,8 +79,8 @@ export const graph = sch()
   fs.writeFileSync(path.join(targetDir, 'src', 'schema.ts'), schemaContent);
 
   const mainContent = `// src/index.ts
-import { MetalClient, env } from '@metal/core';
-import { createNeo4jDriver } from '@metal/neo4j-driver';
+import { GraphClient, env } from '@graph-om/core';
+import { createNeo4jDriver } from '@graph-om/neo4j';
 import { graph } from './schema.js';
 
 async function main() {
@@ -91,7 +91,7 @@ async function main() {
   });
   await driver.connect();
 
-  const client = new MetalClient(driver, graph);
+  const client = new GraphClient(driver, graph);
 
   const users = await client.findMany('User', { limit: 10 });
   console.log('Users:', users);
@@ -107,8 +107,8 @@ main().catch((error) => {
 
   fs.writeFileSync(path.join(targetDir, 'src', 'index.ts'), mainContent);
 
-  // Generate metal.config.ts — the single source of truth for Metal
-  const metalConfigContent = `import { defineConfig, env } from '@metal/core';
+  // Generate graph-om.config.ts — the single source of truth for Graph-OM
+  const graphOmConfigContent = `import { defineConfig, env } from '@graph-om/core';
 
 export default defineConfig({
   schema: './src/schema.ts',
@@ -126,7 +126,7 @@ export default defineConfig({
 });
 `;
 
-  fs.writeFileSync(path.join(targetDir, 'metal.config.ts'), metalConfigContent);
+  fs.writeFileSync(path.join(targetDir, 'graph-om.config.ts'), graphOmConfigContent);
 
   const envContent = `NEO4J_URI=bolt://localhost:7687
 NEO4J_USER=neo4j
@@ -134,12 +134,12 @@ NEO4J_PASSWORD=password
 `;
   fs.writeFileSync(path.join(targetDir, '.env.example'), envContent);
 
-  console.log(`\n✓ Initialized Metal project in "${targetDir}"`);
+  console.log(`\n✓ Initialized Graph-OM project in "${targetDir}"`);
   console.log('\nNext steps:');
-  console.log('  1. cd ' + directory);
+  console.log(`  1. cd ${directory}`);
   console.log('  2. Install dependencies (pnpm install / npm install / yarn)');
   console.log('  3. Copy .env.example to .env and set your Neo4j connection');
   console.log('  4. Edit src/schema.ts to define your graph');
-  console.log('  5. npx metal generate');
+  console.log('  5. npx graph-om generate');
   console.log('  6. npx tsx src/index.ts\n');
 }

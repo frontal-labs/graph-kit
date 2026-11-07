@@ -1,4 +1,4 @@
-// @metal/cli/tests/generate.test.ts
+// @graph-om/cli/tests/generate.test.ts
 
 import fs from 'node:fs';
 import os from 'node:os';
@@ -19,7 +19,7 @@ import {
   runGenerate,
 } from '../src/commands/generate';
 
-const SCHEMA_FIXTURE = `import { node, relation, schema as sch, string, boolean, date } from '@metal/core';
+const SCHEMA_FIXTURE = `import { node, relation, schema as sch, string, boolean, date } from '@graph-om/core';
 
 export const User = node('User')
   .add('id', string({ primary: true }))
@@ -46,7 +46,7 @@ export const graph = sch()
 let tmpDir: string;
 
 beforeAll(() => {
-  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metal-cli-test-'));
+  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graph-om-cli-test-'));
 });
 
 afterAll(() => {
@@ -84,11 +84,12 @@ describe('loadSchema', () => {
     const labels = nodes.map((n) => n.label);
     expect(labels).toEqual(['User', 'Post']);
 
-    const user = nodes.find((n) => n.label === 'User')!;
+    const user = nodes.find((n) => n.label === 'User');
+    if (!user) throw new Error('User node not found');
     expect(user.properties.map((p) => p.name)).toEqual(['id', 'name', 'email', 'bio', 'createdAt']);
-    expect(user.properties.find((p) => p.name === 'id')!.primary).toBe(true);
-    expect(user.properties.find((p) => p.name === 'email')!.unique).toBe(true);
-    expect(user.properties.find((p) => p.name === 'bio')!.nullable).toBe(true);
+    expect(user.properties.find((p) => p.name === 'id')?.primary).toBe(true);
+    expect(user.properties.find((p) => p.name === 'email')?.unique).toBe(true);
+    expect(user.properties.find((p) => p.name === 'bio')?.nullable).toBe(true);
 
     expect(user.relations).toEqual([
       { name: 'posts', type: 'POSTED', direction: 'OUT', target: 'Post', multiple: true },
@@ -106,7 +107,7 @@ describe('loadSchema', () => {
     const schemaPath = path.join(tmpDir, 'schema-multi.ts');
     fs.writeFileSync(
       schemaPath,
-      `import { node, relation, string } from '@metal/core';
+      `import { node, relation, string } from '@graph-om/core';
 export const A = node('A')
   .add('id', string({ primary: true }))
   .add('things', relation('HAS', 'OUT', 'B', { multiple: true }))
@@ -115,8 +116,8 @@ export const A = node('A')
 `,
     );
     const [a] = loadSchema(schemaPath);
-    expect(a!.relations.find((r) => r.name === 'things')!.multiple).toBe(true);
-    expect(a!.relations.find((r) => r.name === 'thing')!.multiple).toBe(false);
+    expect(a?.relations.find((r) => r.name === 'things')?.multiple).toBe(true);
+    expect(a?.relations.find((r) => r.name === 'thing')?.multiple).toBe(false);
   });
 
   it('excludes labels listed in exclude', () => {
@@ -172,7 +173,7 @@ describe('content generators', () => {
 
   it('generateTypesContent is valid-looking TS with WhereOperator import', () => {
     const out = generateTypesContent([node]);
-    expect(out).toContain("import type { WhereOperator } from '@metal/core';");
+    expect(out).toContain("import type { WhereOperator } from '@graph-om/core';");
     expect(out).toContain('export interface UserNode');
     expect(out).toContain('export type UserCreateInput');
   });
@@ -188,10 +189,10 @@ describe('content generators', () => {
 
   it('generateClientContent imports neo4j driver and builds node configs', () => {
     const out = generateClientContent([node]);
-    expect(out).toContain("import { createNeo4jDriver } from '@metal/neo4j-driver';");
+    expect(out).toContain("import { createNeo4jDriver } from '@graph-om/neo4j';");
     expect(out).toContain('export async function createClient');
     expect(out).toContain("label: 'User'");
-    expect(out).not.toContain('MetalClient.connect');
+    expect(out).not.toContain('GraphClient.connect');
   });
 });
 
@@ -205,11 +206,11 @@ describe('loadProjectConfig', () => {
     expect(config.zod).toBe(false);
   });
 
-  it('parses metal.config.ts via regex', () => {
+  it('parses graph-om.config.ts via regex', () => {
     const dir = path.join(tmpDir, 'ts-config');
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(
-      path.join(dir, 'metal.config.ts'),
+      path.join(dir, 'graph-om.config.ts'),
       `export default {
   schema: './graph/schema.ts',
   output: { directory: './out', zod: true },
@@ -223,11 +224,11 @@ describe('loadProjectConfig', () => {
     expect(config.exclude).toEqual(['Internal']);
   });
 
-  it('parses metal.config.json', () => {
+  it('parses graph-om.config.json', () => {
     const dir = path.join(tmpDir, 'json-config');
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(
-      path.join(dir, 'metal.config.json'),
+      path.join(dir, 'graph-om.config.json'),
       JSON.stringify({
         schema: './s.ts',
         output: { directory: './gen', zod: true },
@@ -247,7 +248,7 @@ describe('runGenerate', () => {
     fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
     fs.writeFileSync(path.join(dir, 'src', 'schema.ts'), SCHEMA_FIXTURE);
     fs.writeFileSync(
-      path.join(dir, 'metal.config.ts'),
+      path.join(dir, 'graph-om.config.ts'),
       `export default { schema: './src/schema.ts', output: { directory: './src/__generated__', zod: true } };`,
     );
 

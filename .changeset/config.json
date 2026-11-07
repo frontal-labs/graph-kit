@@ -3,9 +3,25 @@
   "changelog": "@changesets/cli/changelog",
   "commit": false,
   "fixed": [],
-  "linked": [],
+  "linked": [
+    [
+      "@graph-om/graph-om",
+      "@graph-om/cli",
+      "@graph-om/neo4j",
+      "@graph-om/memgraph",
+      "@graph-om/falkordb",
+      "@graph-om/kuzu",
+      "@graph-om/zod",
+      "@graph-om/mcp",
+      "@graph-om/migrate",
+      "@graph-om/testing"
+    ]
+  ],
   "access": "public",
-  "baseBranch": "master",
+  "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["example-social-graph"]
+  "ignore": ["examples/*"],
+  "snapshot": {
+    "useCalculatedVersion": true
+  }
 }

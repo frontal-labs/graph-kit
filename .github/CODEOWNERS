@@ -1,24 +1,24 @@
 # Codeowners
 
 /root config files
-/package.json       @gabrielvfonseca
-/pnpm-lock.yaml     @gabrielvfonseca
-/pnpm-workspace.yaml @gabrielvfonseca
-/tsconfig.base.json @gabrielvfonseca
-/turbo.json         @gabrielvfonseca
-/biome.json         @gabrielvfonseca
-/.github/**         @gabrielvfonseca
+/package.json       @frontal-labs
+/pnpm-lock.yaml     @frontal-labs
+/pnpm-workspace.yaml @frontal-labs
+/tsconfig.base.json @frontal-labs
+/turbo.json         @frontal-labs
+/biome.json         @frontal-labs
+/.github/**         @frontal-labs
 
 # Packages
-/packages/core/     @gabrielvfonseca
-/packages/neo4j-driver/ @gabrielvfonseca
-/packages/zod/      @gabrielvfonseca
+/packages/core/     @frontal-labs
+/adapters/neo4j/    @frontal-labs
+/packages/zod/      @frontal-labs
 
 # CLI
-/cli/               @gabrielvfonseca
+/cli/               @frontal-labs
 
 # Examples
-/examples/          @gabrielvfonseca
+/examples/          @frontal-labs
 
 # Documentation
-/docs/              @gabrielvfonseca
+/docs/              @frontal-labs

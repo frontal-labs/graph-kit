@@ -1,23 +1,23 @@
 {
-  "name": "@metal/zod",
-  "version": "0.1.0",
-  "description": "Zod validation integration for Metal OGM",
+  "name": "@graph-om/zod",
+  "version": "1.0.0",
+  "description": "Zod validation integration for Graph-OM",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/gabrielvfonseca/metal.git",
+    "url": "https://github.com/frontal-labs/graph-om.git",
     "directory": "packages/zod"
   },
-  "homepage": "https://github.com/gabrielvfonseca/metal/tree/master/packages/zod#readme",
+  "homepage": "https://github.com/frontal-labs/graph-om/tree/master/packages/zod#readme",
   "bugs": {
-    "url": "https://github.com/gabrielvfonseca/metal/issues"
+    "url": "https://github.com/frontal-labs/graph-om/issues"
   },
   "keywords": [
     "zod",
     "validation",
     "ogm",
     "neo4j",
-    "metal"
+    "graph-om"
   ],
   "sideEffects": false,
   "files": [
@@ -47,10 +47,10 @@
     "zod": "^3.22.0"
   },
   "peerDependencies": {
-    "@metal/core": "workspace:^"
+    "@graph-om/core": "workspace:^"
   },
   "devDependencies": {
-    "@metal/core": "workspace:*",
+    "@graph-om/core": "workspace:*",
     "@types/node": "^20.10.0",
     "tsup": "^8.0.0",
     "typescript": "^5.3.0",

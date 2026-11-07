@@ -3,8 +3,8 @@
 ## Getting Started
 
 ```bash
-git clone https://github.com/gabrielvfonseca/metal.git
-cd metal
+git clone https://github.com/frontal-labs/graph-om.git
+cd graph-om
 pnpm install
 pnpm build
 pnpm test
@@ -43,10 +43,13 @@ Requirements: Node.js ≥ 20, pnpm 9 (`corepack enable` recommended).
 
 ## Project Layout
 
-- `cli/` — `@metal/cli` — `metal init` / `metal generate`
-- `packages/core/` — `@metal/core` — schema DSL, Cypher compiler, client, config
-- `packages/neo4j-driver/` — `@metal/neo4j-driver` — Neo4j DriverAdapter
-- `packages/zod/` — `@metal/zod` — Zod validation integration
+- `cli/` — `@graph-om/cli` — `graph-om init` / `graph-om generate`
+- `packages/core/` — `@graph-om/core` — schema DSL, Cypher compiler, client, config
+- `adapters/neo4j/` — `@graph-om/neo4j` — Neo4j DriverAdapter
+- `adapters/memgraph/` — `@graph-om/memgraph` — Memgraph DriverAdapter
+- `adapters/falkordb/` — `@graph-om/falkordb` — FalkorDB DriverAdapter
+- `adapters/arangodb/` — `@graph-om/arangodb` — ArangoDB DriverAdapter
+- `packages/zod/` — `@graph-om/zod` — Zod validation integration
 - `examples/social-graph/` — end-to-end example app
 - `docs/` — documentation (uppercase snake_case file names)
 

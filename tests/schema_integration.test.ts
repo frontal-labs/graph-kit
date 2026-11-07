@@ -1,8 +1,8 @@
-// @metal/tests/schema_integration.test.ts
-// Cross-package test: validates @metal/core schema DSL works with @metal/neo4j-driver types
+// @graph-om/tests/schema_integration.test.ts
+// Cross-package test: validates @graph-om/core schema DSL works with @graph-om/neo4j types
 
-import type { DriverAdapter, MetalSchemaRegistry, NodeConfig } from '@metal/core';
-import { boolean, date, defineRel, node, number, schema, string } from '@metal/core';
+import type { DriverAdapter, GraphSchemaRegistry, NodeConfig } from '@graph-om/core';
+import { boolean, date, defineRel, node, number, schema, string } from '@graph-om/core';
 import { describe, expect, it } from 'vitest';
 
 describe('schema DSL + neo4j-driver integration', () => {
@@ -50,8 +50,8 @@ describe('schema DSL + neo4j-driver integration', () => {
 
     expect(graph).toHaveProperty('User');
     expect(graph).toHaveProperty('Post');
-    expect((graph as MetalSchemaRegistry).User.label).toBe('User');
-    expect((graph as MetalSchemaRegistry).Post.label).toBe('Post');
+    expect((graph as GraphSchemaRegistry).User.label).toBe('User');
+    expect((graph as GraphSchemaRegistry).Post.label).toBe('Post');
   });
 
   it('DriverAdapter interface is satisfied by createNeo4jDriver type', () => {

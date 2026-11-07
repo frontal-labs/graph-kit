@@ -1,5 +1,5 @@
-// @metal/tests/env.test.ts
-// Cross-package test: validates @t3-oss/env-core + zod env schema from @metal/core
+// @graph-om/tests/env.test.ts
+// Cross-package test: validates @t3-oss/env-core + zod env schema from @graph-om/core
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
@@ -15,14 +15,14 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('@metal/core env schema', () => {
+describe('@graph-om/core env schema', () => {
   it('applies defaults when env vars are missing', async () => {
     // Clear Neo4j env vars to test defaults
     delete process.env.NEO4J_URI;
     delete process.env.NEO4J_USER;
     delete process.env.NEO4J_PASSWORD;
     delete process.env.NEO4J_DATABASE;
-    delete process.env.METAL_DEBUG;
+    delete process.env.GRAPH_OM_DEBUG;
 
     // Dynamically import to get fresh env instance
     const { createEnv } = await import('@t3-oss/env-core');
@@ -33,7 +33,7 @@ describe('@metal/core env schema', () => {
         NEO4J_USER: z.string().default('neo4j'),
         NEO4J_PASSWORD: z.string().default('password'),
         NEO4J_DATABASE: z.string().optional(),
-        METAL_DEBUG: z
+        GRAPH_OM_DEBUG: z
           .string()
           .optional()
           .transform((val) => val === 'true'),
@@ -46,7 +46,7 @@ describe('@metal/core env schema', () => {
     expect(env.NEO4J_USER).toBe('neo4j');
     expect(env.NEO4J_PASSWORD).toBe('password');
     expect(env.NEO4J_DATABASE).toBeUndefined();
-    expect(env.METAL_DEBUG).toBe(false);
+    expect(env.GRAPH_OM_DEBUG).toBe(false);
   });
 
   it('reads values from process.env when present', async () => {
@@ -54,7 +54,7 @@ describe('@metal/core env schema', () => {
     process.env.NEO4J_USER = 'custom-user';
     process.env.NEO4J_PASSWORD = 'custom-pass';
     process.env.NEO4J_DATABASE = 'custom-db';
-    process.env.METAL_DEBUG = 'true';
+    process.env.GRAPH_OM_DEBUG = 'true';
 
     const { createEnv } = await import('@t3-oss/env-core');
 
@@ -64,7 +64,7 @@ describe('@metal/core env schema', () => {
         NEO4J_USER: z.string().default('neo4j'),
         NEO4J_PASSWORD: z.string().default('password'),
         NEO4J_DATABASE: z.string().optional(),
-        METAL_DEBUG: z
+        GRAPH_OM_DEBUG: z
           .string()
           .optional()
           .transform((val) => val === 'true'),
@@ -77,17 +77,17 @@ describe('@metal/core env schema', () => {
     expect(env.NEO4J_USER).toBe('custom-user');
     expect(env.NEO4J_PASSWORD).toBe('custom-pass');
     expect(env.NEO4J_DATABASE).toBe('custom-db');
-    expect(env.METAL_DEBUG).toBe(true);
+    expect(env.GRAPH_OM_DEBUG).toBe(true);
   });
 
-  it('METAL_DEBUG=false string becomes boolean false', async () => {
-    process.env.METAL_DEBUG = 'false';
+  it('GRAPH_OM_DEBUG=false string becomes boolean false', async () => {
+    process.env.GRAPH_OM_DEBUG = 'false';
 
     const { createEnv } = await import('@t3-oss/env-core');
 
     const env = createEnv({
       server: {
-        METAL_DEBUG: z
+        GRAPH_OM_DEBUG: z
           .string()
           .optional()
           .transform((val) => val === 'true'),
@@ -96,6 +96,6 @@ describe('@metal/core env schema', () => {
       emptyStringAsUndefined: true,
     });
 
-    expect(env.METAL_DEBUG).toBe(false);
+    expect(env.GRAPH_OM_DEBUG).toBe(false);
   });
 });

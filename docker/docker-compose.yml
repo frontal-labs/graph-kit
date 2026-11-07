@@ -1,7 +1,7 @@
 services:
   neo4j:
     image: neo4j:5.17-community
-    container_name: metal-neo4j
+    container_name: graph-om-neo4j
     environment:
       NEO4J_AUTH: neo4j/password
       NEO4J_PLUGINS: '["apoc"]'
@@ -24,12 +24,12 @@ services:
       retries: 10
       start_period: 30s
 
-  metal:
+  graph-om:
     build:
       context: ..
       dockerfile: docker/Dockerfile
       target: runner
-    container_name: metal-app
+    container_name: graph-om-app
     depends_on:
       neo4j:
         condition: service_healthy
@@ -39,7 +39,7 @@ services:
       NEO4J_USER: neo4j
       NEO4J_PASSWORD: password
       NEO4J_DATABASE: neo4j
-      METAL_DEBUG: "false"
+      GRAPH_OM_DEBUG: "false"
     ports:
       - "3000:3000"
     volumes:
@@ -48,12 +48,12 @@ services:
       - ./cli:/app/cli
     restart: unless-stopped
 
-  metal-dev:
+  graph-om-dev:
     build:
       context: ..
       dockerfile: docker/Dockerfile
       target: builder
-    container_name: metal-dev
+    container_name: graph-om-dev
     depends_on:
       neo4j:
         condition: service_healthy
@@ -63,7 +63,7 @@ services:
       NEO4J_USER: neo4j
       NEO4J_PASSWORD: password
       NEO4J_DATABASE: neo4j
-      METAL_DEBUG: "true"
+      GRAPH_OM_DEBUG: "true"
     ports:
       - "3000:3000"
       - "9229:9229"
@@ -81,4 +81,4 @@ volumes:
 
 networks:
   default:
-    name: metal-network
+    name: graph-om-network

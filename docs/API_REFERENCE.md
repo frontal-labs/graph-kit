@@ -1,6 +1,6 @@
 # API Reference
 
-## @metal/core
+## @graph-om/core
 
 ### Schema DSL
 
@@ -71,9 +71,9 @@ const graph = schema()
 
 ### Client
 
-#### `new MetalClient(driver, schemaNodes)`
+#### `new GraphClient(driver, schemaNodes)`
 
-Create a Metal client instance.
+Create a Graph client instance.
 
 #### `client.findMany(label, options)`
 
@@ -125,14 +125,14 @@ Get default config shape.
 
 Validated environment variables (see ENVIRONMENT_VARIABLES.md).
 
-## @metal/neo4j-driver
+## @graph-om/neo4j
 
 ### `createNeo4jDriver(config)`
 
 Create a Neo4j driver adapter.
 
 ```ts
-import { createNeo4jDriver } from '@metal/neo4j-driver';
+import { createNeo4jDriver } from '@graph-om/neo4j';
 
 const driver = createNeo4jDriver({
   uri: env.NEO4J_URI,
@@ -146,6 +146,6 @@ await driver.connect();
 await driver.disconnect();
 ```
 
-## @metal/zod
+## @graph-om/zod
 
-Zod validation integration for Metal schemas. Generates zod schemas alongside TypeScript types when `output.zod: true` in `metal.config.ts`.
+Zod validation integration for Graph-OM schemas. Generates zod schemas alongside TypeScript types when `output.zod: true` in `graph-om.config.ts`.

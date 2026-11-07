@@ -1,6 +1,7 @@
-// @metal/cli/src/commands/generate.ts
+// @graph-om/cli/src/commands/generate.ts
 import fs from 'node:fs';
 import path from 'node:path';
+import { type ParsedNode, parseSchemaFile } from '@graph-om/core';
 
 interface GenerateOptions {
   watch?: boolean;
@@ -62,170 +63,103 @@ export function mapPropertyType(type: string, array?: boolean): string {
   return array ? `${base}[]` : base;
 }
 
-export function generateNodeInterface(node: NodeDef): string {
-  const lines: string[] = [];
-  lines.push(`export interface ${node.label}Node {`);
+function convertParsedNode(parsed: ParsedNode): NodeDef {
+  const properties: PropertyDef[] = Object.entries(parsed.properties).map(([name, config]) => ({
+    name,
+    type: config.type,
+    primary: config.primary,
+    unique: config.unique,
+    nullable: config.nullable,
+    array: config.array,
+  }));
 
-  for (const prop of node.properties) {
-    const optional = prop.nullable ? '?' : '';
-    const tsType = mapPropertyType(prop.type, prop.array);
-    lines.push(`  ${prop.name}${optional}: ${tsType};`);
-  }
+  const relations: RelDef[] = Object.entries(parsed.relations).map(([name, config]) => ({
+    name,
+    type: config.type,
+    direction: config.direction,
+    target: config.target,
+    multiple: config.multiple ?? false,
+  }));
 
-  for (const rel of node.relations) {
-    const optional = rel.multiple ? '' : '?';
-    const targetType = `${rel.target}Node`;
-    const valueType = rel.multiple ? `${targetType}[]` : `${targetType} | null`;
-    lines.push(`  ${rel.name}${optional}: ${valueType};`);
-  }
-
-  lines.push('}');
-  return lines.join('\n');
-}
-
-export function generateWhereType(node: NodeDef): string {
-  const fields = node.properties
-    .map((p) => {
-      const tsType = mapPropertyType(p.type, p.array);
-      return `  ${p.name}?: ${tsType} | WhereOperator<${tsType}>;`;
-    })
-    .join('\n');
-
-  return `export type ${node.label}Where = {
-${fields}
-  AND?: ${node.label}Where[];
-  OR?: ${node.label}Where[];
-  NOT?: ${node.label}Where;
-};`;
-}
-
-export function generateCreateType(node: NodeDef): string {
-  const fields = node.properties
-    .filter((p) => !p.primary && !p.array)
-    .map((p) => {
-      const optional = p.nullable ? '?' : '';
-      const tsType = mapPropertyType(p.type);
-      return `  ${p.name}${optional}: ${tsType};`;
-    })
-    .join('\n');
-
-  return `export type ${node.label}CreateInput = {\n${fields}\n};`;
-}
-
-export function generateUpdateType(node: NodeDef): string {
-  const fields = node.properties
-    .filter((p) => !p.primary)
-    .map((p) => {
-      const tsType = mapPropertyType(p.type);
-      const optional = p.type === 'date' ? 'Date | string' : tsType;
-      return `  ${p.name}?: ${optional};`;
-    })
-    .join('\n');
-
-  return `export type ${node.label}UpdateInput = {\n${fields}\n};`;
-}
-
-export function generateZodSchema(node: NodeDef): string {
-  const fields = node.properties
-    .map((p) => {
-      let zod = ZOD_TYPE_MAP[p.type] ?? 'z.unknown()';
-      if (p.array) zod = `z.array(${zod})`;
-      if (p.nullable) zod = `${zod}.nullable()`;
-      return `  ${p.name}: ${zod},`;
-    })
-    .join('\n');
-
-  return `export const ${node.label}Schema = z.object({\n${fields}\n});`;
+  return { label: parsed.label, properties, relations };
 }
 
 export function loadSchema(schemaPath: string, exclude: string[] = []): NodeDef[] {
-  const schemaContent = fs.readFileSync(schemaPath, 'utf-8');
-  const nodeRegex = /node\s*\(\s*['"]([^'"]+)['"]\)/g;
+  const result = parseSchemaFile(schemaPath);
+
+  if (result.errors.length > 0) {
+    for (const error of result.errors) {
+      console.warn(`⚠ ${error.file}:${error.line}:${error.column} - ${error.message}`);
+    }
+  }
+
   const nodes: NodeDef[] = [];
-
-  const labelMatches = [...schemaContent.matchAll(nodeRegex)];
-  for (const match of labelMatches) {
-    const label = match[1]!;
-    if (exclude.includes(label)) continue;
-    const nodeBlock = extractNodeBlock(schemaContent, match.index!);
-
-    const properties = extractProperties(nodeBlock);
-    const relations = extractRelations(nodeBlock);
-
-    nodes.push({ label, properties, relations });
+  for (const parsedNode of result.nodes) {
+    if (exclude.includes(parsedNode.label)) continue;
+    nodes.push(convertParsedNode(parsedNode));
   }
 
   return nodes;
 }
 
-function extractNodeBlock(content: string, startIndex: number): string {
-  const start = content.indexOf('.build()', startIndex);
-  if (start === -1) return content.slice(startIndex);
-  return content.slice(startIndex, start + 8);
+function generateNodeInterface(node: NodeDef): string {
+  const props = node.properties
+    .map((p) => `  ${p.name}: ${mapPropertyType(p.type, p.array)};`)
+    .join('\n');
+  return `export interface ${node.label}Node {\n${props}\n}`;
 }
 
-function extractProperties(block: string): PropertyDef[] {
-  const props: PropertyDef[] = [];
-  const propRegex = /\.add\s*\(\s*['"]([^'"]+)['"]\s*,\s*([^)]+)\)/g;
-  let match: RegExpExecArray | null = propRegex.exec(block);
-  while (match !== null) {
-    const name = match[1]!;
-    const configStr = match[2]!;
-    if (!/\b(relation|defineRel)\s*\(/.test(configStr)) {
-      const type = extractType(configStr);
-      const primary = configStr.includes('primary: true');
-      const unique = configStr.includes('unique: true');
-      const nullable = configStr.includes('nullable: true');
-      const array = configStr.includes('array: true');
-
-      props.push({ name, type, primary, unique, nullable, array });
-    }
-    match = propRegex.exec(block);
-  }
-
-  return props;
+function generateWhereType(node: NodeDef): string {
+  const props = node.properties
+    .map((p) => {
+      const type = mapPropertyType(p.type, p.array);
+      const optional = p.nullable ? '?' : '';
+      return `  ${p.name}${optional}: ${type} | { eq?: ${type}; ne?: ${type}; gt?: ${type}; gte?: ${type}; lt?: ${type}; lte?: ${type}; in?: ${type}[]; notIn?: ${type}[]; };`;
+    })
+    .join('\n');
+  return `export type ${node.label}WhereInput = {\n${props}\n};`;
 }
 
-function extractType(configStr: string): string {
-  const knownTypes = ['string', 'number', 'boolean', 'date', 'bigint', 'float', 'uuid', 'json'];
-  for (const t of knownTypes) {
-    if (configStr.includes(`type: '${t}'`)) return t;
-  }
-  if (configStr.startsWith('string(')) return 'string';
-  if (configStr.startsWith('number(')) return 'number';
-  if (configStr.startsWith('date(')) return 'date';
-  if (configStr.startsWith('uuid(')) return 'uuid';
-  if (configStr.startsWith('boolean(')) return 'boolean';
-  if (configStr.startsWith('float(')) return 'float';
-  if (configStr.startsWith('json(')) return 'json';
-  if (configStr.startsWith('bigint(')) return 'bigint';
-  return 'string';
+function generateCreateType(node: NodeDef): string {
+  const props = node.properties
+    .filter((p) => !p.primary || p.default !== undefined)
+    .map((p) => {
+      const type = mapPropertyType(p.type, p.array);
+      const optional = p.default !== undefined || p.nullable ? '?' : '';
+      return `  ${p.name}${optional}: ${type};`;
+    })
+    .join('\n');
+  return `export type ${node.label}CreateInput = {\n${props}\n};`;
 }
 
-function extractRelations(block: string): RelDef[] {
-  const rels: RelDef[] = [];
-  const relRegex =
-    /\.add\s*\(\s*['"]([^'"]+)['"]\s*,\s*(?:relation|defineRel)\s*\(\s*['"]([^'"]+)['"]\s*,\s*['"]([^'"]+)['"]\s*,\s*['"]([^'"]+)['"]\s*(?:,\s*(\{[\s\S]*?\}))?\s*\)/g;
-  let match: RegExpExecArray | null = relRegex.exec(block);
-  while (match !== null) {
-    const name = match[1]!;
-    const type = match[2]!;
-    const direction = match[3]!;
-    const target = match[4]!;
-    const options = match[5] ?? '';
-    const multiple = options.includes('multiple: true');
+function generateUpdateType(node: NodeDef): string {
+  const props = node.properties
+    .filter((p) => !p.primary)
+    .map((p) => {
+      const type = mapPropertyType(p.type, p.array);
+      return `  ${p.name}?: ${type};`;
+    })
+    .join('\n');
+  return `export type ${node.label}UpdateInput = {\n${props}\n};`;
+}
 
-    rels.push({ name, type, direction, target, multiple });
-    match = relRegex.exec(block);
-  }
-
-  return rels;
+function generateZodSchema(node: NodeDef): string {
+  const props = node.properties
+    .map((p) => {
+      let zodType = `z.${ZOD_TYPE_MAP[p.type] || 'unknown()'}`;
+      if (p.array) zodType += '.array()';
+      if (p.nullable) zodType += '.nullable()';
+      if (p.default !== undefined) zodType += `.default(${JSON.stringify(p.default)})`;
+      return `  ${p.name}: ${zodType},`;
+    })
+    .join('\n');
+  return `export const ${node.label}Schema = z.object({\n${props}\n});`;
 }
 
 export function generateTypesContent(nodes: NodeDef[]): string {
-  return `// Auto-generated by Metal CLI
+  return `// Auto-generated by Graph-OM CLI
 // Type definitions for your graph schema
-import type { WhereOperator } from '@metal/core';
+import type { WhereOperator } from '@graph-om/core';
 
 ${nodes.map((n) => generateNodeInterface(n)).join('\n\n')}
 
@@ -238,7 +172,7 @@ ${nodes.map((n) => generateUpdateType(n)).join('\n\n')}
 }
 
 export function generateZodContent(nodes: NodeDef[]): string {
-  return `// Auto-generated by Metal CLI
+  return `// Auto-generated by Graph-OM CLI
 // Zod schemas for your graph schema
 import { z } from 'zod';
 
@@ -261,13 +195,13 @@ export function generateClientContent(nodes: NodeDef[]): string {
     })
     .join(',\n');
 
-  return `// Auto-generated by Metal CLI
-import { MetalClient, env } from '@metal/core';
-import type { DriverAdapter, NodeConfig } from '@metal/core';
-import { createNeo4jDriver } from '@metal/neo4j-driver';
+  return `// Auto-generated by Graph-OM CLI
+import { GraphClient, env } from '@graph-om/core';
+import type { DriverAdapter, NodeConfig } from '@graph-om/core';
+import { createNeo4jDriver } from '@graph-om/neo4j';
 import type { ${imports} } from './types.js';
 
-export type MetalNodeMap = {
+export type GraphNodeMap = {
 ${nodeMapFields}
 };
 
@@ -282,7 +216,7 @@ export interface ClientConfig {
   database?: string;
 }
 
-export async function createClient(config: ClientConfig = {}): Promise<MetalClient> {
+export async function createClient(config: ClientConfig = {}): Promise<GraphClient> {
   const driver: DriverAdapter = createNeo4jDriver({
     uri: config.uri || env.NEO4J_URI,
     username: config.username || env.NEO4J_USER,
@@ -290,7 +224,7 @@ export async function createClient(config: ClientConfig = {}): Promise<MetalClie
     database: config.database,
   });
   await driver.connect();
-  const client = new MetalClient(driver, nodeConfigs);
+  const client = new GraphClient(driver, nodeConfigs);
   return client;
 }
 `;
@@ -309,8 +243,8 @@ export function loadProjectConfig(projectRoot: string): LoadedProjectConfig {
   let zod = false;
   let exclude: string[] = [];
 
-  const configPath = path.join(projectRoot, 'metal.config.ts');
-  const configJsonPath = path.join(projectRoot, 'metal.config.json');
+  const configPath = path.join(projectRoot, 'graph-om.config.ts');
+  const configJsonPath = path.join(projectRoot, 'graph-om.config.json');
 
   if (fs.existsSync(configJsonPath)) {
     const raw = fs.readFileSync(configJsonPath, 'utf-8');
@@ -325,7 +259,7 @@ export function loadProjectConfig(projectRoot: string): LoadedProjectConfig {
       if (parsed.output?.zod) zod = true;
       if (Array.isArray(parsed.exclude)) exclude = parsed.exclude;
     } catch {
-      console.warn('⚠ Could not parse metal.config.json, using defaults.');
+      console.warn('⚠ Could not parse graph-om.config.json, using defaults.');
     }
   } else if (fs.existsSync(configPath)) {
     const raw = fs.readFileSync(configPath, 'utf-8');
@@ -341,7 +275,7 @@ export function loadProjectConfig(projectRoot: string): LoadedProjectConfig {
     }
     if (zodMatch?.[1] === 'true') zod = true;
     if (excludeMatch?.[1]) {
-      exclude = [...excludeMatch[1].matchAll(/['"]([^'"]+)['"]/g)].map((m) => m[1]!);
+      exclude = [...excludeMatch[1].matchAll(/['"]([^'"]+)['"]/g)].map((m) => m[1] ?? '');
     }
   }
 
@@ -354,7 +288,7 @@ export function runGenerate(projectRoot: string): GenerateResult {
   if (!fs.existsSync(schemaPath)) {
     throw new Error(
       `Schema file not found at ${schemaPath}. ` +
-        `Check the "schema" field in metal.config.ts or run \`metal init\`.`,
+        `Check the "schema" field in graph-om.config.ts or run \`graph-om init\`.`,
     );
   }
 
