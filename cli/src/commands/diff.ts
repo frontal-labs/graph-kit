@@ -1,6 +1,6 @@
 // @graph-om/cli/src/commands/diff.ts
 
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -191,6 +191,13 @@ function inferType(value: unknown): PropertyType {
   return 'json';
 }
 
+function assertGitRef(ref: string): void {
+  // Refuse anything git could read as an option or a path escape
+  if (ref.startsWith('-') || !/^[A-Za-z0-9._/-]+$/.test(ref)) {
+    throw new Error(`Invalid git ref: ${ref}`);
+  }
+}
+
 async function parseGitRef(
   projectRoot: string,
   ref: string,
@@ -200,11 +207,12 @@ async function parseGitRef(
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metal-diff-'));
 
   try {
-    // Checkout the ref
-    execSync(`git show ${ref}:${schemaPath}`, { cwd: projectRoot, stdio: 'pipe' });
-    const content = execSync(`git show ${ref}:${schemaPath}`, {
+    assertGitRef(ref);
+    // Arguments go straight to git, without a shell
+    const content = execFileSync('git', ['show', `${ref}:${schemaPath}`], {
       cwd: projectRoot,
       encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'pipe'],
     });
 
     const tempSchemaPath = path.join(tempDir, 'schema.ts');
