@@ -49,7 +49,7 @@
   "dependencies": {
     "@graph-om/neo4j": "workspace:*",
     "@graph-om/sdk": "workspace:*",
-    "commander": "^11.0.0"
+    "commander": "^15.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
