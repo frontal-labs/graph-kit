@@ -21,7 +21,7 @@
     "clean": "rm -rf .turbo dist"
   },
   "dependencies": {
-    "@graph-om/graph-om": "workspace:*",
+    "@graph-om/sdk": "workspace:*",
     "@graph-om/neo4j": "workspace:*",
     "@graph-om/zod": "workspace:*",
     "zod": "^3.24.1"
@@ -29,7 +29,7 @@
   "devDependencies": {
     "@graph-om/cli": "workspace:*",
     "tsx": "^4.0.0",
-    "typescript": "^5.3.0",
+    "typescript": "^5.9.3",
     "@types/node": "^20.0.0",
     "vitest": "^1.0.0",
     "@apollo/server": "^4.0.0"

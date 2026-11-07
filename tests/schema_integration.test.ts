@@ -1,8 +1,8 @@
 // @graph-om/tests/schema_integration.test.ts
-// Cross-package test: validates @graph-om/core schema DSL works with @graph-om/neo4j types
+// Cross-package test: validates @graph-om/sdk schema DSL works with @graph-om/neo4j types
 
-import type { DriverAdapter, GraphSchemaRegistry, NodeConfig } from '@graph-om/core';
-import { boolean, date, defineRel, node, number, schema, string } from '@graph-om/core';
+import type { DriverAdapter, GraphSchemaRegistry, NodeConfig } from '@graph-om/sdk';
+import { boolean, date, defineRel, node, number, schema, string } from '@graph-om/sdk';
 import { describe, expect, it } from 'vitest';
 
 describe('schema DSL + neo4j-driver integration', () => {

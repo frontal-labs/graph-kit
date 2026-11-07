@@ -8,7 +8,7 @@ import type {
   QueryRecord,
   QueryResult,
   TransactionContext,
-} from '@graph-om/core';
+} from '@graph-om/sdk';
 import neo4j, {
   type Driver,
   type ManagedTransaction as Neo4jManagedTransaction,
@@ -26,7 +26,6 @@ export class MemgraphDriverAdapter implements DriverAdapter {
 
   constructor(config: MemgraphDriverConfig) {
     this.config = config;
-    const _driverConfig = config.driverConfig ?? {};
     this.driver = neo4j.driver(config.uri, neo4j.auth.basic(config.username, config.password), {
       maxConnectionLifetime: config.maxConnectionLifetime ?? 3600000,
       maxConnectionPoolSize: config.maxConnectionPoolSize ?? 50,
@@ -108,6 +107,9 @@ export class MemgraphDriverAdapter implements DriverAdapter {
         'CALL dbms.components() YIELD name, versions, edition RETURN name, versions[0] as version, edition',
       );
       const record = result.records[0];
+      if (!record) {
+        throw new Error('Memgraph returned no component information');
+      }
       return {
         address: this.config.uri,
         version: record.get('version') as string,

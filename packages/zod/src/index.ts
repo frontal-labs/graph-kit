@@ -7,7 +7,7 @@ import type {
   PropertyConfig,
   PropertyType,
   UpdateInput,
-} from '@graph-om/core';
+} from '@graph-om/sdk';
 import { z } from 'zod';
 
 type PropertyTypeToZodType<T extends PropertyType> = T extends 'string'

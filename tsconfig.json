@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "exactOptionalPropertyTypes": false,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": false
+  },
+  "references": [
+    { "path": "./packages/sdk" },
+    { "path": "./packages/neo4j" },
+    { "path": "./packages/memgraph" },
+    { "path": "./packages/kuzu" },
+    { "path": "./packages/falkordb" },
+    { "path": "./packages/mcp" },
+    { "path": "./packages/migrate" },
+    { "path": "./packages/testing" },
+    { "path": "./packages/zod" }
+  ],
+  "exclude": ["node_modules", "dist", "build"]
+}

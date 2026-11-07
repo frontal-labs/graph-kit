@@ -1,10 +1,10 @@
 // @graph-om/cli/src/commands/seed.ts
 import fs from 'node:fs';
 import path from 'node:path';
-import { env } from '@graph-om/core';
-import { parseSchemaFile } from '@graph-om/core/schema';
-import { createSeedManager } from '@graph-om/core/seed';
 import { createNeo4jDriver } from '@graph-om/neo4j';
+import { env } from '@graph-om/sdk';
+import { parseSchemaFile } from '@graph-om/sdk/schema';
+import { createSeedManager } from '@graph-om/sdk/seed';
 import { Command } from 'commander';
 import { loadProjectConfig } from './generate.js';
 
@@ -30,7 +30,7 @@ function createSeedRunCommand(): Command {
     .argument('[file]', 'Seed file to run (JSON/JS/TS)', 'seed.ts')
     .option('--clear', 'Clear existing data before seeding')
     .action(async (file: string, options: SeedOptions) => {
-      await runSeed(file, options.clear);
+      await runSeed(file, options.clear ?? false);
     });
 }
 
@@ -69,6 +69,7 @@ async function runSeed(file: string, clear: boolean): Promise<void> {
   const schema = result.schema;
 
   const driver = createNeo4jDriver({
+    type: 'neo4j',
     uri: env.NEO4J_URI,
     username: env.NEO4J_USER,
     password: env.NEO4J_PASSWORD,
@@ -132,16 +133,17 @@ async function createSeedFile(name: string, template: string): Promise<void> {
     content = `// Seed: ${name}
 // Relational seed with factories
 
-import { createSeedManager, Fixtures, createUserFactory, createPostFactory } from '@graph-om/core/seed';
+import { createSeedManager, Fixtures, createUserFactory, createPostFactory } from '@graph-om/sdk/seed';
 import { createNeo4jDriver } from '@graph-om/neo4j';
-import { env } from '@graph-om/core';
-import { parseSchemaFile } from '@graph-om/core/schema';
+import { env } from '@graph-om/sdk';
+import { parseSchemaFile } from '@graph-om/sdk/schema';
 
 const schemaPath = './src/schema.ts';
 const result = parseSchemaFile(schemaPath);
 const schema = result.schema;
 
 const driver = createNeo4jDriver({
+    type: 'neo4j',
   uri: env.NEO4J_URI,
   username: env.NEO4J_USER,
   password: env.NEO4J_PASSWORD,
@@ -195,6 +197,7 @@ async function clearSeed(labels: string[]): Promise<void> {
   const schema = result.schema;
 
   const driver = createNeo4jDriver({
+    type: 'neo4j',
     uri: env.NEO4J_URI,
     username: env.NEO4J_USER,
     password: env.NEO4J_PASSWORD,

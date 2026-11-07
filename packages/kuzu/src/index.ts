@@ -9,7 +9,7 @@ import type {
   QueryRecord,
   QueryResult,
   TransactionContext,
-} from '@graph-om/graph-om';
+} from '@graph-om/sdk';
 
 // Type definitions for kuzu module (using any to avoid declaration file issues)
 interface KuzuConnection {

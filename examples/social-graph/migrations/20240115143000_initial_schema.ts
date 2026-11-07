@@ -1,8 +1,8 @@
 // 20240115143000_initial_schema.ts
 // Initial schema migration - creates constraints and indexes
 
-import type { Migration } from '@graph-om/core/migration';
-import type { QueryCompiler } from '@graph-om/core/query';
+import type { Migration } from '@graph-om/sdk/migration';
+import type { QueryCompiler } from '@graph-om/sdk/query';
 
 export const migration: Migration = {
   version: '20240115143000',

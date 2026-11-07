@@ -1,11 +1,13 @@
 // @graph-om/cli/src/commands/diff.ts
 
+import { execSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
-import { env } from '@graph-om/core';
-import { diffSchemas } from '@graph-om/core/migration';
-import { parseSchemaFile } from '@graph-om/core/schema';
 import { createNeo4jDriver } from '@graph-om/neo4j';
+import { env } from '@graph-om/sdk';
+import { diffSchemas } from '@graph-om/sdk/migration';
+import { parseSchemaFile } from '@graph-om/sdk/schema';
 import { Command } from 'commander';
 import { loadProjectConfig } from './generate.js';
 
@@ -40,6 +42,7 @@ async function runDiff(from: string, to: string, options: DiffOptions): Promise<
   if (from === 'live') {
     // Connect to database and introspect
     const driver = createNeo4jDriver({
+      type: 'neo4j',
       uri: env.NEO4J_URI,
       username: env.NEO4J_USER,
       password: env.NEO4J_PASSWORD,
@@ -160,12 +163,8 @@ function inferType(value: any): string {
 }
 
 async function parseGitRef(projectRoot: string, ref: string, schemaPath: string): Promise<any> {
-  const { execSync } = require('node:child_process');
-
   // Create temp directory
-  const tempDir = require('node:fs').mkdtempSync(
-    require('node:path').join(require('node:os').tmpdir(), 'metal-diff-'),
-  );
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metal-diff-'));
 
   try {
     // Checkout the ref
@@ -175,15 +174,14 @@ async function parseGitRef(projectRoot: string, ref: string, schemaPath: string)
       encoding: 'utf-8',
     });
 
-    const tempSchemaPath = require('node:path').join(tempDir, 'schema.ts');
-    require('node:fs').writeFileSync(tempSchemaPath, content);
+    const tempSchemaPath = path.join(tempDir, 'schema.ts');
+    fs.writeFileSync(tempSchemaPath, content);
 
-    const { parseSchemaFile } = require('@graph-om/core/schema');
     const result = parseSchemaFile(tempSchemaPath);
     return result.schema;
   } finally {
     // Cleanup
-    require('node:fs').rmSync(tempDir, { recursive: true, force: true });
+    fs.rmSync(tempDir, { recursive: true, force: true });
   }
 }
 

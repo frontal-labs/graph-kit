@@ -40,7 +40,7 @@ describe('initCommand', () => {
   it('writes a package.json with graph-om dependencies and scripts', () => {
     const pkg = JSON.parse(fs.readFileSync(path.join(projectDir, 'package.json'), 'utf-8'));
     expect(pkg.name).toBe('my-app');
-    expect(pkg.dependencies['@graph-om/core']).toBeDefined();
+    expect(pkg.dependencies['@graph-om/sdk']).toBeDefined();
     expect(pkg.dependencies['@graph-om/neo4j']).toBeDefined();
     expect(pkg.devDependencies['@graph-om/cli']).toBeDefined();
     expect(pkg.scripts.generate).toBe('graph-om generate');

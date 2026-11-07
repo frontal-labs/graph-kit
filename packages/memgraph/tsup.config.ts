@@ -8,7 +8,7 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
-  external: ['neo4j-driver', '@graph-om/core'],
+  external: ['neo4j-driver', '@graph-om/sdk'],
   banner: {
     js: '// @graph-om/memgraph - Memgraph driver adapter for Graph-OM',
   },

@@ -1,5 +1,5 @@
 // @graph-om/tests/cli_template.test.ts
-// Cross-reference test: validates CLI generated output references @graph-om/core env correctly
+// Cross-reference test: validates CLI generated output references @graph-om/sdk env correctly
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -8,11 +8,11 @@ import { describe, expect, it } from 'vitest';
 describe('CLI generated output cross-references', () => {
   const cliSrc = path.join(process.cwd(), 'cli/src/commands');
 
-  it('init.ts template imports env from @graph-om/core', () => {
+  it('init.ts template imports env from @graph-om/sdk', () => {
     const initContent = fs.readFileSync(path.join(cliSrc, 'init.ts'), 'utf-8');
 
     // The generated src/index.ts template should import env
-    expect(initContent).toContain("import { GraphClient, env } from '@graph-om/core';");
+    expect(initContent).toContain("import { GraphClient, env } from '@graph-om/sdk';");
     // Should use env.NEO4J_* not process.env.NEO4J_*
     expect(initContent).toContain('uri: env.NEO4J_URI');
     expect(initContent).toContain('username: env.NEO4J_USER');
@@ -21,11 +21,11 @@ describe('CLI generated output cross-references', () => {
     expect(initContent).not.toContain("process.env.NEO4J_URI || 'bolt://");
   });
 
-  it('generate.ts createClient template imports env from @graph-om/core', () => {
+  it('generate.ts createClient template imports env from @graph-om/sdk', () => {
     const generateContent = fs.readFileSync(path.join(cliSrc, 'generate.ts'), 'utf-8');
 
     // The generated client.ts template should import env
-    expect(generateContent).toContain("import { GraphClient, env } from '@graph-om/core';");
+    expect(generateContent).toContain("import { GraphClient, env } from '@graph-om/sdk';");
     // Should use env.NEO4J_* as defaults
     expect(generateContent).toContain('uri: config.uri || env.NEO4J_URI');
     expect(generateContent).toContain('username: config.username || env.NEO4J_USER');

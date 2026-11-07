@@ -1,8 +1,8 @@
 // comprehensive.ts - Comprehensive Graph-OM Examples
 // Demonstrates all major features of the Graph-OM library
 
-import { GraphClient } from '@graph-om/core';
 import { createNeo4jDriver } from '@graph-om/neo4j';
+import { GraphClient } from '@graph-om/sdk';
 import { graph } from './schema.js';
 
 const URI = process.env.NEO4J_URI || 'bolt://localhost:7687';
@@ -26,9 +26,14 @@ type PostRow = {
 };
 
 async function main() {
-  const driver = createNeo4jDriver({ uri: URI, username: USER, password: PASSWORD });
+  const driver = createNeo4jDriver({ type: 'neo4j', uri: URI, username: USER, password: PASSWORD });
   await driver.connect();
   const client = new GraphClient(driver, graph);
+
+  // Start from a clean slate so the fixed ids below can be created again
+  await client.raw(
+    "MATCH (n) WHERE n.id STARTS WITH 'user-' OR n.id STARTS WITH 'post-' DETACH DELETE n",
+  );
 
   console.log('=== COMPREHENSIVE GRAPH-OM EXAMPLES ===\n');
 
@@ -147,7 +152,7 @@ async function main() {
   console.log('\n--- Complex Queries with Includes ---');
 
   // 9. Find users with their posts
-  const usersWithPosts = await client.findMany<UserRow>('User', {
+  const usersWithPosts = await client.findMany<UserRow & { posts?: PostRow[] }>('User', {
     include: { posts: true },
     limit: 10,
   });
@@ -157,7 +162,9 @@ async function main() {
   }
 
   // 10. Find user with nested includes (posts and their likes)
-  const userWithFullGraph = await client.findUnique<UserRow>('User', {
+  const userWithFullGraph = await client.findUnique<
+    UserRow & { posts?: Array<PostRow & { likedBy?: UserRow[] }>; following?: UserRow[] }
+  >('User', {
     where: { id: 'user-1' },
     include: {
       posts: {
@@ -172,7 +179,7 @@ async function main() {
   console.log(`  Following: ${userWithFullGraph?.following?.map((u: any) => u.name).join(', ')}`);
 
   // 11. Find posts with author
-  const postsWithAuthor = await client.findMany<PostRow>('Post', {
+  const postsWithAuthor = await client.findMany<PostRow & { author?: UserRow | null }>('Post', {
     include: { author: true },
     where: { published: true },
   });
@@ -274,7 +281,10 @@ async function main() {
     console.log(`Created post in transaction:`, newPost.title);
 
     // Relate it to Alice
-    await tx.relate('Post', newPost.id, 'POSTED', 'User', 'user-1', 'IN');
+    await tx.raw('MATCH (p:Post {id: $postId}), (u:User {id: $userId}) CREATE (u)-[:POSTED]->(p)', {
+      postId: newPost.id,
+      userId: 'user-1',
+    });
   });
 
   // 21. Read transaction

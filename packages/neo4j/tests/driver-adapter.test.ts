@@ -93,6 +93,7 @@ describe('Neo4jDriverAdapter', () => {
 
   beforeEach(() => {
     adapter = new Neo4jDriverAdapter({
+      type: 'neo4j',
       uri: 'bolt://localhost:7687',
       username: 'neo4j',
       password: 'test-password',

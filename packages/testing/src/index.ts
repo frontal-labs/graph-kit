@@ -3,10 +3,11 @@
 
 import type {
   DriverAdapter,
+  DriverCapabilities,
   QueryRecord,
   QueryResult,
   TransactionContext,
-} from '@graph-om/graph-om';
+} from '@graph-om/sdk';
 
 export class MockDriverAdapter implements DriverAdapter {
   private data: Map<string, Map<string, Record<string, unknown>>> = new Map();
@@ -38,7 +39,7 @@ export class MockDriverAdapter implements DriverAdapter {
       const labelMatch = cypher.match(/MATCH \(n:(\w+)\)/);
       const label = labelMatch?.[1] ?? 'Node';
       const limitMatch = cypher.match(/LIMIT\s+(\d+)/);
-      const limit = limitMatch ? parseInt(limitMatch[1], 10) : 100;
+      const limit = limitMatch?.[1] ? parseInt(limitMatch[1], 10) : 100;
 
       const nodes = this.data.get(label) ?? new Map();
       const records = Array.from(nodes.values())
@@ -305,4 +306,4 @@ export type {
   RelationConfig,
   TransactionContext,
   WhereCondition,
-} from '@graph-om/graph-om';
+} from '@graph-om/sdk';

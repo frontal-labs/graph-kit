@@ -8,7 +8,7 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
-  external: ['@graph-om/graph-om'],
+  external: ['@graph-om/sdk'],
   banner: {
     js: '// @graph-om/migrate - Graph-OM migration system',
   },

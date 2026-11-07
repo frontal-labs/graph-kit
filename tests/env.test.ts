@@ -1,5 +1,5 @@
 // @graph-om/tests/env.test.ts
-// Cross-package test: validates @t3-oss/env-core + zod env schema from @graph-om/core
+// Cross-package test: validates @t3-oss/env-core + zod env schema from @graph-om/sdk
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
@@ -15,7 +15,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('@graph-om/core env schema', () => {
+describe('@graph-om/sdk env schema', () => {
   it('applies defaults when env vars are missing', async () => {
     // Clear Neo4j env vars to test defaults
     delete process.env.NEO4J_URI;

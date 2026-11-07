@@ -3,17 +3,28 @@
 
 import type {
   DriverAdapter,
+  DriverCapabilities,
   FalkorDBDriverConfig,
   QueryRecord,
   QueryResult,
   TransactionContext,
-} from '@graph-om/graph-om';
+} from '@graph-om/sdk';
 import { createClient, type RedisClientType } from 'redis';
 
 export class FalkorDBDriverAdapter implements DriverAdapter {
   private client: RedisClientType;
   private config: FalkorDBDriverConfig;
   private connected: boolean = false;
+  private capabilities: DriverCapabilities = {
+    transactions: false, // No native multi-query transactions (MULTI/EXEC serializes all graphs)
+    readReplicas: false,
+    boltProtocol: false,
+    httpProtocol: false,
+    vectorSearch: true, // euclidean / cosine vector indexes
+    fullTextSearch: true, // db.idx.fulltext.* procedures
+    geospatial: true, // point() type
+    procedures: ['db.idx.fulltext'],
+  };
 
   constructor(config: FalkorDBDriverConfig) {
     this.config = config;
@@ -23,7 +34,7 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
         port: config.port ?? 6379,
       },
       password: config.password,
-      database: config.database ?? 0,
+      database: Number(config.database ?? 0),
     });
 
     this.client.on('error', (err) => {
@@ -105,7 +116,7 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
 
     const info = await this.client.info('server');
     const versionMatch = info.match(/redis_version:([^\r\n]+)/);
-    const version = versionMatch ? versionMatch[1] : 'unknown';
+    const version = versionMatch?.[1] ?? 'unknown';
 
     return {
       address: `${this.config.host}:${this.config.port}`,
@@ -154,6 +165,10 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
       },
       keys: header,
     };
+  }
+
+  getCapabilities(): DriverCapabilities {
+    return this.capabilities;
   }
 
   private mapRecord(header: string[], row: any[]): QueryRecord {

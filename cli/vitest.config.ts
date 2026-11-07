@@ -17,41 +17,40 @@ export default defineConfig({
     },
   },
   resolve: {
-    alias: {
-      '@graph-om/graph-om': path.resolve(__dirname, '../packages/graph-om/src/index.ts'),
-      '@graph-om/graph-om/schema': path.resolve(
-        __dirname,
-        '../packages/graph-om/src/schema/index.ts',
-      ),
-      '@graph-om/graph-om/client': path.resolve(
-        __dirname,
-        '../packages/graph-om/src/client/index.ts',
-      ),
-      '@graph-om/graph-om/query': path.resolve(
-        __dirname,
-        '../packages/graph-om/src/query/index.ts',
-      ),
-      '@graph-om/graph-om/config': path.resolve(
-        __dirname,
-        '../packages/graph-om/src/config/index.ts',
-      ),
-      '@graph-om/graph-om/driver': path.resolve(
-        __dirname,
-        '../packages/graph-om/src/driver/index.ts',
-      ),
-      '@graph-om/graph-om/driver/neo4j': path.resolve(
-        __dirname,
-        '../packages/graph-om/src/driver/neo4j.ts',
-      ),
-      '@graph-om/graph-om/driver/memgraph': path.resolve(
-        __dirname,
-        '../packages/graph-om/src/driver/memgraph.ts',
-      ),
-      '@graph-om/neo4j': path.resolve(__dirname, '../packages/neo4j/src/index.ts'),
-      '@graph-om/memgraph': path.resolve(__dirname, '../packages/memgraph/src/index.ts'),
-      '@graph-om/zod': path.resolve(__dirname, '../packages/zod/src/index.ts'),
-      '@graph-om/testing': path.resolve(__dirname, '../packages/testing/src/index.ts'),
-      '@graph-om/migrate': path.resolve(__dirname, '../packages/migrate/src/index.ts'),
-    },
+    alias: [
+      // Exact matches only, so '@graph-om/sdk' does not swallow its subpaths
+      {
+        find: /^@graph-om\/sdk$/,
+        replacement: path.resolve(__dirname, '../packages/sdk/src/index.ts'),
+      },
+      {
+        find: /^@graph-om\/sdk\/driver\/(neo4j|memgraph|kuzu|falkordb)$/,
+        replacement: path.resolve(__dirname, '../packages/sdk/src/driver/$1.ts'),
+      },
+      {
+        find: /^@graph-om\/sdk\/(schema|client|query|config|driver|migration|seed|visualization|testing|graphql|batch|auth|observability|otel|benchmark)$/,
+        replacement: path.resolve(__dirname, '../packages/sdk/src/$1/index.ts'),
+      },
+      {
+        find: '@graph-om/neo4j',
+        replacement: path.resolve(__dirname, '../packages/neo4j/src/index.ts'),
+      },
+      {
+        find: '@graph-om/memgraph',
+        replacement: path.resolve(__dirname, '../packages/memgraph/src/index.ts'),
+      },
+      {
+        find: '@graph-om/zod',
+        replacement: path.resolve(__dirname, '../packages/zod/src/index.ts'),
+      },
+      {
+        find: '@graph-om/testing',
+        replacement: path.resolve(__dirname, '../packages/testing/src/index.ts'),
+      },
+      {
+        find: '@graph-om/migrate',
+        replacement: path.resolve(__dirname, '../packages/migrate/src/index.ts'),
+      },
+    ],
   },
 });

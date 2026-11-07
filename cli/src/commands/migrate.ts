@@ -1,20 +1,21 @@
 // @graph-om/cli/src/commands/migrate.ts
 import fs from 'node:fs';
 import path from 'node:path';
-import { env } from '@graph-om/core';
+import { pathToFileURL } from 'node:url';
+import { createNeo4jDriver } from '@graph-om/neo4j';
+import { env } from '@graph-om/sdk';
 import {
   createMigrationRunner,
   createMigrationTemplate,
   generateVersion,
   type Migration,
-} from '@graph-om/core/migration';
-import { createNeo4jDriver } from '@graph-om/neo4j';
+} from '@graph-om/sdk/migration';
 import { Command } from 'commander';
 import { loadProjectConfig } from './generate.js';
 
 interface MigrateOptions {
   dir?: string;
-  steps?: number;
+  steps?: string;
 }
 
 interface MigrateCreateOptions {
@@ -38,7 +39,7 @@ function createMigrateUpCommand(): Command {
     .description('Apply pending migrations')
     .option('--dir <path>', 'Migrations directory', './migrations')
     .action(async (options: MigrateOptions) => {
-      await runMigrateUp(options.dir);
+      await runMigrateUp(options.dir ?? './migrations');
     });
 }
 
@@ -48,7 +49,7 @@ function createMigrateDownCommand(): Command {
     .option('--dir <path>', 'Migrations directory', './migrations')
     .option('--steps <number>', 'Number of migrations to rollback', '1')
     .action(async (options: MigrateOptions) => {
-      await runMigrateDown(options.dir, parseInt(options.steps ?? '1', 10));
+      await runMigrateDown(options.dir ?? './migrations', parseInt(options.steps ?? '1', 10));
     });
 }
 
@@ -57,7 +58,7 @@ function createMigrateStatusCommand(): Command {
     .description('Show migration status')
     .option('--dir <path>', 'Migrations directory', './migrations')
     .action(async (options: MigrateOptions) => {
-      await runMigrateStatus(options.dir);
+      await runMigrateStatus(options.dir ?? './migrations');
     });
 }
 
@@ -67,7 +68,7 @@ function createMigrateCreateCommand(): Command {
     .argument('<name>', 'Migration name (e.g., add_user_email_index)')
     .option('--dir <path>', 'Migrations directory', './migrations')
     .action(async (name: string, options: MigrateCreateOptions) => {
-      await runMigrateCreate(name, options.dir);
+      await runMigrateCreate(name, options.dir ?? './migrations');
     });
 }
 
@@ -77,7 +78,7 @@ function createMigrateDiffCommand(): Command {
     .argument('<name>', 'Migration name')
     .option('--dir <path>', 'Migrations directory', './migrations')
     .action(async (name: string, options: MigrateCreateOptions) => {
-      await runMigrateDiff(name, options.dir);
+      await runMigrateDiff(name, options.dir ?? './migrations');
     });
 }
 
@@ -87,15 +88,16 @@ async function runMigrateUp(migrationsDir: string): Promise<void> {
   const { schemaPath } = config;
 
   // Load schema to pass to migration runner
-  const { parseSchemaFile } = await import('@graph-om/core/schema');
+  const { parseSchemaFile } = await import('@graph-om/sdk/schema');
   const result = parseSchemaFile(schemaPath);
   const schema = result.schema;
 
   // Load migration files
-  const migrations = loadMigrationFiles(migrationsDir);
+  const migrations = await loadMigrationFiles(migrationsDir);
 
   // Connect to database
   const driver = createNeo4jDriver({
+    type: 'neo4j',
     uri: env.NEO4J_URI,
     username: env.NEO4J_USER,
     password: env.NEO4J_PASSWORD,
@@ -128,13 +130,14 @@ async function runMigrateDown(migrationsDir: string, steps: number): Promise<voi
   const config = loadProjectConfig(projectRoot);
   const { schemaPath } = config;
 
-  const { parseSchemaFile } = await import('@graph-om/core/schema');
+  const { parseSchemaFile } = await import('@graph-om/sdk/schema');
   const result = parseSchemaFile(schemaPath);
   const schema = result.schema;
 
-  const migrations = loadMigrationFiles(migrationsDir);
+  const migrations = await loadMigrationFiles(migrationsDir);
 
   const driver = createNeo4jDriver({
+    type: 'neo4j',
     uri: env.NEO4J_URI,
     username: env.NEO4J_USER,
     password: env.NEO4J_PASSWORD,
@@ -167,13 +170,14 @@ async function runMigrateStatus(migrationsDir: string): Promise<void> {
   const config = loadProjectConfig(projectRoot);
   const { schemaPath } = config;
 
-  const { parseSchemaFile } = await import('@graph-om/core/schema');
+  const { parseSchemaFile } = await import('@graph-om/sdk/schema');
   const result = parseSchemaFile(schemaPath);
   const schema = result.schema;
 
-  const migrations = loadMigrationFiles(migrationsDir);
+  const migrations = await loadMigrationFiles(migrationsDir);
 
   const driver = createNeo4jDriver({
+    type: 'neo4j',
     uri: env.NEO4J_URI,
     username: env.NEO4J_USER,
     password: env.NEO4J_PASSWORD,
@@ -220,13 +224,13 @@ async function runMigrateDiff(name: string, migrationsDir: string): Promise<void
   const config = loadProjectConfig(projectRoot);
   const { schemaPath } = config;
 
-  const { parseSchemaFile } = await import('@graph-om/core/schema');
+  const { parseSchemaFile } = await import('@graph-om/sdk/schema');
   const result = parseSchemaFile(schemaPath);
   const newSchema = result.schema;
 
   // Load current applied migrations to get the "old" schema
   // For now, we'll load the last migration's schema or use a saved schema snapshot
-  const _migrations = loadMigrationFiles(migrationsDir);
+  const _migrations = await loadMigrationFiles(migrationsDir);
 
   // Try to load a schema snapshot from the last migration
   let oldSchema = newSchema; // fallback - in real implementation, load from snapshot
@@ -238,7 +242,7 @@ async function runMigrateDiff(name: string, migrationsDir: string): Promise<void
     oldSchema = snapshot;
   }
 
-  const { diffSchemas, generateMigrationFromDiff } = await import('@graph-om/core/migration');
+  const { diffSchemas, generateMigrationFromDiff } = await import('@graph-om/sdk/migration');
   const diff = diffSchemas(oldSchema, newSchema);
   const migration = generateMigrationFromDiff(diff, name);
 
@@ -272,7 +276,7 @@ async function runMigrateDiff(name: string, migrationsDir: string): Promise<void
     );
 }
 
-function loadMigrationFiles(migrationsDir: string): Migration[] {
+async function loadMigrationFiles(migrationsDir: string): Promise<Migration[]> {
   const fullDir = path.resolve(process.cwd(), migrationsDir);
 
   if (!fs.existsSync(fullDir)) {
@@ -287,39 +291,27 @@ function loadMigrationFiles(migrationsDir: string): Migration[] {
   const migrations: Migration[] = [];
 
   for (const file of files) {
-    const versionMatch = file.match(/^(\d{14})_/);
-    if (!versionMatch) continue;
+    const version = file.match(/^(\d{14})_/)?.[1];
+    if (!version) continue;
 
-    const version = versionMatch[1];
     const name = file.replace(/^(\d{14})_/, '').replace(/\.(ts|js)$/, '');
     const filePath = path.join(fullDir, file);
 
+    // Migration files are imported, not guessed: a file that fails to load or does not export
+    // a matching migration is an error, never a silent no-op recorded as applied.
+    let mod: { migration?: Migration; default?: Migration };
     try {
-      // Dynamic import
-      const mod = require(filePath);
-      const migration = mod.migration ?? mod.default;
-      if (migration && migration.version === version) {
-        migrations.push(migration);
-      } else {
-        // Fallback: create minimal migration object
-        migrations.push({
-          version,
-          name,
-          timestamp: parseInt(version, 10),
-          up: () => [],
-          down: () => [],
-        });
-      }
-    } catch {
-      // If import fails, create minimal migration object
-      migrations.push({
-        version,
-        name,
-        timestamp: parseInt(version, 10),
-        up: () => [],
-        down: () => [],
-      });
+      mod = (await import(pathToFileURL(filePath).href)) as typeof mod;
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to load migration ${file}: ${reason}`);
     }
+
+    const migration = mod.migration ?? mod.default;
+    if (!migration || migration.version !== version) {
+      throw new Error(`Migration ${file} must export a migration with version ${version}`);
+    }
+    migrations.push(migration);
   }
 
   return migrations.sort((a, b) => a.version.localeCompare(b.version));
@@ -379,8 +371,8 @@ function generateMigrationFile(migration: Migration, diff: any): string {
 // Version: ${migration.version}
 // Created: ${new Date().toISOString()}
 
-import { QueryCompiler } from '@graph-om/core/query';
-import type { Migration } from '@graph-om/core/migration';
+import { QueryCompiler } from '@graph-om/sdk/query';
+import type { Migration } from '@graph-om/sdk/migration';
 
 export const migration: Migration = {
   version: '${migration.version}',

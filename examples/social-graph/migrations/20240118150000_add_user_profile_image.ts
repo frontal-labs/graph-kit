@@ -1,8 +1,8 @@
 // 20240118150000_add_user_profile_image.ts
 // Add profileImageUrl field to User nodes
 
-import type { Migration } from '@graph-om/core/migration';
-import type { QueryCompiler } from '@graph-om/core/query';
+import type { Migration } from '@graph-om/sdk/migration';
+import type { QueryCompiler } from '@graph-om/sdk/query';
 
 export const migration: Migration = {
   version: '20240118150000',
