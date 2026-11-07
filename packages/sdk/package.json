@@ -146,7 +146,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0",
+    "@types/node": "^26.6.6",
     "tsup": "^8.0.0",
     "vite": "^7.0.0",
     "vitest": "^4.1.12"
