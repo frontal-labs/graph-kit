@@ -23,29 +23,46 @@ export interface FalkorDBConfig extends DriverConfig {
 }
 
 interface RedisClient {
-  connect(): Promise<any>;
-  disconnect(): Promise<any>;
-  sendCommand(command: string[], args: unknown[]): Promise<any>;
-  executeIsolated(command: string[]): Promise<any>;
+  connect(): Promise<unknown>;
+  disconnect(): Promise<unknown>;
+  sendCommand(command: string[], args: unknown[]): Promise<unknown>;
+  executeIsolated(command: string[]): Promise<unknown>;
 }
 
-let redisModule: { createClient: (options: any) => RedisClient } | undefined;
+type RedisOptions = Record<string, unknown>;
 
-async function loadRedis(): Promise<{ createClient: (options: any) => RedisClient }> {
+interface IoRedisLike {
+  connect(): Promise<unknown>;
+  quit(): Promise<unknown>;
+  call(command: string, ...args: unknown[]): Promise<unknown>;
+}
+
+interface RedisJsClient {
+  connect(): Promise<unknown>;
+  quit(): Promise<unknown>;
+  sendCommand(command: string[], args: unknown[]): Promise<unknown>;
+  executeIsolated(command: string[]): Promise<unknown>;
+}
+
+let redisModule: { createClient: (options: RedisOptions) => RedisClient } | undefined;
+
+async function loadRedis(): Promise<{ createClient: (options: RedisOptions) => RedisClient }> {
   if (redisModule) return redisModule;
   try {
     // Try to load ioredis or @redis/client
     try {
       const ioredis = await import('ioredis');
-      const Redis = ioredis.default as any;
+      const Redis = ioredis.default as unknown as new (options: RedisOptions) => IoRedisLike;
       redisModule = {
-        createClient: (options: any) => {
+        createClient: (options: RedisOptions) => {
           const client = new Redis(options);
           return {
             connect: () => client.connect(),
             disconnect: () => client.quit(),
-            sendCommand: (command: string[], args: unknown[]) => client.call(command[0], ...args),
-            executeIsolated: (command: string[]) => client.call(command[0], ...command.slice(1)),
+            sendCommand: (command: string[], args: unknown[]) =>
+              client.call(command[0] ?? '', ...args),
+            executeIsolated: (command: string[]) =>
+              client.call(command[0] ?? '', ...command.slice(1)),
           };
         },
       };
@@ -53,19 +70,23 @@ async function loadRedis(): Promise<{ createClient: (options: any) => RedisClien
       // Try @redis/client
       const redis = await import('@redis/client');
       redisModule = {
-        createClient: (options: any) => {
-          const client = redis.createClient(options);
+        createClient: (options: RedisOptions) => {
+          const client = redis.createClient(
+            options as Parameters<typeof redis.createClient>[0],
+          ) as unknown as RedisJsClient;
           return {
             connect: () => client.connect(),
             disconnect: () => client.quit(),
-            sendCommand: (command: string[], args: unknown[]) =>
-              client.sendCommand(command as any, args as any),
-            executeIsolated: (command: string[]) => client.executeIsolated(command as any),
+            sendCommand: (command: string[], args: unknown[]) => client.sendCommand(command, args),
+            executeIsolated: (command: string[]) => client.executeIsolated(command),
           };
         },
       };
     }
-    return redisModule!;
+    if (!redisModule) {
+      throw new Error('Redis client not installed. Run: pnpm add ioredis or /client');
+    }
+    return redisModule;
   } catch {
     throw new Error('Redis client not installed. Run: pnpm add ioredis or @redis/client');
   }

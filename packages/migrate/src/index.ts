@@ -298,6 +298,7 @@ export function diffSchemas(
     for (const propName of commonProperties) {
       const oldProp = oldNode.properties[propName];
       const newProp = newNode.properties[propName];
+      if (!oldProp || !newProp) continue;
 
       const diff: PropertyDiff = {};
       let hasChanges = false;

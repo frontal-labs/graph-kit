@@ -290,11 +290,19 @@ export function createBenchmarkRunner(config?: BaselineConfig): BenchmarkRunner 
 // Pre-defined benchmarks for Graph-OM
 export const graphBenchmarks = {
   async createNode(driver: DriverAdapter, label: string, count: number): Promise<void> {
-    const statements = Array.from(
-      { length: count },
-      (_, i) => `CREATE (n:${label} {id: 'bench_${i}', name: 'Benchmark ${i}', value: ${i}})`,
-    ).join('\n');
-    await driver.runQuery(statements);
+    // Index the id lookups used by every later benchmark step; without it each MATCH scans the label
+    await driver.runQuery(
+      `CREATE INDEX bench_${label}_id IF NOT EXISTS FOR (n:${label}) ON (n.id)`,
+    );
+    const rows = Array.from({ length: count }, (_, i) => ({
+      id: `bench_${i}`,
+      name: `Benchmark ${i}`,
+      value: i,
+    }));
+    await driver.runQuery(
+      `UNWIND $rows AS row CREATE (n:${label} {id: row.id, name: row.name, value: row.value})`,
+      { rows },
+    );
   },
 
   async findNodes(driver: DriverAdapter, label: string, limit: number): Promise<void> {
@@ -302,19 +310,17 @@ export const graphBenchmarks = {
   },
 
   async updateNodes(driver: DriverAdapter, label: string, count: number): Promise<void> {
-    const statements = Array.from(
-      { length: count },
-      (_, i) => `MATCH (n:${label} {id: 'bench_${i}'}) SET n.updated = ${Date.now()}`,
-    ).join('\n');
-    await driver.runQuery(statements);
+    await driver.runQuery(
+      `UNWIND range(0, $count - 1) AS i MATCH (n:${label} {id: 'bench_' + toString(i)}) SET n.updated = $updated`,
+      { count, updated: Date.now() },
+    );
   },
 
   async deleteNodes(driver: DriverAdapter, label: string, count: number): Promise<void> {
-    const statements = Array.from(
-      { length: count },
-      (_, i) => `MATCH (n:${label} {id: 'bench_${i}'}) DETACH DELETE n`,
-    ).join('\n');
-    await driver.runQuery(statements);
+    await driver.runQuery(
+      `UNWIND range(0, $count - 1) AS i MATCH (n:${label} {id: 'bench_' + toString(i)}) DETACH DELETE n`,
+      { count },
+    );
   },
 
   async createRelations(
@@ -324,12 +330,10 @@ export const graphBenchmarks = {
     type: string,
     count: number,
   ): Promise<void> {
-    const statements = Array.from(
-      { length: count },
-      (_, i) =>
-        `MATCH (a:${fromLabel} {id: 'bench_${i}'}), (b:${toLabel} {id: 'bench_${i}'}) CREATE (a)-[:${type}]->(b)`,
-    ).join('\n');
-    await driver.runQuery(statements);
+    await driver.runQuery(
+      `UNWIND range(0, $count - 1) AS i MATCH (a:${fromLabel} {id: 'bench_' + toString(i)}), (b:${toLabel} {id: 'bench_' + toString(i)}) CREATE (a)-[:${type}]->(b)`,
+      { count },
+    );
   },
 
   async traverse(

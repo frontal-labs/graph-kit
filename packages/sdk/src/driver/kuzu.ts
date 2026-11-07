@@ -14,7 +14,7 @@ import type {
 // Minimal type definitions for kuzu (kuzu doesn't have official types)
 // These are used internally and don't conflict with declaration files
 interface KuzuConnection {
-  query(cypher: string, params?: Record<string, unknown>): Promise<any>;
+  query(cypher: string, params?: Record<string, unknown>): Promise<KuzuQueryResult>;
   close(): Promise<void>;
 }
 
@@ -25,16 +25,12 @@ interface KuzuQueryResult {
   hasNext(): boolean;
 }
 
-interface KuzuDatabase {
-  connect(): KuzuConnection;
-}
-
 interface KuzuModule {
   Database: new (path: string) => { connect(): KuzuConnection };
   Connection: new (
     db: unknown,
   ) => {
-    query(cypher: string, params?: Record<string, unknown>): Promise<any>;
+    query(cypher: string, params?: Record<string, unknown>): Promise<KuzuQueryResult>;
     close(): Promise<void>;
   };
 }
@@ -67,7 +63,6 @@ export class KuzuDriverAdapter implements DriverAdapter {
   private config: KuzuConfig;
   private capabilities: DriverCapabilities;
   private transactionQueries: Array<{ cypher: string; params?: Record<string, unknown> }> = [];
-  private inTransaction: boolean = false;
 
   constructor(config: KuzuConfig) {
     this.config = config;
@@ -126,7 +121,6 @@ export class KuzuDriverAdapter implements DriverAdapter {
       throw new Error('Kuzu not connected. Call connect() first.');
     }
 
-    this.inTransaction = true;
     this.transactionQueries = [];
 
     const txc: TransactionContext = {
@@ -165,7 +159,6 @@ export class KuzuDriverAdapter implements DriverAdapter {
       await this.conn.query('ROLLBACK');
       throw error;
     } finally {
-      this.inTransaction = false;
       this.transactionQueries = [];
     }
   }

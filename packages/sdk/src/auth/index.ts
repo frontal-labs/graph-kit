@@ -63,6 +63,7 @@ export class AuthManager {
   private client: GraphClient;
   private config: AuthConfig;
   private tokenSecret: string;
+  private policies = new Map<string, (user: User, context: Record<string, unknown>) => boolean>();
 
   constructor(config: AuthConfig, tokenSecret: string) {
     this.config = config;
@@ -272,10 +273,11 @@ export class AuthManager {
       throw new Error('Invalid refresh token');
     }
 
-    const payload = verification.payload!;
+    const payload = verification.payload;
+    if (!payload) throw new Error('Invalid refresh token');
     const userId = payload.sub;
     const user = await this.client.findUnique<Record<string, unknown>>(this.config.userNodeLabel, {
-      where: { id: { eq: userId } } as any,
+      where: { id: userId },
     });
 
     if (!user) {
@@ -315,7 +317,7 @@ export class AuthManager {
 
     if (this.config.sessionNodeLabel) {
       await this.client.delete<Record<string, unknown>>(this.config.sessionNodeLabel, {
-        where: { userId: { eq: userId }, token: { eq: token } } as any,
+        where: { userId: { eq: userId }, token: { eq: token } },
       });
     }
   }
@@ -328,7 +330,7 @@ export class AuthManager {
     const payload = verification.payload;
     const userId = payload.sub;
     const user = await this.client.findUnique<Record<string, unknown>>(this.config.userNodeLabel, {
-      where: { id: { eq: userId } } as any,
+      where: { id: userId },
     });
 
     return user as unknown as User | null;
@@ -376,7 +378,7 @@ export class AuthManager {
     // Check if user owns the resource
     if (resourceId) {
       const resource = await this.client.findUnique(resourceLabel, {
-        where: { id: { eq: resourceId } } as any,
+        where: { id: resourceId },
       });
 
       if (resource) {
@@ -415,11 +417,11 @@ export class AuthManager {
     check: (user: User, context: Record<string, unknown>) => boolean,
   ): void {
     // Store policy for later use
-    (this as any)[`policy_${name}`] = check;
+    this.policies.set(name, check);
   }
 
   checkPolicy(name: string, user: User, context: Record<string, unknown>): boolean {
-    const policy = (this as any)[`policy_${name}`];
+    const policy = this.policies.get(name);
     if (!policy) return false;
     return policy(user, context);
   }

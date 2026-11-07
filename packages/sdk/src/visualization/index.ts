@@ -61,7 +61,7 @@ function generateMermaidERD(
     direction: string;
   },
 ): string {
-  const { includeProperties, includeIndexes, includeConstraints, direction } = options;
+  const { includeProperties, direction } = options;
   const lines: string[] = [];
 
   lines.push(`erDiagram`);
@@ -149,7 +149,7 @@ function generateDotERD(
   schema: GraphSchemaRegistry,
   options: { includeProperties: boolean; includeIndexes: boolean; includeConstraints: boolean },
 ): string {
-  const { includeProperties, includeIndexes, includeConstraints } = options;
+  const { includeProperties } = options;
   const lines: string[] = [];
 
   lines.push('digraph ERD {');

@@ -9,6 +9,8 @@ import {
   createMigrationTemplate,
   generateVersion,
   type Migration,
+  type RelationDiff,
+  type SchemaDiff,
 } from '@graph-om/sdk/migration';
 import { Command } from 'commander';
 import { loadProjectConfig } from './generate.js';
@@ -294,7 +296,7 @@ async function loadMigrationFiles(migrationsDir: string): Promise<Migration[]> {
     const version = file.match(/^(\d{14})_/)?.[1];
     if (!version) continue;
 
-    const name = file.replace(/^(\d{14})_/, '').replace(/\.(ts|js)$/, '');
+    const _name = file.replace(/^(\d{14})_/, '').replace(/\.(ts|js)$/, '');
     const filePath = path.join(fullDir, file);
 
     // Migration files are imported, not guessed: a file that fails to load or does not export
@@ -317,7 +319,12 @@ async function loadMigrationFiles(migrationsDir: string): Promise<Migration[]> {
   return migrations.sort((a, b) => a.version.localeCompare(b.version));
 }
 
-function generateMigrationFile(migration: Migration, diff: any): string {
+/** Added relations carry `{ from, to }` pairs, so the comment shows the `to` side */
+function addedRelationLabel(rel: RelationDiff): string {
+  return `${rel.fromNode}.${rel.relationName} (${rel.type?.to ?? ''} ${rel.direction?.to ?? ''} ${rel.target?.to ?? ''})`;
+}
+
+function generateMigrationFile(migration: Migration, diff: SchemaDiff): string {
   const upStatements: string[] = [];
   const downStatements: string[] = [];
 
@@ -356,9 +363,7 @@ function generateMigrationFile(migration: Migration, diff: any): string {
   }
 
   for (const relDiff of diff.addedRelations) {
-    upStatements.push(
-      `// ADD RELATION: ${relDiff.fromNode}.${relDiff.relationName} (${relDiff.type} ${relDiff.direction} ${relDiff.target})`,
-    );
+    upStatements.push(`// ADD RELATION: ${addedRelationLabel(relDiff)}`);
     downStatements.unshift(`// DROP RELATION: ${relDiff.fromNode}.${relDiff.relationName}`);
   }
 

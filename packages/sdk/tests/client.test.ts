@@ -5,10 +5,25 @@ import { GraphClient, neo4jIntegerToNumber, parseNeo4jValue } from '../src/clien
 import type {
   DriverAdapter,
   NodeConfig,
+  PropertyConfig,
   QueryRecord,
   QueryResult,
   TransactionContext,
 } from '../src/types';
+
+// Returns the arguments of the nth call, failing the test with a clear message if it never happened
+function callAt<T extends unknown[]>(calls: T[], index: number): T {
+  const call = calls[index];
+  if (!call) throw new Error(`Expected mock call ${index}, got ${calls.length} call(s)`);
+  return call;
+}
+
+type UserRow = {
+  id: string;
+  name?: string;
+  posts?: Array<{ id: string; title: string }>;
+  profile?: { id: string } | null;
+};
 
 function makeRecord(obj: Record<string, unknown>): QueryRecord {
   return {
@@ -57,7 +72,7 @@ function makeAdapter(runQueryMock: Mock): TestAdapter {
   } as unknown as TestAdapter;
 }
 
-const userConfig: NodeConfig<'User', any> = {
+const userConfig: NodeConfig<'User', Record<string, PropertyConfig>> = {
   label: 'User',
   properties: {
     id: { type: 'string', primary: true },
@@ -79,7 +94,7 @@ const userConfig: NodeConfig<'User', any> = {
   },
 };
 
-const postConfig: NodeConfig<'Post', any> = {
+const postConfig: NodeConfig<'Post', Record<string, PropertyConfig>> = {
   label: 'Post',
   properties: {
     id: { type: 'string', primary: true },
@@ -116,7 +131,7 @@ describe('GraphClient', () => {
     });
 
     expect(runQuery).toHaveBeenCalledTimes(1);
-    const [cypher, params] = runQuery.mock.calls[0]!;
+    const [cypher, params] = callAt(runQuery.mock.calls, 0);
     expect(cypher).toContain('MATCH (n:User)');
     expect(cypher).toContain('WHERE n.name = $name1');
     expect(cypher).toContain('LIMIT 10');
@@ -142,7 +157,7 @@ describe('GraphClient', () => {
     );
     const client = new GraphClient(makeAdapter(runQuery), { User: userConfig });
     const user = await client.findUnique('User', { where: { id: '1' } });
-    const [cypher, params] = runQuery.mock.calls[0]!;
+    const [cypher, params] = callAt(runQuery.mock.calls, 0);
     expect(cypher).toBe('MATCH (n:User {id: $id}) RETURN n');
     expect(params).toEqual({ id: '1' });
     expect(user).toEqual({ id: '1', name: 'Alice' });
@@ -154,7 +169,7 @@ describe('GraphClient', () => {
     );
     const client = new GraphClient(makeAdapter(runQuery), { User: userConfig });
     const created = await client.create('User', { data: { id: '1', name: 'Alice' } });
-    const [cypher] = runQuery.mock.calls[0]!;
+    const [cypher] = callAt(runQuery.mock.calls, 0);
     expect(cypher).toContain('CREATE (n:User');
     expect(created).toEqual({ id: '1', name: 'Alice' });
   });
@@ -168,7 +183,7 @@ describe('GraphClient', () => {
       data: { id: '1', name: 'Alice' },
       relations: { posts: { connect: { id: 'p1' } } },
     });
-    const [cypher] = runQuery.mock.calls[0]!;
+    const [cypher] = callAt(runQuery.mock.calls, 0);
     expect(cypher).toContain('MATCH (target0:Post {id:');
     expect(cypher).toContain('CREATE (n)-[r0:POSTED]->(target0)');
   });
@@ -189,7 +204,7 @@ describe('GraphClient', () => {
     );
     const client = new GraphClient(makeAdapter(runQuery), { User: userConfig });
     await client.delete('User', { where: { id: '1' } });
-    const [cypher] = runQuery.mock.calls[0]!;
+    const [cypher] = callAt(runQuery.mock.calls, 0);
     expect(cypher).toContain('DETACH DELETE n');
   });
 
@@ -223,7 +238,7 @@ describe('GraphClient', () => {
     );
     const client = new GraphClient(makeAdapter(runQuery), { User: userConfig, Post: postConfig });
     await client.relate('User', 'a1', 'POSTED', 'Post', 'p1', 'OUT');
-    const [cypher, params] = runQuery.mock.calls[0]!;
+    const [cypher, params] = callAt(runQuery.mock.calls, 0);
     expect(cypher).toContain('MATCH (a:User {id: $fromId})');
     expect(cypher).toContain('MATCH (b:Post {id: $toId})');
     expect(params).toEqual({ fromId: 'a1', toId: 'p1' });
@@ -235,7 +250,7 @@ describe('GraphClient', () => {
     );
     const client = new GraphClient(makeAdapter(runQuery), { User: userConfig, Post: postConfig });
     await client.unrelate('User', 'a1', 'POSTED', 'Post', 'p1', 'OUT');
-    const [cypher] = runQuery.mock.calls[0]!;
+    const [cypher] = callAt(runQuery.mock.calls, 0);
     expect(cypher).toContain('DELETE r');
     expect(cypher).toContain('MATCH (a:User {id: $fromId})');
   });
@@ -258,10 +273,10 @@ describe('GraphClient', () => {
       Post: postConfig,
     });
 
-    const users = await client.findMany<any>('User', { include: { posts: true } });
+    const users = await client.findMany<UserRow>('User', { include: { posts: true } });
 
     expect(runQuery).toHaveBeenCalledTimes(2);
-    const [hydrateCypher, hydrateParams] = runQuery.mock.calls[1]!;
+    const [hydrateCypher, hydrateParams] = callAt(runQuery.mock.calls, 1);
     expect(hydrateCypher).toContain('UNWIND $ids AS sourceId');
     expect(hydrateCypher).toContain('[r:POSTED]->');
     expect(hydrateParams).toEqual({ ids: ['1', '2'] });
@@ -270,7 +285,7 @@ describe('GraphClient', () => {
   });
 
   it('include hydrates single (non-multiple) relations as object or null', async () => {
-    const profileConfig: NodeConfig<'Profile', any> = {
+    const profileConfig: NodeConfig<'Profile', Record<string, PropertyConfig>> = {
       label: 'Profile',
       properties: { id: { type: 'string', primary: true } },
       relations: {},
@@ -286,7 +301,7 @@ describe('GraphClient', () => {
       Profile: profileConfig,
     });
 
-    const users = await client.findMany<any>('User', { include: { profile: true } });
+    const users = await client.findMany<UserRow>('User', { include: { profile: true } });
     expect(users[0]?.profile).toEqual({ id: 'prof1' });
   });
 
@@ -304,7 +319,7 @@ describe('GraphClient', () => {
     const client = new GraphClient(adapter, { User: userConfig });
 
     const rows = await client.transaction(async (tx: GraphTransaction) => {
-      return tx.findMany<any>('User');
+      return tx.findMany<UserRow>('User');
     });
 
     expect(rows).toEqual([{ id: '1', age: 3 }]);

@@ -3,7 +3,7 @@
 // Provides graph database operations through MCP protocol
 
 import type { DriverAdapter, DriverConfig } from '@graph-om/sdk';
-import { createDriver } from '@graph-om/sdk';
+import { type AnyDriverConfig, createDriver } from '@graph-om/sdk';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -27,7 +27,7 @@ export class GraphOMMCPServer {
     this.driver =
       'runQuery' in config.driver
         ? (config.driver as DriverAdapter)
-        : createDriver(config.driver as any);
+        : createDriver(config.driver as AnyDriverConfig);
 
     this.server = new Server(
       {

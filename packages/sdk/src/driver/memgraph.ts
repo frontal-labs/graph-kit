@@ -27,10 +27,8 @@ export interface MemgraphConfig extends DriverConfig {
 export class MemgraphDriverAdapter implements DriverAdapter {
   private neo4jAdapter: Neo4jDriverAdapter;
   private capabilities: DriverCapabilities;
-  private config: MemgraphConfig;
 
   constructor(config: MemgraphConfig) {
-    this.config = config;
     this.capabilities = {
       transactions: true,
       readReplicas: false, // Memgraph doesn't support read replicas in same way

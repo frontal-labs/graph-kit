@@ -3,6 +3,7 @@
 
 import { QueryCompiler, type RelationEndpoint } from '../query';
 import type {
+  AnyNodeConfig,
   CreateOptions,
   DeleteOptions,
   DriverAdapter,
@@ -12,6 +13,7 @@ import type {
   IncludeInput,
   NodeConfig,
   NoInferShim,
+  PropertyConfig,
   QueryResult,
   RelationConfig,
   TransactionContext,
@@ -23,16 +25,16 @@ import type {
 export class GraphClient {
   private driver: DriverAdapter;
   private compiler: QueryCompiler;
-  private schemaNodes: Map<string, NodeConfig<any, any>>;
+  private schemaNodes: Map<string, AnyNodeConfig>;
 
-  constructor(driver: DriverAdapter, schemaNodes?: Record<string, NodeConfig<any, any>>) {
+  constructor(driver: DriverAdapter, schemaNodes?: Record<string, AnyNodeConfig>) {
     this.driver = driver;
     this.compiler = new QueryCompiler();
     this.schemaNodes = new Map();
 
     if (schemaNodes) {
       for (const [name, nodeConfig] of Object.entries(schemaNodes)) {
-        this.schemaNodes.set(name, nodeConfig as NodeConfig<any, any>);
+        this.schemaNodes.set(name, nodeConfig as AnyNodeConfig);
       }
     }
   }
@@ -47,20 +49,23 @@ export class GraphClient {
    * ```
    */
   static fromConfig(
-    driverOrFactory: DriverAdapter | ((config?: any) => DriverAdapter),
+    driverOrFactory: DriverAdapter | ((config?: unknown) => DriverAdapter),
     config?: Partial<GraphConfig>,
-    schemaNodes?: Record<string, NodeConfig<any, any>>,
+    schemaNodes?: Record<string, AnyNodeConfig>,
   ): GraphClient {
     const driver =
       typeof driverOrFactory === 'function' ? driverOrFactory(config?.driver) : driverOrFactory;
     return new GraphClient(driver, schemaNodes);
   }
 
-  registerNode<TName extends string>(name: TName, config: NodeConfig<TName, any>): void {
+  registerNode<TName extends string>(
+    name: TName,
+    config: NodeConfig<TName, Record<string, PropertyConfig>>,
+  ): void {
     this.schemaNodes.set(name, config);
   }
 
-  registerNodes(nodes: Record<string, NodeConfig<any, any>>): void {
+  registerNodes(nodes: Record<string, AnyNodeConfig>): void {
     for (const [name, config] of Object.entries(nodes)) {
       this.schemaNodes.set(name, config);
     }
@@ -74,7 +79,7 @@ export class GraphClient {
     await this.driver.disconnect();
   }
 
-  getNodeConfig(label: string): NodeConfig<any, any> {
+  getNodeConfig(label: string): AnyNodeConfig {
     const config = this.schemaNodes.get(label);
     if (!config) {
       throw new Error(
@@ -112,7 +117,7 @@ export class GraphClient {
 
     if (result.records.length === 0) return null;
 
-    const record = result.records[0]!;
+    const record = result.records[0];
     const item = this.toObject<T>(record);
 
     if (options.include) {
@@ -139,7 +144,7 @@ export class GraphClient {
 
     const result = await this.driver.runQuery(query.cypher, query.params);
     if (result.records.length === 0) throw new Error(`Failed to create ${label}`);
-    const record = result.records[0]!;
+    const record = result.records[0];
     return this.toObject<T>(record);
   }
 
@@ -160,7 +165,7 @@ export class GraphClient {
       throw new Error(`Failed to update ${label}: record not found`);
     }
 
-    const record = result.records[0]!;
+    const record = result.records[0];
     return this.toObject<T>(record);
   }
 
@@ -186,7 +191,7 @@ export class GraphClient {
       nodeConfig,
     );
     const result = await this.driver.runQuery(query.cypher, query.params);
-    const record = result.records[0]!;
+    const record = result.records[0];
     return this.toObject<T>(record);
   }
 
@@ -195,8 +200,8 @@ export class GraphClient {
     const result = await this.driver.runQuery(query.cypher, query.params);
 
     if (result.records.length === 0) return 0;
-    const record = result.records[0]!;
-    const value = record.get('result');
+    const record = result.records[0];
+    const value = record?.get('result');
     return neo4jIntegerToNumber(value);
   }
 
@@ -210,8 +215,8 @@ export class GraphClient {
     const result = await this.driver.runQuery(query.cypher, query.params);
 
     if (result.records.length === 0) return 0;
-    const record = result.records[0]!;
-    const value = record.get('result');
+    const record = result.records[0];
+    const value = record?.get('result');
     return neo4jIntegerToNumber(value);
   }
 
@@ -313,10 +318,10 @@ export class GraphClient {
     const query = this.compiler.compileShortestPath(fromLabel, relationType, toLabel, options);
     const result = await this.driver.runQuery(query.cypher, query.params);
     if (result.records.length === 0) return null;
-    const record = result.records[0]!;
+    const record = result.records[0];
     return {
-      nodes: [this.toObject(record.get('n')), this.toObject(record.get('m'))],
-      path: record.get('path'),
+      nodes: [this.toObject(record?.get('n')), this.toObject(record?.get('m'))],
+      path: record?.get('path'),
     };
   }
 
@@ -343,8 +348,8 @@ export class GraphClient {
 
   private async hydrateRelations<T extends Record<string, unknown>>(
     items: T[],
-    include: IncludeInput<Record<string, any>>,
-    nodeConfig: NodeConfig<any, any>,
+    include: IncludeInput,
+    nodeConfig: AnyNodeConfig,
   ): Promise<T[]> {
     for (const [relName, includeConfig] of Object.entries(include)) {
       if (!includeConfig) continue;
@@ -398,7 +403,7 @@ export class GraphClient {
         if (targetNodeConfig && allTargets.length > 0) {
           allTargets = await this.hydrateRelations(
             allTargets,
-            includeConfig as IncludeInput<Record<string, any>>,
+            includeConfig as IncludeInput,
             targetNodeConfig,
           );
           // Re-link hydrated objects back into their buckets by id
@@ -411,13 +416,12 @@ export class GraphClient {
 
         if (typeof includeConfig === 'object') {
           // buckets hold references that hydrateRelations mutated in place
-          const rel = relConfig.multiple ? targets : targets.length > 0 ? targets[0]! : null;
+          const rel = relConfig.multiple ? targets : (targets[0] ?? null);
           (item as Record<string, unknown>)[String(relName)] = rel;
         } else if (relConfig.multiple) {
           (item as Record<string, unknown>)[String(relName)] = targets;
         } else {
-          (item as Record<string, unknown>)[String(relName)] =
-            targets.length > 0 ? targets[0]! : null;
+          (item as Record<string, unknown>)[String(relName)] = targets[0] ?? null;
         }
       }
     }
@@ -440,12 +444,12 @@ export class GraphClient {
 export class GraphTransaction {
   private compiler: QueryCompiler;
   private txc: TransactionContext;
-  private schemaNodes: Map<string, NodeConfig<any, any>>;
+  private schemaNodes: Map<string, AnyNodeConfig>;
 
   constructor(
     compiler: QueryCompiler,
     txc: TransactionContext,
-    schemaNodes: Map<string, NodeConfig<any, any>>,
+    schemaNodes: Map<string, AnyNodeConfig>,
   ) {
     this.compiler = compiler;
     this.txc = txc;
@@ -456,13 +460,13 @@ export class GraphTransaction {
     return await this.txc.run(cypher, params);
   }
 
-  private toObject<T>(record: any): T {
-    const obj = typeof record?.toObject === 'function' ? record.toObject() : record;
+  private toObject<T>(record: unknown): T {
+    const obj = hasToObject(record) ? record.toObject() : record;
     if (!obj || typeof obj !== 'object') return obj as T;
-    return toPlainRecord<T>(obj);
+    return toPlainRecord<T>(obj as Record<string, unknown>);
   }
 
-  getNodeConfig(label: string): NodeConfig<any, any> {
+  getNodeConfig(label: string): AnyNodeConfig {
     const config = this.schemaNodes.get(label);
     if (!config) {
       throw new Error(`Node "${label}" is not registered in the schema.`);
@@ -569,6 +573,14 @@ function isNeo4jInteger(value: object): value is Neo4jLikeInteger {
   return typeof v['low'] === 'number' && typeof v['high'] === 'number';
 }
 
+function hasToObject(value: unknown): value is { toObject(): Record<string, unknown> } {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as { toObject?: unknown }).toObject === 'function'
+  );
+}
+
 function isNodeLike(value: unknown): value is { properties: Record<string, unknown> } {
   return (
     typeof value === 'object' &&
@@ -584,7 +596,8 @@ function isNodeLike(value: unknown): value is { properties: Record<string, unkno
  */
 function toPlainRecord<T>(obj: Record<string, unknown>): T {
   const keys = Object.keys(obj);
-  const only = keys.length === 1 ? obj[keys[0]!] : undefined;
+  const [firstKey] = keys;
+  const only = keys.length === 1 && firstKey !== undefined ? obj[firstKey] : undefined;
   const source = isNodeLike(only) ? only.properties : obj;
   const result: Record<string, unknown> = {};
   for (const key of Object.keys(source)) {

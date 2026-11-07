@@ -147,14 +147,15 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
     return flattened;
   }
 
-  private mapResult(result: any): QueryResult {
+  private mapResult(result: unknown): QueryResult {
     // FalkorDB returns results in a specific format
-    // { header: string[], results: any[][] }
-    const header = result.header || [];
-    const results = result.results || [];
+    // { header: string[], results: unknown[][] }
+    const reply = (result ?? {}) as { header?: string[]; results?: unknown[] };
+    const header = reply.header || [];
+    const results = reply.results || [];
 
     return {
-      records: results.map((row: any[]) => this.mapRecord(header, row)),
+      records: results.map((row) => this.mapRecord(header, Array.isArray(row) ? row : [])),
       summary: {
         query: { text: '', parameters: {} },
         counters: {},
@@ -171,7 +172,7 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
     return this.capabilities;
   }
 
-  private mapRecord(header: string[], row: any[]): QueryRecord {
+  private mapRecord(header: string[], row: unknown[]): QueryRecord {
     const obj: Record<string, unknown> = {};
     header.forEach((key, index) => {
       obj[key] = this.parseValue(row[index]);
@@ -183,7 +184,7 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
     };
   }
 
-  private parseValue(value: any): unknown {
+  private parseValue(value: unknown): unknown {
     if (value === null || value === undefined) return value;
     if (typeof value === 'string') {
       // Try to parse JSON

@@ -2,6 +2,7 @@
 // Schema definition API - Drizzle-style fluent API
 
 import type {
+  AnyNodeConfig,
   InferNodeProperties,
   InferNodeRelations,
   NodeConfig,
@@ -14,7 +15,7 @@ import type {
 export interface NodeBuilder<
   TName extends string,
   TProps extends Record<string, PropertyConfig>,
-  TRels extends Record<string, RelationConfig<any, any>>,
+  TRels extends Record<string, RelationConfig<string, string>>,
 > {
   label: TName;
   properties: TProps;
@@ -41,22 +42,26 @@ export interface NodeBuilder<
 function createNodeBuilder<
   TName extends string,
   TProps extends Record<string, PropertyConfig>,
-  TRels extends Record<string, RelationConfig<any, any>>,
+  TRels extends Record<string, RelationConfig<string, string>>,
 >(
   label: TName,
   initialProps: TProps,
   initialRels: TRels,
-  indexes: NodeConfig<any, any>['indexes'] = [],
-  constraints: NodeConfig<any, any>['constraints'] = [],
+  indexes: AnyNodeConfig['indexes'] = [],
+  constraints: AnyNodeConfig['constraints'] = [],
 ): NodeBuilder<TName, TProps, TRels> {
-  const builder: NodeBuilder<TName, TProps, TRels> = {
+  // add() returns a builder whose generics differ per branch; the overloads on NodeBuilder describe the typed API
+  const builder = {
     label,
     properties: initialProps,
     relations: initialRels,
     indexes: indexes as NonNullable<NodeConfig<TName, TProps>['indexes']>,
     constraints: constraints as NonNullable<NodeConfig<TName, TProps>['constraints']>,
 
-    add<K extends string>(key: K, config: PropertyConfig | RelationConfig<any, any>): any {
+    add<K extends string>(
+      key: K,
+      config: PropertyConfig | RelationConfig<string, string>,
+    ): unknown {
       if ('direction' in config && 'target' in config) {
         return createNodeBuilder(
           label,
@@ -101,7 +106,7 @@ function createNodeBuilder<
         constraints: constraints as NonNullable<NodeConfig<TName, TProps>['constraints']>,
       } as NodeConfig<TName, TProps>;
     },
-  };
+  } as NodeBuilder<TName, TProps, TRels>;
 
   return builder;
 }
@@ -245,7 +250,7 @@ export function defineRel<TFrom extends string, TTo extends string>(
   return relation(type, direction, target, config);
 }
 
-export interface SchemaBuilder<TNodes extends Record<string, NodeConfig<any, any>>> {
+export interface SchemaBuilder<TNodes extends Record<string, AnyNodeConfig>> {
   nodes: TNodes;
 
   add<TName extends string, TProps extends Record<string, PropertyConfig>>(
@@ -256,7 +261,7 @@ export interface SchemaBuilder<TNodes extends Record<string, NodeConfig<any, any
   build(): TNodes;
 }
 
-function createSchemaBuilder<TNodes extends Record<string, NodeConfig<any, any>>>(
+function createSchemaBuilder<TNodes extends Record<string, AnyNodeConfig>>(
   nodes: TNodes = {} as TNodes,
 ): SchemaBuilder<TNodes> {
   return {

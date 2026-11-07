@@ -41,8 +41,10 @@ async function main() {
   await listUserNames(client);
   const log = driver.getQueryLog();
   assert.equal(log.length, 1);
-  assert.match(log[0]!.query, /MATCH \(n:User/);
-  console.log('ok: query sent:', log[0]!.query.replace(/\s+/g, ' ').trim());
+  const entry = log[0];
+  assert.ok(entry);
+  assert.match(entry.query, /MATCH \(n:User/);
+  console.log('ok: query sent:', entry.query.replace(/\s+/g, ' ').trim());
 
   // 3. Writes land in the mock store
   const before = driver.count('User');

@@ -149,7 +149,7 @@ export class MockDriverAdapter implements DriverAdapter {
     return this.queryLog.filter((q) => q.cypher === cypher).length;
   }
 
-  mockQuery(_cypher: string, _records: any[], _params?: Record<string, unknown>): void {
+  mockQuery(_cypher: string, _records: unknown[], _params?: Record<string, unknown>): void {
     // This would be used to mock specific query responses
   }
 
@@ -168,8 +168,10 @@ export function createMockDriver(): MockDriverAdapter {
 }
 
 // Vitest/Jest matchers for Graph-OM
+type MatchableNode = { label?: unknown; relations?: Record<string, unknown> } | null | undefined;
+
 export const graphMatchers = {
-  toBeValidNode: (node: any, expectedLabel?: string) => {
+  toBeValidNode: (node: MatchableNode, expectedLabel?: string) => {
     if (!node || typeof node !== 'object') {
       return { pass: false, message: () => 'Expected a valid node object' };
     }
@@ -182,7 +184,7 @@ export const graphMatchers = {
     return { pass: true, message: () => 'Valid node' };
   },
 
-  toHaveRelation: (node: any, relationName: string) => {
+  toHaveRelation: (node: MatchableNode, relationName: string) => {
     if (!node?.relations?.[relationName]) {
       return { pass: false, message: () => `Expected node to have relation ${relationName}` };
     }

@@ -2,9 +2,9 @@
 // Cypher query compiler - translates high-level queries to optimized Cypher
 
 import type {
+  AnyNodeConfig,
   CreateInput,
   IncludeInput,
-  NodeConfig,
   NoInferShim,
   OrderByInput,
   PropertyConfig,
@@ -255,7 +255,7 @@ export class QueryCompiler {
   compileFindUnique<T extends Record<string, unknown>>(
     label: string,
     where: NoInferShim<WhereCondition<T> & { id?: string }>,
-    nodeConfig: NodeConfig<any, any>,
+    nodeConfig: AnyNodeConfig,
   ): CompiledQuery {
     this.reset();
 
@@ -281,7 +281,7 @@ export class QueryCompiler {
   compileCreate<T extends Record<string, unknown>>(
     label: string,
     data: CreateInput<T>,
-    _nodeConfig: NodeConfig<any, any>,
+    _nodeConfig: AnyNodeConfig,
   ): CompiledQuery {
     this.reset();
     this.paramCounter = 0;
@@ -311,7 +311,7 @@ export class QueryCompiler {
     label: string,
     data: CreateInput<T>,
     relations: Record<string, { connect?: { where: Record<string, unknown> } | { id: string } }>,
-    nodeConfig: NodeConfig<any, any>,
+    nodeConfig: AnyNodeConfig,
   ): CompiledQuery {
     this.reset();
 
@@ -391,7 +391,7 @@ export class QueryCompiler {
     label: string,
     where: NoInferShim<WhereCondition<T> & { id?: string }>,
     data: UpdateInput<T>,
-    nodeConfig: NodeConfig<any, any>,
+    nodeConfig: AnyNodeConfig,
   ): CompiledQuery {
     this.reset();
 
@@ -433,7 +433,7 @@ export class QueryCompiler {
   compileDelete<T extends Record<string, unknown>>(
     label: string,
     where: NoInferShim<WhereCondition<T> & { id?: string }>,
-    nodeConfig: NodeConfig<any, any>,
+    nodeConfig: AnyNodeConfig,
   ): CompiledQuery {
     this.reset();
 
@@ -461,9 +461,9 @@ export class QueryCompiler {
   }
 
   compileInclude(
-    include: IncludeInput<Record<string, any>> | undefined,
+    include: IncludeInput | undefined,
     nodeAlias: string,
-    nodeConfig: NodeConfig<any, any>,
+    nodeConfig: AnyNodeConfig,
   ): CompiledQuery[] {
     if (!include) return [];
 
@@ -533,7 +533,7 @@ export class QueryCompiler {
     where: NoInferShim<WhereCondition<T> & { id?: string }>,
     create: CreateInput<T>,
     update: UpdateInput<T>,
-    nodeConfig: NodeConfig<any, any>,
+    nodeConfig: AnyNodeConfig,
   ): CompiledQuery {
     this.reset();
 
@@ -917,7 +917,7 @@ RETURN ${alias}`;
     return { cypher, params };
   }
 
-  private findPrimaryKey(nodeConfig: NodeConfig<any, any>): string | null {
+  private findPrimaryKey(nodeConfig: AnyNodeConfig): string | null {
     for (const [key, prop] of Object.entries(nodeConfig.properties)) {
       const config = prop as PropertyConfig;
       if (config.primary) {

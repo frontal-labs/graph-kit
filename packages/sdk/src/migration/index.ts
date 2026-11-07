@@ -293,8 +293,9 @@ export function diffSchemas(
   const modifiedNodes = new Map<string, NodeDiff>();
 
   for (const nodeName of commonNodes) {
-    const oldNode = oldSchema[nodeName]!;
-    const newNode = newSchema[nodeName]!;
+    const oldNode = oldSchema[nodeName];
+    const newNode = newSchema[nodeName];
+    if (!oldNode || !newNode) continue;
 
     const oldProps = new Set(Object.keys(oldNode.properties));
     const newProps = new Set(Object.keys(newNode.properties));
@@ -308,6 +309,7 @@ export function diffSchemas(
     for (const propName of commonProps) {
       const oldProp = oldNode.properties[propName];
       const newProp = newNode.properties[propName];
+      if (!oldProp || !newProp) continue;
 
       const diff: PropertyDiff = {};
 
@@ -367,14 +369,16 @@ export function diffSchemas(
   const removedRelations: RelationDiff[] = [];
 
   for (const nodeName of commonNodes) {
-    const oldNode = oldSchema[nodeName]!;
-    const newNode = newSchema[nodeName]!;
+    const oldNode = oldSchema[nodeName];
+    const newNode = newSchema[nodeName];
+    if (!oldNode || !newNode) continue;
 
     const oldRels = new Set(Object.keys(oldNode.relations));
     const newRels = new Set(Object.keys(newNode.relations));
 
     for (const relName of [...newRels].filter((r) => !oldRels.has(r))) {
-      const newRel = newNode.relations[relName]!;
+      const newRel = newNode.relations[relName];
+      if (!newRel) continue;
       addedRelations.push({
         fromNode: nodeName,
         relationName: relName,
@@ -388,7 +392,8 @@ export function diffSchemas(
     }
 
     for (const relName of [...oldRels].filter((r) => !newRels.has(r))) {
-      const oldRel = oldNode.relations[relName]!;
+      const oldRel = oldNode.relations[relName];
+      if (!oldRel) continue;
       removedRelations.push({
         fromNode: nodeName,
         relationName: relName,
@@ -402,8 +407,10 @@ export function diffSchemas(
     }
 
     for (const relName of [...newRels].filter((r) => oldRels.has(r))) {
-      const oldRel = oldNode.relations[relName]!;
-      const newRel = newNode.relations[relName]!;
+      const oldRel = oldNode.relations[relName];
+      if (!oldRel) continue;
+      const newRel = newNode.relations[relName];
+      if (!newRel) continue;
 
       const diff: RelationDiff = {
         fromNode: nodeName,

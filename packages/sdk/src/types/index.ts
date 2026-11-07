@@ -44,7 +44,7 @@ export type PropertyTypeToJSType<T extends PropertyType> = T extends 'string'
 export interface NodeConfig<TName extends string, TProps extends Record<string, PropertyConfig>> {
   label: TName;
   properties: TProps;
-  relations: Record<string, RelationConfig<any, any>>;
+  relations: Record<string, RelationConfig<string, string>>;
   indexes?: Array<{ fields: string[]; unique?: boolean }>;
   constraints?: Array<{ fields: string[]; type: 'UNIQUE' | 'EXISTS' }>;
 }
@@ -73,22 +73,28 @@ export interface RelationConfig<_TFrom extends string, TTo extends string> {
   _allShortestPaths?: boolean;
 }
 
-export type InferNodeProperties<TConfig extends NodeConfig<any, any>> = {
+export type InferNodeProperties<
+  TConfig extends NodeConfig<string, Record<string, PropertyConfig>>,
+> = {
   [K in keyof TConfig['properties']]: TConfig['properties'][K]['nullable'] extends true
     ? PropertyTypeToJSType<TConfig['properties'][K]['type']> | null
     : PropertyTypeToJSType<TConfig['properties'][K]['type']>;
 };
 
-export type InferNodeRelations<TConfig extends NodeConfig<any, any>> = {
-  [K in keyof TConfig['relations']]: TConfig['relations'][K]['multiple'] extends true
-    ? InferNode<TConfig['relations'][K]['target']>[]
-    : InferNode<TConfig['relations'][K]['target']> | null;
-};
+export type InferNodeRelations<TConfig extends NodeConfig<string, Record<string, PropertyConfig>>> =
+  {
+    [K in keyof TConfig['relations']]: TConfig['relations'][K]['multiple'] extends true
+      ? InferNode<TConfig['relations'][K]['target']>[]
+      : InferNode<TConfig['relations'][K]['target']> | null;
+  };
 
 /**
  * A registry of node names to their NodeConfig maps, as returned by `schema().build()`.
  */
-export type GraphSchemaRegistry = Record<string, NodeConfig<any, any>>;
+export type GraphSchemaRegistry = Record<
+  string,
+  NodeConfig<string, Record<string, PropertyConfig>>
+>;
 
 /**
  * Resolve a node's inferred shape by label against a schema registry.
@@ -106,7 +112,7 @@ export type InferNode<
   ? InferNodeProperties<TRegistry[TName]> & InferNodeRelations<TRegistry[TName]>
   : Record<string, unknown>;
 
-export type InferRelationProperties<TConfig extends RelationConfig<any, any>> =
+export type InferRelationProperties<TConfig extends RelationConfig<string, string>> =
   TConfig['properties'] extends Record<string, PropertyConfig>
     ? {
         [K in keyof TConfig['properties']]: TConfig['properties'][K]['nullable'] extends true
@@ -145,8 +151,10 @@ export type OrderByInput<T> = {
   [K in keyof T]?: OrderByDirection;
 };
 
-export type IncludeInput<TRelations extends Record<string, any>> = {
-  [K in keyof TRelations]?: boolean | IncludeInput<TRelations[K]>;
+export type AnyNodeConfig = NodeConfig<string, Record<string, PropertyConfig>>;
+
+export type IncludeInput = {
+  [relation: string]: boolean | IncludeInput | undefined;
 };
 
 export type SelectInput<T> = {
@@ -188,12 +196,12 @@ export interface FindManyOptions<T extends Record<string, unknown>> {
   limit?: number;
   skip?: number;
   select?: SelectInput<T>;
-  include?: IncludeInput<Record<string, any>>;
+  include?: IncludeInput;
 }
 
 export interface FindUniqueOptions<T extends Record<string, unknown>> {
   where: NoInferShim<WhereCondition<T> & { id?: string }>;
-  include?: IncludeInput<Record<string, any>>;
+  include?: IncludeInput;
 }
 
 export interface CreateOptions<T extends Record<string, unknown>> {
@@ -238,8 +246,8 @@ export interface QueryResult {
     query: { text: string; parameters: Record<string, unknown> };
     counters: Record<string, number>;
     notifications: Array<Record<string, unknown>>;
-    resultAvailableAfter?: number;
-    resultConsumedAfter?: number;
+    resultAvailableAfter: number;
+    resultConsumedAfter: number;
     database: { name: string };
   };
   keys: string[];

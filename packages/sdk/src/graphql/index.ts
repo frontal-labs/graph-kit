@@ -87,14 +87,20 @@ export function generateGraphQLSchema(config: GraphQLSchemaConfig): string {
   }
 
   // Generate node types
-  for (const [label, nodeConfig] of Object.entries(schema) as [string, NodeConfig<any, any>][]) {
+  for (const [label, nodeConfig] of Object.entries(schema) as [
+    string,
+    NodeConfig<string, Record<string, PropertyConfig>>,
+  ][]) {
     const typeName = label;
     const fields = generateNodeFields(nodeConfig, config.includeRelations);
     types.push(`type ${typeName} {\n  ${fields.join('\n  ')}\n}`);
   }
 
   // Generate input types
-  for (const [label, nodeConfig] of Object.entries(schema) as [string, NodeConfig<any, any>][]) {
+  for (const [label, nodeConfig] of Object.entries(schema) as [
+    string,
+    NodeConfig<string, Record<string, PropertyConfig>>,
+  ][]) {
     const createInput = generateCreateInputType(label, nodeConfig);
     const updateInput = generateUpdateInputType(label, nodeConfig);
     const whereInput = generateWhereInputType(label, nodeConfig);
@@ -105,7 +111,10 @@ export function generateGraphQLSchema(config: GraphQLSchemaConfig): string {
   }
 
   // Generate query fields
-  for (const [label, _nodeConfig] of Object.entries(schema) as [string, NodeConfig<any, any>][]) {
+  for (const [label, _nodeConfig] of Object.entries(schema) as [
+    string,
+    NodeConfig<string, Record<string, PropertyConfig>>,
+  ][]) {
     const plural = pluralize(label.toLowerCase());
     const singular = label.toLowerCase();
 
@@ -147,7 +156,10 @@ export function generateGraphQLSchema(config: GraphQLSchemaConfig): string {
   return types.join('\n\n');
 }
 
-function generateNodeFields(nodeConfig: NodeConfig<any, any>, includeRelations = true): string[] {
+function generateNodeFields(
+  nodeConfig: NodeConfig<string, Record<string, PropertyConfig>>,
+  includeRelations = true,
+): string[] {
   const fields: string[] = [];
 
   for (const [propName, propConfig] of Object.entries(
@@ -194,7 +206,10 @@ function propertyToGraphQLType(propConfig: PropertyConfig): string {
   }
 }
 
-function generateCreateInputType(label: string, nodeConfig: NodeConfig<any, any>): string {
+function generateCreateInputType(
+  label: string,
+  nodeConfig: NodeConfig<string, Record<string, PropertyConfig>>,
+): string {
   const fields: string[] = [];
 
   for (const [propName, propConfig] of Object.entries(
@@ -211,7 +226,10 @@ function generateCreateInputType(label: string, nodeConfig: NodeConfig<any, any>
   return `input ${label}CreateInput {\n  ${fields.join('\n  ')}\n}`;
 }
 
-function generateUpdateInputType(label: string, nodeConfig: NodeConfig<any, any>): string {
+function generateUpdateInputType(
+  label: string,
+  nodeConfig: NodeConfig<string, Record<string, PropertyConfig>>,
+): string {
   const fields: string[] = [];
 
   for (const [propName, propConfig] of Object.entries(
@@ -226,7 +244,10 @@ function generateUpdateInputType(label: string, nodeConfig: NodeConfig<any, any>
   return `input ${label}UpdateInput {\n  ${fields.join('\n  ')}\n}`;
 }
 
-function generateWhereInputType(label: string, nodeConfig: NodeConfig<any, any>): string {
+function generateWhereInputType(
+  label: string,
+  nodeConfig: NodeConfig<string, Record<string, PropertyConfig>>,
+): string {
   const fields: string[] = [];
 
   for (const [propName, propConfig] of Object.entries(
@@ -356,7 +377,7 @@ export function generateResolvers(config: GraphQLResolversConfig): Record<string
 
   // Relation resolvers
   for (const [label, nodeConfig] of Object.entries(
-    schema as Record<string, NodeConfig<any, any>>,
+    schema as Record<string, NodeConfig<string, Record<string, PropertyConfig>>>,
   )) {
     nodeResolvers[label] = {};
     for (const [relName, relConfig] of Object.entries(nodeConfig.relations)) {
@@ -381,7 +402,7 @@ export interface ApolloServerConfig {
   plugins?: unknown[];
 }
 
-export function createApolloServerConfig(config: ApolloServerConfig): unknown {
+export function createApolloServerConfig(_config: ApolloServerConfig): unknown {
   throw new Error(
     'createApolloServerConfig() is not implemented. Pass generateGraphQLSchema() and generateResolvers() to your Apollo Server instance directly.',
   );
@@ -393,7 +414,7 @@ export interface GraphQLYogaConfig {
   graphqlEndpoint?: string;
 }
 
-export function createGraphQLYogaConfig(config: GraphQLYogaConfig): unknown {
+export function createGraphQLYogaConfig(_config: GraphQLYogaConfig): unknown {
   throw new Error(
     'createGraphQLYogaConfig() is not implemented. Pass generateGraphQLSchema() and generateResolvers() to your Yoga server directly.',
   );

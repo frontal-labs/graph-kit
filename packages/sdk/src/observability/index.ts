@@ -146,13 +146,14 @@ export class QueryLogger {
     let filtered = [...this.logs];
 
     if (filter) {
-      if (filter.since) filtered = filtered.filter((l) => l.timestamp >= filter.since!);
-      if (filter.until) filtered = filtered.filter((l) => l.timestamp <= filter.until!);
-      if (filter.minDuration) filtered = filtered.filter((l) => l.duration >= filter.minDuration!);
+      const { since, until, minDuration, queryContains } = filter;
+      if (since) filtered = filtered.filter((l) => l.timestamp >= since);
+      if (until) filtered = filtered.filter((l) => l.timestamp <= until);
+      if (minDuration) filtered = filtered.filter((l) => l.duration >= minDuration);
       if (filter.success !== undefined)
         filtered = filtered.filter((l) => l.success === filter.success);
-      if (filter.queryContains) {
-        filtered = filtered.filter((l) => l.query.includes(filter.queryContains!));
+      if (queryContains) {
+        filtered = filtered.filter((l) => l.query.includes(queryContains));
       }
     }
 
@@ -289,7 +290,7 @@ export class LoggingDriverAdapter implements DriverAdapter {
       });
     }
 
-    return result!;
+    return result;
   }
 
   async runInTransaction<T>(work: (txc: TransactionContext) => Promise<T>): Promise<T> {
@@ -345,7 +346,7 @@ export class LoggingDriverAdapter implements DriverAdapter {
               });
             }
 
-            return qResult!;
+            return qResult;
           },
         };
         return work(wrappedTxc);

@@ -169,8 +169,8 @@ class NoopMeter implements Meter {
   createObservableGauge(): void {}
 }
 
-let globalTracer: any = new NoopTracer();
-let globalMeter: any = new NoopMeter();
+let globalTracer: Tracer = new NoopTracer();
+let globalMeter: Meter = new NoopMeter();
 let isInitialized = false;
 
 export function getTracer(): Tracer {
@@ -198,7 +198,7 @@ export async function initializeOTel(config: OTelConfig): Promise<void> {
     );
     const { BatchSpanProcessor } = await import('@opentelemetry/sdk-trace-base');
     const { OTLPTraceExporter } = await import('@opentelemetry/exporter-trace-otlp-http');
-    const { trace, context, propagation } = await import('@opentelemetry/api');
+    const { trace } = await import('@opentelemetry/api');
     const { MeterProvider } = await import('@opentelemetry/sdk-metrics');
     const { PeriodicExportingMetricReader } = await import('@opentelemetry/sdk-metrics');
     const { OTLPMetricExporter } = await import('@opentelemetry/exporter-metrics-otlp-http');
@@ -244,7 +244,12 @@ export async function initializeOTel(config: OTelConfig): Promise<void> {
 
     // Set global instances
     globalTracer = trace.getTracer(config.serviceName, config.serviceVersion);
-    globalMeter = meterProvider.getMeter(config.serviceName, config.serviceVersion);
+    // OpenTelemetry is an optional runtime dependency, so its API types are not imported here.
+    // The dynamically imported meter is bridged to the local structural `Meter` interface.
+    globalMeter = meterProvider.getMeter(
+      config.serviceName,
+      config.serviceVersion,
+    ) as unknown as Meter;
 
     // Register instrumentations
     const instrumentations = [];
@@ -266,16 +271,16 @@ export async function initializeOTel(config: OTelConfig): Promise<void> {
 // Create a traced driver wrapper
 export class TracedDriverAdapter implements DriverAdapter {
   private driver: DriverAdapter;
-  private tracer: any;
-  private meter: any;
+  private tracer: Tracer;
+  private meter: Meter;
   private dbName: string;
 
   // Metrics
-  private queryCounter: any;
-  private queryDuration: any;
-  private activeQueries: any;
+  private queryCounter: Counter;
+  private queryDuration: Histogram;
+  private activeQueries: UpDownCounter;
 
-  constructor(driver: DriverAdapter, config: { dbName: string; tracer?: any; meter?: any }) {
+  constructor(driver: DriverAdapter, config: { dbName: string; tracer?: Tracer; meter?: Meter }) {
     this.driver = driver;
     this.tracer = config.tracer ?? getTracer();
     this.meter = config.meter ?? getMeter();
@@ -445,12 +450,12 @@ export function withTracing(driver: DriverAdapter, dbName: string): TracedDriver
 
 // Create OTel metrics collector that bridges to Graph's MetricsCollector
 export class OTelMetricsCollector implements MetricsCollector {
-  private meter: any;
-  private counters: Map<string, any> = new Map();
-  private histograms: Map<string, any> = new Map();
-  private gauges: Map<string, any> = new Map();
+  private meter: Meter;
+  private counters: Map<string, Counter> = new Map();
+  private histograms: Map<string, Histogram> = new Map();
+  private gauges: Map<string, UpDownCounter> = new Map();
 
-  constructor(meter?: any) {
+  constructor(meter?: Meter) {
     this.meter = meter ?? getMeter();
   }
 
@@ -485,7 +490,7 @@ export class OTelMetricsCollector implements MetricsCollector {
   }
 }
 
-export function createOTelMetricsCollector(meter?: any): OTelMetricsCollector {
+export function createOTelMetricsCollector(meter?: Meter): OTelMetricsCollector {
   return new OTelMetricsCollector(meter);
 }
 
@@ -515,13 +520,13 @@ export function extractContext(carrier: Record<string, string>): PropagationCont
 // Express/Fastify middleware for context propagation
 export function createOTelMiddleware() {
   return async (
-    request: { headers: Record<string, string> },
+    request: { headers: Record<string, string>; otelContext?: unknown },
     response: { setHeader: (name: string, value: string) => void },
     next: () => Promise<void>,
   ) => {
     const context = extractContext(request.headers);
     // Store context for downstream use
-    (request as any).otelContext = context;
+    request.otelContext = context;
 
     // Propagate to response
     const responseCarrier: Record<string, string> = {};

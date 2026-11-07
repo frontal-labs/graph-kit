@@ -1,6 +1,7 @@
 // @graph-om/sdk/src/testing/index.ts
 // Testing utilities for Graph-OM - mock driver, test helpers, fixtures
 
+import type { DriverCapabilities } from '../driver';
 import type {
   DriverAdapter,
   GraphSchemaRegistry,
@@ -121,7 +122,7 @@ export class MockDriverAdapter implements DriverAdapter {
       return { records: [], summary: this.emptySummary(), keys: [] };
     }
 
-    const nodes = this.data.get(label)!;
+    const nodes = this.data.get(label) ?? new Map<string, MockRecord>();
     let results: MockRecord[] = Array.from(nodes.values());
 
     // Simple WHERE clause handling
@@ -165,7 +166,7 @@ export class MockDriverAdapter implements DriverAdapter {
     if (!this.data.has(label)) {
       this.data.set(label, new Map());
     }
-    const nodes = this.data.get(label)!;
+    const nodes = this.data.get(label) ?? new Map<string, MockRecord>();
 
     let record = nodes.get(id);
     if (!record) {
@@ -189,7 +190,7 @@ export class MockDriverAdapter implements DriverAdapter {
       return { records: [], summary: this.emptySummary(), keys: [] };
     }
 
-    const nodes = this.data.get(label)!;
+    const nodes = this.data.get(label) ?? new Map<string, MockRecord>();
     let deleted = 0;
 
     if (params) {
@@ -265,6 +266,19 @@ export class MockDriverAdapter implements DriverAdapter {
   async getServerInfo(): Promise<{ address: string; version: string; protocol: string }> {
     await this.delay();
     return { address: 'mock://localhost', version: '5.0.0-mock', protocol: 'bolt' };
+  }
+
+  getCapabilities(): DriverCapabilities {
+    return {
+      transactions: true,
+      readReplicas: false,
+      boltProtocol: true,
+      httpProtocol: false,
+      vectorSearch: false,
+      fullTextSearch: false,
+      geospatial: false,
+      procedures: [],
+    };
   }
 
   // Test helpers

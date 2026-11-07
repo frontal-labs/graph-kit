@@ -1,8 +1,7 @@
 // @graph-om/sdk/src/seed/index.ts
 // Seed/Fixture system for Graph-OM - database seeding and test data generation
 
-import { QueryCompiler } from '../query';
-import type { DriverAdapter, GraphSchemaRegistry, NodeConfig } from '../types';
+import type { AnyNodeConfig, DriverAdapter, GraphSchemaRegistry } from '../types';
 
 export interface SeedConfig {
   driver: DriverAdapter;
@@ -130,7 +129,7 @@ export class SeedManager {
   private async insertBatch(
     label: string,
     batch: Record<string, unknown>[],
-    _nodeConfig: NodeConfig<any, any> | null,
+    _nodeConfig: AnyNodeConfig | null,
     result: BulkInsertResult,
   ): Promise<void> {
     const statements: string[] = [];
@@ -261,7 +260,7 @@ export const Fixtures = {
 
   randomFromArray: <T>(arr: T[]): T => {
     if (arr.length === 0) throw new Error('Cannot pick from empty array');
-    return arr[Math.floor(Math.random() * arr.length)]!;
+    return arr[Math.floor(Math.random() * arr.length)] as T;
   },
 
   sequence: (start = 1): (() => number) => {

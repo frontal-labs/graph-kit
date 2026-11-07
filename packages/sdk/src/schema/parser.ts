@@ -59,7 +59,7 @@ export function parseSchemaFile(filePath: string): ParseResult {
     ts.ScriptKind.TS,
   );
 
-  const parser = new SchemaParser(sourceFile, filePath);
+  const parser = new SchemaParser(sourceFile);
   return parser.parse();
 }
 
@@ -69,25 +69,14 @@ function readFile(filePath: string): string {
 
 class SchemaParser {
   private sourceFile: ts.SourceFile;
-  private filePath: string;
   private errors: ParseError[] = [];
   private nodes: ParsedNode[] = [];
-  private typeChecker!: ts.TypeChecker;
 
-  constructor(sourceFile: ts.SourceFile, filePath: string) {
+  constructor(sourceFile: ts.SourceFile) {
     this.sourceFile = sourceFile;
-    this.filePath = filePath;
   }
 
   parse(): ParseResult {
-    const program = ts.createProgram([this.filePath], {
-      target: ts.ScriptTarget.Latest,
-      module: ts.ModuleKind.ESNext,
-      strict: true,
-      skipLibCheck: true,
-    });
-    this.typeChecker = program.getTypeChecker();
-
     this.visitNode(this.sourceFile);
 
     const schema: GraphSchemaRegistry = {};
@@ -261,10 +250,11 @@ class SchemaParser {
     const args = node.arguments;
     if (args.length < 3) return null;
 
-    const typeArg = args[0]!;
-    const directionArg = args[1]!;
-    const targetArg = args[2]!;
+    const typeArg = args[0];
+    const directionArg = args[1];
+    const targetArg = args[2];
     const optionsArg = args[3];
+    if (!typeArg || !directionArg || !targetArg) return null;
 
     if (
       !ts.isStringLiteral(typeArg) ||
@@ -338,8 +328,8 @@ class SchemaParser {
 
       const config: PropertyConfig = { type };
 
-      if (node.arguments.length > 0 && ts.isObjectLiteralExpression(node.arguments[0]!)) {
-        const obj = node.arguments[0];
+      const obj = node.arguments[0];
+      if (obj && ts.isObjectLiteralExpression(obj)) {
         for (const prop of obj.properties) {
           if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name)) {
             const key = prop.name.text;
@@ -468,6 +458,6 @@ export function parseSchemaFromSource(sourceCode: string, fileName = 'schema.ts'
     ts.ScriptKind.TS,
   );
 
-  const parser = new SchemaParser(sourceFile, fileName);
+  const parser = new SchemaParser(sourceFile);
   return parser.parse();
 }

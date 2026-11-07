@@ -1,8 +1,7 @@
 // @graph-om/sdk/src/batch/index.ts
 // Batch operations and bulk import for Graph-OM
 
-import { QueryCompiler } from '../query';
-import type { DriverAdapter, GraphSchemaRegistry, NodeConfig, QueryResult } from '../types';
+import type { AnyNodeConfig, DriverAdapter, GraphSchemaRegistry, QueryResult } from '../types';
 
 export interface BatchOptions {
   batchSize?: number;
@@ -86,7 +85,6 @@ export class BatchProcessor {
   private schema?: GraphSchemaRegistry;
   private defaultBatchSize: number;
   private defaultConcurrency: number;
-  private compiler: QueryCompiler;
 
   constructor(config: {
     driver: DriverAdapter;
@@ -95,7 +93,6 @@ export class BatchProcessor {
     defaultConcurrency?: number;
   }) {
     this.driver = config.driver;
-    this.compiler = new QueryCompiler();
     this.schema = config.schema;
     this.defaultBatchSize = config.defaultBatchSize ?? 1000;
     this.defaultConcurrency = config.defaultConcurrency ?? 4;
@@ -201,7 +198,7 @@ export class BatchProcessor {
   private async insertBatch(
     label: string,
     batch: Record<string, unknown>[],
-    _nodeConfig: NodeConfig<any, any> | null,
+    _nodeConfig: AnyNodeConfig | null,
   ): Promise<void> {
     const statements: string[] = [];
     const params: Record<string, unknown> = {};
@@ -237,7 +234,7 @@ export class BatchProcessor {
     txc: { run: (query: string, params?: Record<string, unknown>) => Promise<QueryResult> },
     label: string,
     batch: Record<string, unknown>[],
-    _nodeConfig: NodeConfig<any, any> | null,
+    _nodeConfig: AnyNodeConfig | null,
   ): Promise<void> {
     const statements: string[] = [];
     const params: Record<string, unknown> = {};
@@ -351,7 +348,7 @@ export class BatchProcessor {
   private async updateBatch(
     label: string,
     batch: Array<{ where: Record<string, unknown>; data: Record<string, unknown> }>,
-    _nodeConfig: NodeConfig<any, any> | null,
+    _nodeConfig: AnyNodeConfig | null,
   ): Promise<void> {
     const statements: string[] = [];
     const params: Record<string, unknown> = {};
@@ -468,7 +465,7 @@ export class BatchProcessor {
   private async deleteBatch(
     label: string,
     batch: Record<string, unknown>[],
-    _nodeConfig: NodeConfig<any, any> | null,
+    _nodeConfig: AnyNodeConfig | null,
   ): Promise<void> {
     const statements: string[] = [];
     const params: Record<string, unknown> = {};

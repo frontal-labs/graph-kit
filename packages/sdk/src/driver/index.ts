@@ -1,18 +1,6 @@
 // @graph-om/sdk/src/driver/index.ts
 // Driver adapter abstraction for multi-database support (types only - implementations in separate packages)
 
-// Base driver config (defined inline to avoid circular imports)
-interface BaseDriverConfig {
-  type: string;
-  uri?: string;
-  username?: string;
-  password?: string;
-  database?: string;
-  maxConnectionLifetime?: number;
-  maxTransactionRetryTime?: number;
-  connectionAcquisitionTimeout?: number;
-}
-
 // Kuzu driver config (defined here to avoid Rollup static analysis issues with kuzu.ts)
 export interface KuzuConfig {
   type: 'kuzu';
@@ -162,13 +150,19 @@ export type DriverFactory<Config extends DriverConfig = DriverConfig> = (
   config: Config,
 ) => DriverAdapter;
 
-const driverRegistry = new Map<string, DriverFactory<any>>();
+// createDriver dispatches on config.type, so each factory only ever receives its own config shape
+type RegisteredFactory = DriverFactory<AnyDriverConfig>;
 
-export function registerDriver(type: string, factory: DriverFactory<any>): void {
-  driverRegistry.set(type.toLowerCase(), factory);
+const driverRegistry = new Map<string, RegisteredFactory>();
+
+export function registerDriver<C extends AnyDriverConfig>(
+  type: string,
+  factory: DriverFactory<C>,
+): void {
+  driverRegistry.set(type.toLowerCase(), factory as unknown as RegisteredFactory);
 }
 
-export function getDriverFactory(type: string): DriverFactory<any> | undefined {
+export function getDriverFactory(type: string): RegisteredFactory | undefined {
   return driverRegistry.get(type.toLowerCase());
 }
 

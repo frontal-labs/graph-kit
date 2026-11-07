@@ -13,7 +13,7 @@ import type {
 
 // Type definitions for kuzu module (using any to avoid declaration file issues)
 interface KuzuConnection {
-  query(cypher: string, params?: Record<string, unknown>): Promise<any>;
+  query(cypher: string, params?: Record<string, unknown>): Promise<KuzuQueryResult>;
   close(): Promise<void>;
 }
 
@@ -24,20 +24,12 @@ interface KuzuQueryResult {
   hasNext(): boolean;
 }
 
-interface KuzuDatabase {
-  connect(): KuzuConnection;
-}
-
-interface KuzuConnectionClass {
-  new (db: unknown): KuzuConnection;
-}
-
 interface KuzuModule {
   Database: new (path: string) => { connect(): KuzuConnection };
   Connection: new (
     db: unknown,
   ) => {
-    query(cypher: string, params?: Record<string, unknown>): Promise<any>;
+    query(cypher: string, params?: Record<string, unknown>): Promise<KuzuQueryResult>;
     close(): Promise<void>;
   };
 }
@@ -180,7 +172,7 @@ export class KuzuDriverAdapter implements DriverAdapter {
     this.transactionQueries = [];
   }
 
-  private mapResult(result: any): QueryResult {
+  private mapResult(result: KuzuQueryResult): QueryResult {
     const keys = result.getColumnNames() ?? [];
     const records: QueryRecord[] = [];
 
@@ -194,8 +186,8 @@ export class KuzuDriverAdapter implements DriverAdapter {
         },
         toObject: () => {
           const obj: Record<string, unknown> = {};
-          for (let i = 0; i < keys.length; i++) {
-            obj[keys[i]] = result.getValue(i);
+          for (const [i, key] of keys.entries()) {
+            obj[key] = result.getValue(i);
           }
           return obj;
         },

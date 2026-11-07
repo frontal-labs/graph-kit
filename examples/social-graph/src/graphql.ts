@@ -22,6 +22,12 @@ type ResolverMap = {
   Mutation: Record<string, Resolver>;
 };
 
+function resolver(map: Record<string, Resolver>, name: string): Resolver {
+  const fn = map[name];
+  if (!fn) throw new Error(`No resolver named ${name}`);
+  return fn;
+}
+
 async function main() {
   await driver.connect();
   const client = new GraphClient(driver, graph);
@@ -37,12 +43,12 @@ async function main() {
 
     await client.raw("MATCH (n) WHERE n.id STARTS WITH 'gql-' DETACH DELETE n");
 
-    const created = await resolvers.Mutation['createUser']!(null, {
+    const created = await resolver(resolvers.Mutation, 'createUser')(null, {
       data: { id: 'gql-dana', name: 'Dana', email: 'dana@gql.example', age: 27 },
     });
     console.log('\nMutation createUser ->', (created as { name: string }).name);
 
-    const users = await resolvers.Query['users']!(null, {
+    const users = await resolver(resolvers.Query, 'users')(null, {
       where: { id: { startsWith: 'gql-' } },
     });
     console.log(
@@ -50,7 +56,7 @@ async function main() {
       (users as Array<{ name: string }>).map((u) => u.name),
     );
 
-    const count = await resolvers.Query['usersCount']!(null, {
+    const count = await resolver(resolvers.Query, 'usersCount')(null, {
       where: { id: { startsWith: 'gql-' } },
     });
     console.log('Query usersCount ->', count);

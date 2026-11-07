@@ -69,8 +69,8 @@ describe('schema DSL + neo4j-driver integration', () => {
         },
         keys: [],
       }),
-      runInTransaction: async (work) => work({} as any),
-      runInReadTransaction: async (work) => work({} as any),
+      runInTransaction: async (work) => work({} as never),
+      runInReadTransaction: async (work) => work({} as never),
       verifyConnectivity: async () => true,
       getServerInfo: async () => ({
         address: 'localhost:7687',
@@ -85,7 +85,7 @@ describe('schema DSL + neo4j-driver integration', () => {
   });
 
   it('NodeConfig type is compatible across packages', () => {
-    const config: NodeConfig<string, Record<string, any>> = {
+    const config: NodeConfig<string, Record<string, never>> = {
       label: 'Test',
       properties: {},
       relations: {},

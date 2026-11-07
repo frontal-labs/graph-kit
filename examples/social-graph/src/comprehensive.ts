@@ -158,7 +158,7 @@ async function main() {
   });
   console.log('\nUsers with their posts:');
   for (const u of usersWithPosts) {
-    console.log(`  ${u.name}: ${u.posts?.map((p: any) => p.title).join(', ') ?? 'none'}`);
+    console.log(`  ${u.name}: ${u.posts?.map((p) => p.title).join(', ') ?? 'none'}`);
   }
 
   // 10. Find user with nested includes (posts and their likes)
@@ -175,8 +175,8 @@ async function main() {
   });
   console.log('\nAlice with posts (including likes) and following:');
   console.log(`  Name: ${userWithFullGraph?.name}`);
-  console.log(`  Posts: ${userWithFullGraph?.posts?.map((p: any) => p.title).join(', ')}`);
-  console.log(`  Following: ${userWithFullGraph?.following?.map((u: any) => u.name).join(', ')}`);
+  console.log(`  Posts: ${userWithFullGraph?.posts?.map((p) => p.title).join(', ')}`);
+  console.log(`  Following: ${userWithFullGraph?.following?.map((u) => u.name).join(', ')}`);
 
   // 11. Find posts with author
   const postsWithAuthor = await client.findMany<PostRow & { author?: UserRow | null }>('Post', {

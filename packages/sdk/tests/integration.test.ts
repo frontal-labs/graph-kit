@@ -25,8 +25,9 @@ describeIntegration('GraphClient integration (live Neo4j)', () => {
   const graph = sch().add('ItUser', User).build();
 
   beforeAll(async () => {
+    if (!uri) throw new Error('NEO4J_URI is required for integration tests');
     const { createNeo4jDriver } = await import('../src/driver/neo4j.js');
-    driverAdapter = createNeo4jDriver({ type: 'neo4j', uri: uri!, username, password });
+    driverAdapter = createNeo4jDriver({ type: 'neo4j', uri, username, password });
     await driverAdapter.connect();
     client = new GraphClient(driverAdapter, graph);
     await client.raw('MATCH (n:ItUser) DETACH DELETE n');
