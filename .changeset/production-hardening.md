@@ -1,5 +1,5 @@
 ---
-'@graph-om/core': patch
+'@graph-om/sdk': patch
 '@graph-om/cli': patch
 '@graph-om/neo4j': patch
 '@graph-om/zod': patch
@@ -7,7 +7,7 @@
 
 Production hardening across all packages.
 
-@graph-om/core:
+@graph-om/sdk:
 
 - Fix invalid Cypher in `compileUpsert`: MERGE now targets the primary key pattern with a parameterized value; `ON CREATE SET`/`ON MATCH SET` param names are no longer corrupted. Upsert without primary-key equality throws a descriptive error.
 - Replace deprecated `id()` with `elementId()` in relation create/delete; `compileDeleteRelation` now actually filters both endpoints (previously deleted arbitrary relationships).
@@ -35,7 +35,7 @@ Production hardening across all packages.
 @graph-om/zod:
 
 - Fix `array` + `nullable` ordering: now `T[] | null` instead of `(T|null)[]`.
-- Declare `@graph-om/core` as a peer dependency; package hygiene.
+- Declare `@graph-om/sdk` as a peer dependency; package hygiene.
 
 Repo:
 

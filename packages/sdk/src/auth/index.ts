@@ -1,4 +1,4 @@
-// @graph-om/core/src/auth/index.ts
+// @graph-om/sdk/src/auth/index.ts
 // Authentication and authorization helpers for Graph-OM
 
 import { GraphClient } from '../client';

@@ -400,7 +400,7 @@ export function generateMigrationFromDiff(diff: SchemaDiff, name: string): Migra
 }
 
 export function loadMigrations(_migrationsDir: string): Migration[] {
-  // This would read migration files from the filesystem
-  // For now, return empty array
-  return [];
+  throw new Error(
+    'loadMigrations() cannot import migration files yet. Import each migration module explicitly and pass the list to createMigrationRunner().migrate().',
+  );
 }

@@ -1,4 +1,4 @@
-// @graph-om/core/tests/schema-builder.test.ts
+// @graph-om/sdk/tests/schema-builder.test.ts
 import { describe, expect, it } from 'vitest';
 import {
   date,

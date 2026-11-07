@@ -1,4 +1,4 @@
-// @graph-om/core/src/graphql/index.ts
+// @graph-om/sdk/src/graphql/index.ts
 // GraphQL layer for Graph-OM - generates GraphQL schema from Graph-OM schema
 
 import type { GraphSchemaRegistry, NodeConfig, PropertyConfig } from '../types';
@@ -382,14 +382,9 @@ export interface ApolloServerConfig {
 }
 
 export function createApolloServerConfig(config: ApolloServerConfig): unknown {
-  // This would create an Apollo Server instance
-  // Placeholder for actual implementation
-  return {
-    typeDefs: config.schema,
-    resolvers: config.resolvers,
-    context: config.context,
-    plugins: config.plugins,
-  };
+  throw new Error(
+    'createApolloServerConfig() is not implemented. Pass generateGraphQLSchema() and generateResolvers() to your Apollo Server instance directly.',
+  );
 }
 
 export interface GraphQLYogaConfig {
@@ -399,12 +394,7 @@ export interface GraphQLYogaConfig {
 }
 
 export function createGraphQLYogaConfig(config: GraphQLYogaConfig): unknown {
-  // Placeholder for GraphQL Yoga integration
-  return {
-    schema: {
-      typeDefs: config.schema,
-      resolvers: config.resolvers,
-    },
-    graphqlEndpoint: config.graphqlEndpoint ?? '/graphql',
-  };
+  throw new Error(
+    'createGraphQLYogaConfig() is not implemented. Pass generateGraphQLSchema() and generateResolvers() to your Yoga server directly.',
+  );
 }

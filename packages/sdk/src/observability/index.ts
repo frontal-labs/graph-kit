@@ -1,4 +1,4 @@
-// @graph-om/core/src/observability/index.ts
+// @graph-om/sdk/src/observability/index.ts
 // Query logging, profiling, and observability for Graph-OM
 
 import type { DriverAdapter, QueryResult, TransactionContext } from '../types';

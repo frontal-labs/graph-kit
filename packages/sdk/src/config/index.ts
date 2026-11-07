@@ -1,4 +1,4 @@
-// @graph-om/core/src/config/index.ts
+// @graph-om/sdk/src/config/index.ts
 // Graph-OM configuration system — inspired by Vite's defineConfig, Prisma schema, Drizzle config
 
 import type { GraphConfig, GraphDriverConfig, GraphOutputConfig } from '../types';

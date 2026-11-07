@@ -51,5 +51,12 @@
       "cache": false
     }
   },
-  "globalEnv": ["NODE_ENV", "NEO4J_URI", "NEO4J_USER", "NEO4J_PASSWORD"]
+  "globalEnv": [
+    "NODE_ENV",
+    "NEO4J_URI",
+    "NEO4J_USER",
+    "NEO4J_PASSWORD",
+    "NEO4J_DATABASE",
+    "GRAPH_OM_DEBUG"
+  ]
 }

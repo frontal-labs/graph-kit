@@ -1,4 +1,4 @@
-// @graph-om/core/src/visualization/index.ts
+// @graph-om/sdk/src/visualization/index.ts
 // Schema visualization and ER diagram generation for Graph-OM
 
 import type { GraphSchemaRegistry, NodeConfig, PropertyConfig, RelationConfig } from '../types';

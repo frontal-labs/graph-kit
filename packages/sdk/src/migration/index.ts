@@ -1,4 +1,4 @@
-// @graph-om/core/src/migration/index.ts
+// @graph-om/sdk/src/migration/index.ts
 // Migration system for Graph-OM - schema versioning and database migrations
 
 import { QueryCompiler } from '../query';

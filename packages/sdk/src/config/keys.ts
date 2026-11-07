@@ -1,4 +1,4 @@
-// @graph-om/core/src/config/keys.ts
+// @graph-om/sdk/src/config/keys.ts
 // Validated environment variables powered by @t3-oss/env-core + zod.
 // All process.env values are parsed through this single schema, so the app
 // fails fast on missing/invalid config instead of silently using undefined.

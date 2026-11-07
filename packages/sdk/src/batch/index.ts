@@ -1,4 +1,4 @@
-// @graph-om/core/src/batch/index.ts
+// @graph-om/sdk/src/batch/index.ts
 // Batch operations and bulk import for Graph-OM
 
 import { QueryCompiler } from '../query';

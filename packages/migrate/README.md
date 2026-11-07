@@ -102,7 +102,7 @@ export class MigrationRunner {
 | `createMigrationTemplate(options)` | Generate a migration file template with `up`/`down` stubs |
 | `diffSchemas(oldSchema, newSchema)` | Compute a `SchemaDiff` between two schema registries |
 | `generateMigrationFromDiff(diff, name)` | Build a `Migration` from a `SchemaDiff` |
-| `loadMigrations(migrationsDir)` | Load migration files from disk (stub; returns `[]`) |
+| `loadMigrations(migrationsDir)` | Not implemented; throws. Import migration modules explicitly and pass them to the runner |
 
 ### `MigrationStatus`
 

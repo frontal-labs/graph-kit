@@ -1,4 +1,4 @@
-// @graph-om/core/src/otel/index.ts
+// @graph-om/sdk/src/otel/index.ts
 // OpenTelemetry integration for Graph-OM
 
 import type { MetricsCollector } from '../observability';

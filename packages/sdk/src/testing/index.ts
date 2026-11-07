@@ -1,4 +1,4 @@
-// @graph-om/core/src/testing/index.ts
+// @graph-om/sdk/src/testing/index.ts
 // Testing utilities for Graph-OM - mock driver, test helpers, fixtures
 
 import type {

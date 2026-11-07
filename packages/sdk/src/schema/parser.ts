@@ -1,4 +1,4 @@
-// @graph-om/core/src/schema/parser.ts
+// @graph-om/sdk/src/schema/parser.ts
 // AST-based schema parser using TypeScript compiler API
 
 import fs from 'node:fs';

@@ -1,4 +1,4 @@
-// @graph-om/core/src/driver/memgraph.ts
+// @graph-om/sdk/src/driver/memgraph.ts
 // Memgraph driver adapter - Memgraph is compatible with Neo4j Bolt protocol
 // Can use neo4j-driver with some adjustments
 

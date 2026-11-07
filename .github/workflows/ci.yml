@@ -181,7 +181,7 @@ jobs:
         run: |
           node -e "
             const { createNeo4jDriver } = require('@graph-om/neo4j');
-            const { createBenchmarkRunner, runCIOBenchmarks } = require('@graph-om/core/benchmark');
+            const { createBenchmarkRunner, runCIOBenchmarks } = require('@graph-om/sdk/benchmark');
             
             const driver = createNeo4jDriver({
               uri: 'bolt://localhost:7687',

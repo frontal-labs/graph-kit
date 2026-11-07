@@ -1,4 +1,4 @@
-// @graph-om/core/src/benchmark/index.ts
+// @graph-om/sdk/src/benchmark/index.ts
 // Benchmark suite for Graph-OM - performance testing and regression detection
 
 import fs from 'node:fs';

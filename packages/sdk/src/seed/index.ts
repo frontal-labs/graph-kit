@@ -1,4 +1,4 @@
-// @graph-om/core/src/seed/index.ts
+// @graph-om/sdk/src/seed/index.ts
 // Seed/Fixture system for Graph-OM - database seeding and test data generation
 
 import { QueryCompiler } from '../query';

@@ -1,4 +1,4 @@
-// @graph-om/core/src/client/index.ts
+// @graph-om/sdk/src/client/index.ts
 // GraphClient - Type-safe graph database client
 
 import { QueryCompiler, type RelationEndpoint } from '../query';

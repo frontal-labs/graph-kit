@@ -1,4 +1,4 @@
-// @graph-om/core/src/types/index.ts
+// @graph-om/sdk/src/types/index.ts
 // Core type definitions for Graph-OM
 
 export type PropertyType =

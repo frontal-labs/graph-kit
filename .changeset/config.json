@@ -20,7 +20,7 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["examples/*"],
+  "ignore": ["example-social-graph"],
   "snapshot": {
     "useCalculatedVersion": true
   }

@@ -1,4 +1,4 @@
-// @graph-om/core/src/query/index.ts
+// @graph-om/sdk/src/query/index.ts
 // Cypher query compiler - translates high-level queries to optimized Cypher
 
 import type {
