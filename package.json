@@ -59,6 +59,9 @@
       "tar@6": "^7.5.21",
       "tar@7": "^7.5.21",
       "@opentelemetry/core@2": "^2.8.0"
+    },
+    "patchedDependencies": {
+      "deepmerge@4.3.1": "patches/deepmerge@4.3.1.patch"
     }
   }
 }
