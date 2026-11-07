@@ -30,7 +30,7 @@
     "release": "turbo run build && changeset publish"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.15",
+    "@biomejs/biome": "^2.6.5",
     "@changesets/cli": "^2.27.1",
     "@size-limit/file": "^14.3.0",
     "@t3-oss/env-core": "^0.13.11",
