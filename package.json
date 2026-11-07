@@ -11,6 +11,7 @@
   "scripts": {
     "prepare": "husky",
     "build": "turbo run build",
+    "size": "pnpm build && size-limit",
     "dev": "turbo run dev",
     "clean": "turbo run clean && rm -rf node_modules .turbo",
     "test": "turbo run test",
@@ -31,9 +32,11 @@
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
     "@changesets/cli": "^2.27.1",
+    "@size-limit/file": "^14.3.0",
     "@t3-oss/env-core": "^0.13.11",
     "@types/node": "^20.10.0",
     "husky": "^9.1.7",
+    "size-limit": "^14.3.0",
     "turbo": "^1.11.0",
     "typescript": "^5.9.3",
     "ultracite": "^8.0.1",

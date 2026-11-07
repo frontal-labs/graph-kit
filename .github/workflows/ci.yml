@@ -50,6 +50,50 @@ jobs:
       - name: Test (root)
         run: pnpm test:root:ci
 
+  # Fails when any shipped bundle exceeds its limit in .size-limit.json
+  size:
+    name: Bundle size
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and check bundle size
+        run: pnpm size
+
+  # Posts a size diff to the pull request
+  size-comment:
+    name: Bundle size report
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Size diff
+        uses: andresz1/size-limit-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          package_manager: pnpm
+          build_script: build
+
   # Integration tests with live Neo4j
   integration:
     name: Integration Tests
