@@ -380,19 +380,19 @@ import { QueryCompiler } from '@graph-om/sdk/query';
 import type { Migration } from '@graph-om/sdk/migration';
 
 export const migration: Migration = {
-  version: '${migration.version}',
-  name: '${migration.name}',
+  version: ${JSON.stringify(migration.version)},
+  name: ${JSON.stringify(migration.name)},
   timestamp: ${migration.timestamp},
   
   up: (compiler: QueryCompiler) => {
     return [
-${upStatements.map((s) => `      '${s.replace(/'/g, "\\'")}'`).join(',\n')}
+${upStatements.map((s) => `      ${JSON.stringify(s)}`).join(',\n')}
     ];
   },
   
   down: (compiler: QueryCompiler) => {
     return [
-${downStatements.map((s) => `      '${s.replace(/'/g, "\\'")}'`).join(',\n')}
+${downStatements.map((s) => `      ${JSON.stringify(s)}`).join(',\n')}
     ];
   },
 };
