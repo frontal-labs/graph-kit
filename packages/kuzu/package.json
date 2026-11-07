@@ -44,7 +44,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "kuzu": "^0.8.0"
+    "kuzu": "^0.11.3"
   },
   "devDependencies": {
     "@graph-om/sdk": "workspace:*",
