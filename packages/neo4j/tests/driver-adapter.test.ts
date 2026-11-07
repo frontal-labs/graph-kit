@@ -41,13 +41,13 @@ vi.mock('neo4j-driver', () => {
   const mockSession = {
     run: vi.fn().mockResolvedValue(mockResult),
     close: vi.fn().mockResolvedValue(undefined),
-    executeWrite: vi.fn().mockImplementation(async (work: any) => {
+    executeWrite: vi.fn().mockImplementation(async (work: (txc: unknown) => Promise<unknown>) => {
       const txc = {
         run: vi.fn().mockResolvedValue(mockResult),
       };
       return await work(txc);
     }),
-    executeRead: vi.fn().mockImplementation(async (work: any) => {
+    executeRead: vi.fn().mockImplementation(async (work: (txc: unknown) => Promise<unknown>) => {
       const txc = {
         run: vi.fn().mockResolvedValue(mockResult),
       };
@@ -93,6 +93,7 @@ describe('Neo4jDriverAdapter', () => {
 
   beforeEach(() => {
     adapter = new Neo4jDriverAdapter({
+      type: 'neo4j',
       uri: 'bolt://localhost:7687',
       username: 'neo4j',
       password: 'test-password',

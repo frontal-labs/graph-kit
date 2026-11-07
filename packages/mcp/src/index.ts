@@ -2,8 +2,8 @@
 // Graph-OM MCP (Model Context Protocol) server
 // Provides graph database operations through MCP protocol
 
-import type { DriverAdapter, DriverConfig } from '@graph-om/graph-om';
-import { createDriver } from '@graph-om/graph-om';
+import type { DriverAdapter, DriverConfig } from '@graph-om/sdk';
+import { type AnyDriverConfig, createDriver } from '@graph-om/sdk';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -13,7 +13,7 @@ import {
   ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
-interface MCPConfig {
+export interface MCPConfig {
   driver: DriverAdapter | DriverConfig;
   name?: string;
   version?: string;
@@ -24,10 +24,11 @@ export class GraphOMMCPServer {
   private driver: DriverAdapter;
 
   constructor(config: MCPConfig) {
-    this.driver = typeof config.driver === 'object' && 'connect' in config.driver
-      ? config.driver
-      : createDriver(config.driver);
-    
+    this.driver =
+      'runQuery' in config.driver
+        ? (config.driver as DriverAdapter)
+        : createDriver(config.driver as AnyDriverConfig);
+
     this.server = new Server(
       {
         name: config.name ?? 'graph-om',
@@ -38,7 +39,7 @@ export class GraphOMMCPServer {
           tools: {},
           resources: {},
         },
-      }
+      },
     );
 
     this.setupHandlers();
@@ -115,7 +116,11 @@ export class GraphOMMCPServer {
             content: [
               {
                 type: 'text',
-                text: JSON.stringify({ message: 'Schema introspection not yet implemented' }, null, 2),
+                text: JSON.stringify(
+                  { message: 'Schema introspection not yet implemented' },
+                  null,
+                  2,
+                ),
               },
             ],
           };
@@ -123,7 +128,7 @@ export class GraphOMMCPServer {
 
         case 'list_nodes': {
           const { label, limit = 100 } = args as { label?: string; limit?: number };
-          const cypher = label 
+          const cypher = label
             ? `MATCH (n:${label}) RETURN n LIMIT ${limit}`
             : `MATCH (n) RETURN n LIMIT ${limit}`;
           const result = await this.driver.runQuery(cypher);
@@ -171,19 +176,24 @@ export class GraphOMMCPServer {
 
     this.server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
       const { uri } = request.params;
-      
+
       if (uri === 'graph://schema') {
         return {
           contents: [
             {
               uri,
               mimeType: 'application/json',
-              text: JSON.stringify({ message: 'Schema introspection not yet implemented' }, null, 2),
+              text: JSON.stringify(
+                { message: 'Schema introspection not yet implemented' },
+                null,
+                2,
+              ),
             },
-          ];
-        }
-        
-        throw new Error(`Unknown resource: ${uri}`);
+          ],
+        };
+      }
+
+      throw new Error(`Unknown resource: ${uri}`);
     });
   }
 
@@ -203,5 +213,5 @@ export async function createMCPServer(config: MCPConfig): Promise<GraphOMMCPServ
   return server;
 }
 
-export { Server, StdioServerTransport } from '@modelcontextprotocol/sdk/server/index.js';
-export type { MCPConfig } from './index.js';
+export { Server } from '@modelcontextprotocol/sdk/server/index.js';
+export { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';

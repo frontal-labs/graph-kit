@@ -8,7 +8,7 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
-  external: ['zod', '@graph-om/core'],
+  external: ['zod', '@graph-om/sdk'],
   banner: {
     js: '// @graph-om/zod - Zod validation integration for Graph-OM',
   },

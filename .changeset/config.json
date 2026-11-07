@@ -5,7 +5,7 @@
   "fixed": [],
   "linked": [
     [
-      "@graph-om/graph-om",
+      "@graph-om/sdk",
       "@graph-om/cli",
       "@graph-om/neo4j",
       "@graph-om/memgraph",
@@ -20,7 +20,7 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["examples/*"],
+  "ignore": ["example-social-graph"],
   "snapshot": {
     "useCalculatedVersion": true
   }

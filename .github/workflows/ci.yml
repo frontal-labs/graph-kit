@@ -4,7 +4,6 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -17,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [20, 22]
+        node-version: [22]
 
     steps:
       - name: Checkout
@@ -50,6 +49,59 @@ jobs:
       - name: Test (root)
         run: pnpm test:root:ci
 
+  # Fails when any shipped bundle exceeds its limit in .size-limit.json
+  size:
+    name: Bundle size
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and check bundle size
+        run: pnpm size
+
+  # Posts a size diff to the pull request
+  size-comment:
+    name: Bundle size report
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Size diff
+        uses: andresz1/size-limit-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          package_manager: pnpm
+          build_script: build
+
   # Integration tests with live Neo4j
   integration:
     name: Integration Tests
@@ -74,10 +126,10 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
 
       - name: Install dependencies
@@ -117,10 +169,10 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
 
       - name: Install dependencies
@@ -134,21 +186,7 @@ jobs:
           NEO4J_URI: bolt://localhost:7687
           NEO4J_USER: neo4j
           NEO4J_PASSWORD: password
-        run: |
-          node -e "
-            const { createNeo4jDriver } = require('@graph-om/neo4j');
-            const { createBenchmarkRunner, runCIOBenchmarks } = require('@graph-om/core/benchmark');
-            
-            const driver = createNeo4jDriver({
-              uri: 'bolt://localhost:7687',
-              username: 'neo4j',
-              password: 'password',
-            });
-            
-            await driver.connect();
-            await runCIOBenchmarks(driver, { threshold: 20, failOnRegression: true, outputFormat: 'github-actions' });
-            await driver.disconnect();
-          "
+        run: pnpm --filter @graph-om/neo4j exec node scripts/ci-benchmark.cjs
 
   # Security audit
   security:
@@ -161,10 +199,10 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
 
       - name: Install dependencies
@@ -196,92 +234,3 @@ jobs:
           fail-on-severity: high
 
   # CodeQL analysis
-  codeql:
-    name: CodeQL Analysis
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: typescript
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-
----
-# Release workflow
-name: Release
-
-on:
-  push:
-    branches: [main]
-
-permissions:
-  contents: write
-  packages: write
-  id-token: write
-
-jobs:
-  release:
-    name: Release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-          registry-url: https://registry.npmjs.org
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build
-        run: pnpm build
-
-      - name: Run tests
-        run: pnpm test:ci
-
-      - name: Create Release
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          publish: pnpm release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish to npm with provenance
-        if: steps.changesets.outputs.published == 'true'
-        run: |
-          # The changesets action handles publishing with provenance
-          echo "Packages published with provenance"
-
-      - name: Create GitHub Release
-        if: steps.changesets.outputs.published == 'true'
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Notify
-        if: steps.changesets.outputs.published == 'true'
-        run: |
-          echo "Release published successfully!"
-          echo "Packages: ${{ steps.changesets.outputs.packages }}"

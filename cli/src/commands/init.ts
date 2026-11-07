@@ -28,7 +28,7 @@ export async function initCommand(directory: string, _options: InitOptions): Pro
       typecheck: 'tsc --noEmit',
     },
     dependencies: {
-      '@graph-om/core': 'latest',
+      '@graph-om/sdk': 'latest',
       '@graph-om/neo4j': 'latest',
     },
     devDependencies: {
@@ -62,7 +62,7 @@ export async function initCommand(directory: string, _options: InitOptions): Pro
   fs.mkdirSync(path.join(targetDir, 'src'), { recursive: true });
 
   const schemaContent = `// graph-om/schema.ts - Define your graph schema
-import { node, defineRel, schema as sch, string, number, date } from '@graph-om/core';
+import { node, defineRel, schema as sch, string, number, date } from '@graph-om/sdk';
 
 export const User = node('User')
   .add('id', string({ primary: true }))
@@ -79,7 +79,7 @@ export const graph = sch()
   fs.writeFileSync(path.join(targetDir, 'src', 'schema.ts'), schemaContent);
 
   const mainContent = `// src/index.ts
-import { GraphClient, env } from '@graph-om/core';
+import { GraphClient, env } from '@graph-om/sdk';
 import { createNeo4jDriver } from '@graph-om/neo4j';
 import { graph } from './schema.js';
 
@@ -108,7 +108,7 @@ main().catch((error) => {
   fs.writeFileSync(path.join(targetDir, 'src', 'index.ts'), mainContent);
 
   // Generate graph-om.config.ts — the single source of truth for Graph-OM
-  const graphOmConfigContent = `import { defineConfig, env } from '@graph-om/core';
+  const graphOmConfigContent = `import { defineConfig, env } from '@graph-om/sdk';
 
 export default defineConfig({
   schema: './src/schema.ts',

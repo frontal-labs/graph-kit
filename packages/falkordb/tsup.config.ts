@@ -8,7 +8,7 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
-  external: ['redis', '@graph-om/graph-om'],
+  external: ['redis', '@graph-om/sdk'],
   banner: {
     js: '// @graph-om/falkordb - FalkorDB driver adapter for Graph-OM',
   },

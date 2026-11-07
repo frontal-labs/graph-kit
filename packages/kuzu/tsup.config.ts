@@ -8,7 +8,7 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
-  external: ['kuzu', '@graph-om/graph-om'],
+  external: ['kuzu', '@graph-om/sdk'],
   banner: {
     js: '// @graph-om/kuzu - Kuzu driver adapter for Graph-OM',
   },

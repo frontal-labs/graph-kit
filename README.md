@@ -15,7 +15,7 @@ A schema-first TypeScript library for modelling, querying, and traversing graph 
        │                                   └──────────────────┘
        ▼                                            │
 ┌────────────────┐     ┌───────────────┐            ▼
-│ @graph-om/core │────▶│ DriverAdapter │◀─── GraphClient(driver, nodes)
+│ @graph-om/sdk │────▶│ DriverAdapter │◀─── GraphClient(driver, nodes)
 │ QueryCompiler  │     └───────────────┘
 └────────────────┘            ▲
                             │
@@ -28,9 +28,9 @@ A schema-first TypeScript library for modelling, querying, and traversing graph 
 
 | Package | Description |
 | --- | --- |
-| [`@graph-om/core`](./packages/core) | Schema DSL, Cypher query compiler, typed client, config system |
+| [`@graph-om/sdk`](./packages/sdk) | Schema DSL, Cypher query compiler, typed client, config system |
 | [`@graph-om/cli`](./cli) | `graph init` and `graph generate` codegen |
-| [`@graph-om/neo4j`](./adapters/neo4j) | Neo4j driver adapter implementing `DriverAdapter` |
+| [`@graph-om/neo4j`](./packages/neo4j) | Neo4j driver adapter implementing `DriverAdapter` |
 | [`@graph-om/zod`](./packages/zod) | Zod schema generation and validation from node configs |
 
 ## Quick start
@@ -49,7 +49,7 @@ npx tsx src/index.ts
 
 ```ts
 // src/schema.ts
-import { node, relation, schema as sch, string, boolean, date } from '@graph-om/core';
+import { node, relation, schema as sch, string, boolean, date } from '@graph-om/sdk';
 
 export const User = node('User')
   .add('id', string({ primary: true }))
@@ -71,7 +71,7 @@ export const graph = sch().add('User', User).add('Post', Post).build();
 ### Query the graph
 
 ```ts
-import { GraphClient } from '@graph-om/core';
+import { GraphClient } from '@graph-om/sdk';
 import { createNeo4jDriver } from '@graph-om/neo4j';
 import { graph } from './schema.js';
 
@@ -126,7 +126,7 @@ if (!result.success) console.error(result.error.flatten());
 `graph.config.ts` drives codegen:
 
 ```ts
-import { defineConfig } from '@graph-om/core';
+import { defineConfig } from '@graph-om/sdk';
 
 export default defineConfig({
   schema: './src/schema.ts',

@@ -1,8 +1,8 @@
 // @graph-om/migrate/src/index.ts
 // Graph-OM migration system - schema versioning and database migrations
 
-import type { DriverAdapter, GraphSchemaRegistry } from '@graph-om/graph-om';
-import { QueryCompiler } from '@graph-om/graph-om';
+import type { DriverAdapter, GraphSchemaRegistry } from '@graph-om/sdk';
+import { QueryCompiler } from '@graph-om/sdk';
 
 export interface MigrationOptions {
   migrationsDir?: string;
@@ -116,24 +116,29 @@ export class MigrationRunner {
     return appliedMigrations;
   }
 
-  async rollback(_migrations: Migration[], steps: number): Promise<Migration[]> {
+  async rollback(migrations: Migration[], steps: number): Promise<Migration[]> {
     await this.initialize();
 
     const applied = await this.getAppliedMigrations();
-    const appliedList = Array.from(applied.entries())
-      .map(([version, info]) => ({ version, ...info }))
-      .sort((a, b) => Number(b.version) - Number(a.version));
+    const definitions = new Map(migrations.map((m) => [m.version, m]));
 
-    const toRollback = appliedList.slice(0, steps);
-    const rolledBack: Migration[] = [];
+    // Resolve every definition up front so a missing one cannot leave the graph half-reverted
+    const toRollback = Array.from(applied.keys())
+      .sort((a, b) => Number(b) - Number(a))
+      .slice(0, steps)
+      .map((version) => {
+        const migration = definitions.get(version);
+        if (!migration) {
+          throw new Error(`Cannot roll back migration ${version}: no matching definition provided`);
+        }
+        return migration;
+      });
 
     for (const migration of toRollback) {
-      const fullMigration = migration as Migration;
-      await this.revertMigration(fullMigration);
-      rolledBack.push(fullMigration);
+      await this.revertMigration(migration);
     }
 
-    return rolledBack;
+    return toRollback;
   }
 
   async status(migrations: Migration[]): Promise<MigrationStatus[]> {
@@ -239,7 +244,7 @@ export function createMigrationTemplate(options: CreateMigrationOptions): string
 // Version: ${generateVersion}
 // Created: ${new Date().toISOString()}
 
-import { QueryCompiler } from '@graph-om/graph-om';
+import { QueryCompiler } from '@graph-om/sdk';
 import type { Migration } from '@graph-om/migrate';
 
 export const migration: Migration = {
@@ -293,6 +298,7 @@ export function diffSchemas(
     for (const propName of commonProperties) {
       const oldProp = oldNode.properties[propName];
       const newProp = newNode.properties[propName];
+      if (!oldProp || !newProp) continue;
 
       const diff: PropertyDiff = {};
       let hasChanges = false;
@@ -372,8 +378,8 @@ export function generateMigrationFromDiff(diff: SchemaDiff, name: string): Migra
       }
 
       // Add new properties
-      for (const [nodeName, diff] of diff.modifiedNodes) {
-        for (const propName of diff.addedProperties) {
+      for (const [nodeName, nodeDiff] of diff.modifiedNodes) {
+        for (const propName of nodeDiff.addedProperties) {
           statements.push(`// ADD PROPERTY ${nodeName}.${propName}`);
         }
       }
@@ -395,7 +401,7 @@ export function generateMigrationFromDiff(diff: SchemaDiff, name: string): Migra
 }
 
 export function loadMigrations(_migrationsDir: string): Migration[] {
-  // This would read migration files from the filesystem
-  // For now, return empty array
-  return [];
+  throw new Error(
+    'loadMigrations() cannot import migration files yet. Import each migration module explicitly and pass the list to createMigrationRunner().migrate().',
+  );
 }

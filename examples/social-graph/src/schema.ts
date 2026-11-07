@@ -1,5 +1,5 @@
 // schema.ts - Social Graph Schema
-import { date, node, number, relation, schema as sch, string } from '@graph-om/core';
+import { date, node, number, relation, schema as sch, string } from '@graph-om/sdk';
 
 export const User = node('User')
   .add('id', string({ primary: true }))

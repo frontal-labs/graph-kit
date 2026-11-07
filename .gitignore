@@ -12,3 +12,5 @@ temp
 *.log
 .DS_Store
 **/__generated__
+# Benchmark output written on every run
+**/benchmarks/baselines.json

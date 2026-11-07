@@ -8,16 +8,29 @@ import type {
   QueryRecord,
   QueryResult,
   TransactionContext,
-} from '@graph-om/core';
+} from '@graph-om/sdk';
 import neo4j, {
   type Driver,
   type ManagedTransaction as Neo4jManagedTransaction,
+  type QueryResult as Neo4jQueryResult,
+  type Record as Neo4jRecord,
 } from 'neo4j-driver';
 
-// Type aliases for neo4j-driver types to avoid complex generic issues
-type Neo4jResultAny = any;
-type Neo4jRecordAny = any;
-type Neo4jManagedTransactionAny = any;
+// Counter shape returned by Memgraph; older releases nest the values under _stats or stats
+type CounterFields = {
+  nodesCreated?: number;
+  nodesDeleted?: number;
+  relationshipsCreated?: number;
+  relationshipsDeleted?: number;
+  propertiesSet?: number;
+  labelsAdded?: number;
+  labelsRemoved?: number;
+  indexesAdded?: number;
+  indexesRemoved?: number;
+  constraintsAdded?: number;
+  constraintsRemoved?: number;
+};
+type CounterSource = CounterFields & { _stats?: CounterFields; stats?: CounterFields };
 
 export class MemgraphDriverAdapter implements DriverAdapter {
   private driver: Driver;
@@ -26,7 +39,6 @@ export class MemgraphDriverAdapter implements DriverAdapter {
 
   constructor(config: MemgraphDriverConfig) {
     this.config = config;
-    const _driverConfig = config.driverConfig ?? {};
     this.driver = neo4j.driver(config.uri, neo4j.auth.basic(config.username, config.password), {
       maxConnectionLifetime: config.maxConnectionLifetime ?? 3600000,
       maxConnectionPoolSize: config.maxConnectionPoolSize ?? 50,
@@ -58,7 +70,7 @@ export class MemgraphDriverAdapter implements DriverAdapter {
   async runQuery(cypher: string, params?: Record<string, unknown>): Promise<QueryResult> {
     const session = this.driver.session({ database: this.config.database });
     try {
-      const result: Neo4jResultAny = await session.run(cypher, params);
+      const result = await session.run(cypher, params);
       return this.mapResult(result);
     } finally {
       await session.close();
@@ -108,6 +120,9 @@ export class MemgraphDriverAdapter implements DriverAdapter {
         'CALL dbms.components() YIELD name, versions, edition RETURN name, versions[0] as version, edition',
       );
       const record = result.records[0];
+      if (!record) {
+        throw new Error('Memgraph returned no component information');
+      }
       return {
         address: this.config.uri,
         version: record.get('version') as string,
@@ -131,16 +146,16 @@ export class MemgraphDriverAdapter implements DriverAdapter {
     };
   }
 
-  private mapResult(result: any): QueryResult {
+  private mapResult(result: Neo4jQueryResult): QueryResult {
     return {
-      records: result.records.map((record: any) => this.mapRecord(record)),
+      records: result.records.map((record) => this.mapRecord(record)),
       summary: {
         query: {
           text: result.summary?.query?.text ?? '',
           parameters: result.summary?.query?.parameters ?? {},
         },
         counters: this.mapCounters(result.summary?.counters),
-        notifications: (result.summary?.notifications ?? []).map((n: any) => ({
+        notifications: (result.summary?.notifications ?? []).map((n) => ({
           code: n.code,
           title: n.title,
           description: n.description,
@@ -148,26 +163,27 @@ export class MemgraphDriverAdapter implements DriverAdapter {
           severity: n.severity,
         })),
         database: { name: this.config.database ?? 'memgraph' },
-        resultAvailableAfter: result.summary?.resultAvailableAfter ?? 0,
-        resultConsumedAfter: result.summary?.resultConsumedAfter ?? 0,
+        resultAvailableAfter: neo4j.integer.toNumber(result.summary?.resultAvailableAfter ?? 0),
+        resultConsumedAfter: neo4j.integer.toNumber(result.summary?.resultConsumedAfter ?? 0),
       },
-      keys: result.keys,
+      keys: result.records[0]?.keys.map(String) ?? [],
     };
   }
 
-  private mapRecord(record: any): QueryRecord {
+  private mapRecord(record: Neo4jRecord): QueryRecord {
     const obj: Record<string, unknown> = {};
-    for (const key of record.keys) {
+    const keys = record.keys.map(String);
+    for (const key of keys) {
       obj[key] = record.get(key);
     }
     return {
-      keys: record.keys,
+      keys,
       get: (key: string) => obj[key],
       toObject: () => ({ ...obj }),
     };
   }
 
-  private mapCounters(counters: any): Record<string, number> {
+  private mapCounters(counters: unknown): Record<string, number> {
     if (!counters)
       return {
         nodesCreated: 0,
@@ -184,7 +200,8 @@ export class MemgraphDriverAdapter implements DriverAdapter {
       };
 
     // Handle different counter formats
-    const stats = counters._stats ?? counters.stats ?? counters;
+    const source = counters as CounterSource;
+    const stats = source._stats ?? source.stats ?? source;
     return {
       nodesCreated: stats.nodesCreated ?? 0,
       nodesDeleted: stats.nodesDeleted ?? 0,

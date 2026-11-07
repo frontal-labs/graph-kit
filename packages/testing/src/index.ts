@@ -3,10 +3,11 @@
 
 import type {
   DriverAdapter,
+  DriverCapabilities,
   QueryRecord,
   QueryResult,
   TransactionContext,
-} from '@graph-om/graph-om';
+} from '@graph-om/sdk';
 
 export class MockDriverAdapter implements DriverAdapter {
   private data: Map<string, Map<string, Record<string, unknown>>> = new Map();
@@ -38,7 +39,7 @@ export class MockDriverAdapter implements DriverAdapter {
       const labelMatch = cypher.match(/MATCH \(n:(\w+)\)/);
       const label = labelMatch?.[1] ?? 'Node';
       const limitMatch = cypher.match(/LIMIT\s+(\d+)/);
-      const limit = limitMatch ? parseInt(limitMatch[1], 10) : 100;
+      const limit = limitMatch?.[1] ? parseInt(limitMatch[1], 10) : 100;
 
       const nodes = this.data.get(label) ?? new Map();
       const records = Array.from(nodes.values())
@@ -148,7 +149,7 @@ export class MockDriverAdapter implements DriverAdapter {
     return this.queryLog.filter((q) => q.cypher === cypher).length;
   }
 
-  mockQuery(_cypher: string, _records: any[], _params?: Record<string, unknown>): void {
+  mockQuery(_cypher: string, _records: unknown[], _params?: Record<string, unknown>): void {
     // This would be used to mock specific query responses
   }
 
@@ -167,8 +168,10 @@ export function createMockDriver(): MockDriverAdapter {
 }
 
 // Vitest/Jest matchers for Graph-OM
+type MatchableNode = { label?: unknown; relations?: Record<string, unknown> } | null | undefined;
+
 export const graphMatchers = {
-  toBeValidNode: (node: any, expectedLabel?: string) => {
+  toBeValidNode: (node: MatchableNode, expectedLabel?: string) => {
     if (!node || typeof node !== 'object') {
       return { pass: false, message: () => 'Expected a valid node object' };
     }
@@ -181,7 +184,7 @@ export const graphMatchers = {
     return { pass: true, message: () => 'Valid node' };
   },
 
-  toHaveRelation: (node: any, relationName: string) => {
+  toHaveRelation: (node: MatchableNode, relationName: string) => {
     if (!node?.relations?.[relationName]) {
       return { pass: false, message: () => `Expected node to have relation ${relationName}` };
     }
@@ -305,4 +308,4 @@ export type {
   RelationConfig,
   TransactionContext,
   WhereCondition,
-} from '@graph-om/graph-om';
+} from '@graph-om/sdk';

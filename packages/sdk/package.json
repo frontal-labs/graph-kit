@@ -1,0 +1,181 @@
+{
+  "name": "@graph-om/sdk",
+  "version": "1.0.0",
+  "description": "Graph-OM - Prisma-like DX for graph databases",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/frontal-labs/graph-om.git",
+    "directory": "packages/sdk"
+  },
+  "homepage": "https://github.com/frontal-labs/graph-om/tree/master/packages/sdk#readme",
+  "bugs": {
+    "url": "https://github.com/frontal-labs/graph-om/issues"
+  },
+  "keywords": [
+    "ogm",
+    "graph",
+    "neo4j",
+    "cypher",
+    "database",
+    "typescript",
+    "orm"
+  ],
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./schema": {
+      "types": "./dist/schema/index.d.ts",
+      "import": "./dist/schema/index.mjs",
+      "require": "./dist/schema/index.js"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "import": "./dist/client/index.mjs",
+      "require": "./dist/client/index.js"
+    },
+    "./query": {
+      "types": "./dist/query/index.d.ts",
+      "import": "./dist/query/index.mjs",
+      "require": "./dist/query/index.js"
+    },
+    "./config": {
+      "types": "./dist/config/index.d.ts",
+      "import": "./dist/config/index.mjs",
+      "require": "./dist/config/index.js"
+    },
+    "./driver": {
+      "types": "./dist/driver/index.d.ts",
+      "import": "./dist/driver/index.mjs",
+      "require": "./dist/driver/index.js"
+    },
+    "./driver/neo4j": {
+      "types": "./dist/driver/neo4j.d.ts",
+      "import": "./dist/driver/neo4j.mjs",
+      "require": "./dist/driver/neo4j.js"
+    },
+    "./driver/memgraph": {
+      "types": "./dist/driver/memgraph.d.ts",
+      "import": "./dist/driver/memgraph.mjs",
+      "require": "./dist/driver/memgraph.js"
+    },
+    "./driver/kuzu": {
+      "types": "./dist/driver/kuzu.d.ts",
+      "import": "./dist/driver/kuzu.mjs",
+      "require": "./dist/driver/kuzu.js"
+    },
+    "./driver/falkordb": {
+      "types": "./dist/driver/falkordb.d.ts",
+      "import": "./dist/driver/falkordb.mjs",
+      "require": "./dist/driver/falkordb.js"
+    },
+    "./migration": {
+      "types": "./dist/migration/index.d.ts",
+      "import": "./dist/migration/index.mjs",
+      "require": "./dist/migration/index.js"
+    },
+    "./schema/parser": {
+      "types": "./dist/schema/parser.d.ts",
+      "import": "./dist/schema/parser.mjs",
+      "require": "./dist/schema/parser.js"
+    },
+    "./seed": {
+      "types": "./dist/seed/index.d.ts",
+      "import": "./dist/seed/index.mjs",
+      "require": "./dist/seed/index.js"
+    },
+    "./observability": {
+      "types": "./dist/observability/index.d.ts",
+      "import": "./dist/observability/index.mjs",
+      "require": "./dist/observability/index.js"
+    },
+    "./graphql": {
+      "types": "./dist/graphql/index.d.ts",
+      "import": "./dist/graphql/index.mjs",
+      "require": "./dist/graphql/index.js"
+    },
+    "./visualization": {
+      "types": "./dist/visualization/index.d.ts",
+      "import": "./dist/visualization/index.mjs",
+      "require": "./dist/visualization/index.js"
+    },
+    "./batch": {
+      "types": "./dist/batch/index.d.ts",
+      "import": "./dist/batch/index.mjs",
+      "require": "./dist/batch/index.js"
+    },
+    "./auth": {
+      "types": "./dist/auth/index.d.ts",
+      "import": "./dist/auth/index.mjs",
+      "require": "./dist/auth/index.js"
+    },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.mjs",
+      "require": "./dist/testing/index.js"
+    },
+    "./otel": {
+      "types": "./dist/otel/index.d.ts",
+      "import": "./dist/otel/index.mjs",
+      "require": "./dist/otel/index.js"
+    },
+    "./benchmark": {
+      "types": "./dist/benchmark/index.d.ts",
+      "import": "./dist/benchmark/index.mjs",
+      "require": "./dist/benchmark/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "clean": "rm -rf dist .turbo coverage",
+    "build": "tsup && tsc --declaration --emitDeclarationOnly --outDir dist",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:ci": "vitest run --reporter=verbose",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsup": "^8.0.0",
+    "vite": "^7.0.0",
+    "vitest": "^4.1.12"
+  },
+  "optionalDependencies": {
+    "@opentelemetry/api": "^1.9.1",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.200.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.200.0",
+    "@opentelemetry/instrumentation": "^0.200.0",
+    "@opentelemetry/instrumentation-dns": "^0.66.0",
+    "@opentelemetry/instrumentation-grpc": "^0.200.0",
+    "@opentelemetry/instrumentation-http": "^0.200.0",
+    "@opentelemetry/resources": "^2.12.0",
+    "@opentelemetry/sdk-metrics": "^2.12.0",
+    "@opentelemetry/sdk-trace-base": "^2.12.0",
+    "@opentelemetry/sdk-trace-node": "^2.12.0",
+    "@opentelemetry/semantic-conventions": "^1.45.0",
+    "@redis/client": "^1.5.0",
+    "ioredis": "^5.3.0",
+    "kuzu": "^0.8.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "dependencies": {
+    "@t3-oss/env-core": "^0.13.11",
+    "neo4j-driver": "^5.14.0",
+    "typescript": "^5.9.3",
+    "zod": "^4.6.7"
+  }
+}

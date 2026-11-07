@@ -1,9 +1,10 @@
 // @graph-om/cli/src/commands/studio.ts
 
+import { exec } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { parseSchemaFile } from '@graph-om/core/schema';
-import { generateDocumentation, generateERDiagram } from '@graph-om/core/visualization';
+import { parseSchemaFile } from '@graph-om/sdk/schema';
+import { generateDocumentation, generateERDiagram } from '@graph-om/sdk/visualization';
 import { Command } from 'commander';
 import { loadProjectConfig } from './generate.js';
 
@@ -13,7 +14,7 @@ interface StudioOptions {
 }
 
 interface VisualizeOptions {
-  format?: 'mermaid' | 'dot' | 'plantuml' | 'markdown' | 'html';
+  format?: 'mermaid' | 'dot' | 'plantuml';
   output?: string;
   includeProperties?: boolean;
 }
@@ -37,7 +38,7 @@ export function createStudioCommand(): Command {
 function createVisualizeCommand(): Command {
   return new Command('visualize')
     .description('Generate ER diagram from schema')
-    .option('--format <type>', 'Output format (mermaid, dot, plantuml, markdown, html)', 'mermaid')
+    .option('--format <type>', 'Output format (mermaid, dot, plantuml)', 'mermaid')
     .option('--output <path>', 'Output file path')
     .option('--no-properties', 'Exclude properties from diagram')
     .action(async (options: VisualizeOptions) => {
@@ -191,7 +192,7 @@ async function serveStudio(port: number = 3000, open: boolean = false): Promise<
           : process.platform === 'win32'
             ? 'start'
             : 'xdg-open';
-      require('node:child_process').exec(`${openCmd} http://localhost:${port}`);
+      exec(`${openCmd} http://localhost:${port}`);
     }
   });
 

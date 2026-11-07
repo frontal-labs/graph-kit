@@ -19,7 +19,7 @@ import {
   runGenerate,
 } from '../src/commands/generate';
 
-const SCHEMA_FIXTURE = `import { node, relation, schema as sch, string, boolean, date } from '@graph-om/core';
+const SCHEMA_FIXTURE = `import { node, relation, schema as sch, string, boolean, date } from '@graph-om/sdk';
 
 export const User = node('User')
   .add('id', string({ primary: true }))
@@ -107,7 +107,7 @@ describe('loadSchema', () => {
     const schemaPath = path.join(tmpDir, 'schema-multi.ts');
     fs.writeFileSync(
       schemaPath,
-      `import { node, relation, string } from '@graph-om/core';
+      `import { node, relation, string } from '@graph-om/sdk';
 export const A = node('A')
   .add('id', string({ primary: true }))
   .add('things', relation('HAS', 'OUT', 'B', { multiple: true }))
@@ -146,7 +146,7 @@ describe('content generators', () => {
     const out = generateNodeInterface(node);
     expect(out).toContain('export interface UserNode {');
     expect(out).toContain('id: string;');
-    expect(out).toContain('bio?: string;');
+    expect(out).toContain('bio?: string | null;');
     expect(out).toContain('tags: string[];');
     expect(out).toContain('posts: PostNode[];');
     expect(out).toContain('profile?: ProfileNode | null;');
@@ -154,9 +154,9 @@ describe('content generators', () => {
 
   it('generateWhereType includes operators and boolean combinators', () => {
     const out = generateWhereType(node);
-    expect(out).toContain('export type UserWhere = {');
+    expect(out).toContain('export type UserWhereInput = {');
     expect(out).toContain('id?: string | WhereOperator<string>;');
-    expect(out).toContain('AND?: UserWhere[];');
+    expect(out).toContain('AND?: UserWhereInput[];');
   });
 
   it('generateCreateType omits primary and optionalizes nullable', () => {
@@ -173,7 +173,7 @@ describe('content generators', () => {
 
   it('generateTypesContent is valid-looking TS with WhereOperator import', () => {
     const out = generateTypesContent([node]);
-    expect(out).toContain("import type { WhereOperator } from '@graph-om/core';");
+    expect(out).toContain("import type { WhereOperator } from '@graph-om/sdk';");
     expect(out).toContain('export interface UserNode');
     expect(out).toContain('export type UserCreateInput');
   });

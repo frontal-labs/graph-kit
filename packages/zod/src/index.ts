@@ -7,7 +7,7 @@ import type {
   PropertyConfig,
   PropertyType,
   UpdateInput,
-} from '@graph-om/core';
+} from '@graph-om/sdk';
 import { z } from 'zod';
 
 type PropertyTypeToZodType<T extends PropertyType> = T extends 'string'
@@ -87,33 +87,27 @@ function propertiesToZodShape(
 
   for (const [key, config] of Object.entries(properties)) {
     const propConfig = config as PropertyConfig;
-    shape[key] = propertyTypeToZod(
-      propConfig.type as PropertyType,
-      propConfig as PropertyConfig<any>,
-    );
+    shape[key] = propertyTypeToZod(propConfig.type as PropertyType, propConfig);
   }
 
   return shape;
 }
 
 export function toZodSchema<T extends string>(
-  nodeConfig: NodeConfig<T, any>,
+  nodeConfig: NodeConfig<T, Record<string, PropertyConfig>>,
 ): z.ZodObject<Record<string, z.ZodTypeAny>> {
   const shape = propertiesToZodShape(nodeConfig.properties);
   return z.object(shape);
 }
 
 export function toCreateSchema<T extends string>(
-  nodeConfig: NodeConfig<T, any>,
+  nodeConfig: NodeConfig<T, Record<string, PropertyConfig>>,
 ): z.ZodObject<Record<string, z.ZodTypeAny>> {
   const shape: Record<string, z.ZodTypeAny> = {};
 
   for (const [key, config] of Object.entries(nodeConfig.properties)) {
     const propConfig = config as PropertyConfig;
-    const schema = propertyTypeToZod(
-      propConfig.type as PropertyType,
-      propConfig as PropertyConfig<any>,
-    );
+    const schema = propertyTypeToZod(propConfig.type as PropertyType, propConfig);
     if (propConfig.nullable && propConfig.default === undefined) {
       shape[key] = schema.optional();
     } else {
@@ -125,7 +119,7 @@ export function toCreateSchema<T extends string>(
 }
 
 export function toUpdateSchema<T extends string>(
-  nodeConfig: NodeConfig<T, any>,
+  nodeConfig: NodeConfig<T, Record<string, PropertyConfig>>,
 ): z.ZodObject<Record<string, z.ZodTypeAny>> {
   const shape: Record<string, z.ZodTypeAny> = {};
 
@@ -140,7 +134,7 @@ export function toUpdateSchema<T extends string>(
 }
 
 export function validateCreate<T extends string>(
-  nodeConfig: NodeConfig<T, any>,
+  nodeConfig: NodeConfig<T, Record<string, PropertyConfig>>,
   data: unknown,
 ):
   | { success: true; data: CreateInput<Record<string, unknown>> }
@@ -154,7 +148,7 @@ export function validateCreate<T extends string>(
 }
 
 export function validateUpdate<T extends string>(
-  nodeConfig: NodeConfig<T, any>,
+  nodeConfig: NodeConfig<T, Record<string, PropertyConfig>>,
   data: unknown,
 ):
   | { success: true; data: UpdateInput<Record<string, unknown>> }
@@ -168,7 +162,7 @@ export function validateUpdate<T extends string>(
 }
 
 export function validationHooks<T extends string>(
-  nodeConfig: NodeConfig<T, any>,
+  nodeConfig: NodeConfig<T, Record<string, PropertyConfig>>,
   options?: {
     beforeCreate?: boolean;
     beforeUpdate?: boolean;

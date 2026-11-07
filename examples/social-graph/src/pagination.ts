@@ -1,119 +1,106 @@
-// pagination.ts - Pagination Examples
-// Demonstrates various pagination techniques with Graph-OM
+// pagination.ts - Offset, cursor, and paged-include examples
+// Run: pnpm start:pagination
 
-import { GraphClient } from '@graph-om/core';
 import { createNeo4jDriver } from '@graph-om/neo4j';
+import { GraphClient } from '@graph-om/sdk';
 import { graph } from './schema.js';
 
-const URI = process.env.NEO4J_URI || 'bolt://localhost:7687';
-const USER = process.env.NEO4J_USER || 'neo4j';
-const PASSWORD = process.env.NEO4J_PASSWORD || 'password';
+const driver = createNeo4jDriver({
+  type: 'neo4j',
+  uri: process.env.NEO4J_URI ?? 'bolt://localhost:7687',
+  username: process.env.NEO4J_USER ?? 'neo4j',
+  password: process.env.NEO4J_PASSWORD ?? 'password',
+});
 
-type UserRow = {
-  id: string;
-  name: string;
-  email: string;
-  age: number | null;
-  createdAt: Date;
-};
+type UserRow = { id: string; name: string; email: string; age: number | null };
+type PostRow = { id: string; title: string; published: boolean; createdAt: Date };
+
+async function seed(client: GraphClient) {
+  await client.raw("MATCH (n) WHERE n.id STARTS WITH 'page-' DETACH DELETE n");
+
+  for (let i = 1; i <= 10; i++) {
+    await client.create<UserRow>('User', {
+      data: {
+        id: `page-user-${String(i).padStart(2, '0')}`,
+        name: `User ${String(i).padStart(2, '0')}`,
+        email: `user${i}@page.example`,
+        age: 20 + i,
+      },
+    });
+  }
+
+  for (let i = 1; i <= 4; i++) {
+    const id = `page-post-${i}`;
+    await client.create<PostRow>('Post', {
+      data: { id, title: `Post ${i}`, published: true },
+    });
+    await client.relate('User', 'page-user-01', 'POSTED', 'Post', id);
+  }
+  // Likes on the first two posts only, so the include shows both cases
+  await client.relate('User', 'page-user-02', 'LIKES', 'Post', 'page-post-1');
+  await client.relate('User', 'page-user-03', 'LIKES', 'Post', 'page-post-1');
+  await client.relate('User', 'page-user-04', 'LIKES', 'Post', 'page-post-2');
+}
 
 async function main() {
-  const driver = createNeo4jDriver({ uri: URI, username: USER, password: PASSWORD });
   await driver.connect();
   const client = new GraphClient(driver, graph);
 
-  console.log('=== PAGINATION EXAMPLES ===\n');
+  try {
+    await seed(client);
+    const userFilter = { id: { startsWith: 'page-user-' } };
 
-  // Create test users if needed
-  for (let i = 1; i <= 10; i++) {
-    await client.upsert<UserRow>('User', {
-      where: { id: `page-user-${i}` },
-      create: {
-        id: `page-user-${i}`,
-        name: `User ${i}`,
-        email: `user${i}@example.com`,
-        age: 20 + i,
-      },
-      update: {},
-    });
-  }
-
-  // 1. Basic offset/limit pagination
-  console.log('--- Offset/Limit Pagination ---');
-  const page1 = await client.findMany<UserRow>('User', {
-    where: { id: { startsWith: 'page-user-' } },
-    limit: 3,
-    orderBy: { name: 'asc' },
-  });
-  console.log('Page 1:', page1.map((u) => u.name).join(', '));
-
-  const page2 = await client.findMany<UserRow>('User', {
-    where: { id: { startsWith: 'page-user-' } },
-    limit: 3,
-    skip: 3,
-    orderBy: { name: 'asc' },
-  });
-  console.log('Page 2:', page2.map((u) => u.name).join(', '));
-
-  const page3 = await client.findMany<UserRow>('User', {
-    where: { id: { startsWith: 'page-user-' } },
-    limit: 3,
-    skip: 6,
-    orderBy: { name: 'asc' },
-  });
-  console.log('Page 3:', page3.map((u) => u.name).join(', '));
-
-  // 2. Cursor-based pagination (using where with id > lastId)
-  console.log('\n--- Cursor-based Pagination ---');
-  let lastId: string | null = null;
-  let hasMore = true;
-  let pageNum = 1;
-
-  while (hasMore) {
-    const where: any = { id: { startsWith: 'page-user-' } };
-    if (lastId) {
-      where.id = { ...where.id, gt: lastId };
+    // 1. Offset / limit pagination
+    console.log('--- Offset/Limit ---');
+    for (let page = 0; page < 4; page++) {
+      const rows = await client.findMany<UserRow>('User', {
+        where: userFilter,
+        orderBy: { name: 'asc' },
+        limit: 3,
+        skip: page * 3,
+      });
+      console.log(`Page ${page + 1}:`, rows.map((u) => u.name).join(', ') || '(empty)');
     }
 
-    const results = await client.findMany<UserRow>('User', {
-      where,
-      limit: 3,
-      orderBy: { id: 'asc' },
-    });
-
-    if (results.length === 0) {
-      hasMore = false;
-      break;
+    // 2. Cursor pagination: keep the last id and ask for ids after it
+    console.log('\n--- Cursor ---');
+    let cursor: string | undefined;
+    let pageNumber = 1;
+    for (;;) {
+      const rows = await client.findMany<UserRow>('User', {
+        where: cursor ? { id: { startsWith: 'page-user-', gt: cursor } } : userFilter,
+        orderBy: { id: 'asc' },
+        limit: 3,
+      });
+      if (rows.length === 0) break;
+      console.log(`Page ${pageNumber}:`, rows.map((u) => u.id).join(', '));
+      cursor = rows[rows.length - 1]?.id;
+      pageNumber++;
+      if (rows.length < 3) break;
     }
 
-    console.log(`Page ${pageNum}:`, results.map((u) => u.name).join(', '));
-    lastId = results[results.length - 1].id;
-    pageNum++;
+    // 3. Total count to size the pages
+    const total = await client.count('User', userFilter);
+    console.log(`\nTotal users: ${total}, pages of 3: ${Math.ceil(total / 3)}`);
 
-    if (results.length < 3) hasMore = false;
+    // 4. Paged posts with their likers included
+    console.log('\n--- Posts with likers ---');
+    const posts = await client.findMany<PostRow & { likedBy?: UserRow[] }>('Post', {
+      where: { id: { startsWith: 'page-post-' } },
+      orderBy: { title: 'asc' },
+      limit: 2,
+      include: { likedBy: true },
+    });
+    for (const post of posts) {
+      console.log(`  ${post.title}: ${post.likedBy?.length ?? 0} likes`);
+    }
+  } finally {
+    await client.raw("MATCH (n) WHERE n.id STARTS WITH 'page-' DETACH DELETE n");
+    await driver.disconnect();
   }
-
-  // 3. Count total for pagination info
-  const totalCount = await client.count('User', { id: { startsWith: 'page-user-' } });
-  console.log(`\nTotal users: ${totalCount}`);
-  console.log(`Pages needed (limit 3): ${Math.ceil(totalCount / 3)}`);
-
-  // 4. Pagination with includes
-  console.log('\n--- Pagination with Includes ---');
-  const postsWithLikes = await client.findMany('Post', {
-    include: { likedBy: true },
-    limit: 2,
-    orderBy: { createdAt: 'desc' },
-  });
-  console.log('Posts with likes (2 per page):');
-  for (const post of postsWithLikes) {
-    console.log(`  ${post.title} - ${post.likedBy?.length ?? 0} likes`);
-  }
-
-  await driver.disconnect();
 }
 
-main().catch((error) => {
+main().catch((error: unknown) => {
   console.error(error);
-  process.exit(1);
+  process.exitCode = 1;
 });

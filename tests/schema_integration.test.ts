@@ -1,8 +1,8 @@
 // @graph-om/tests/schema_integration.test.ts
-// Cross-package test: validates @graph-om/core schema DSL works with @graph-om/neo4j types
+// Cross-package test: validates @graph-om/sdk schema DSL works with @graph-om/neo4j types
 
-import type { DriverAdapter, GraphSchemaRegistry, NodeConfig } from '@graph-om/core';
-import { boolean, date, defineRel, node, number, schema, string } from '@graph-om/core';
+import type { DriverAdapter, GraphSchemaRegistry, NodeConfig } from '@graph-om/sdk';
+import { boolean, date, defineRel, node, number, schema, string } from '@graph-om/sdk';
 import { describe, expect, it } from 'vitest';
 
 describe('schema DSL + neo4j-driver integration', () => {
@@ -69,8 +69,8 @@ describe('schema DSL + neo4j-driver integration', () => {
         },
         keys: [],
       }),
-      runInTransaction: async (work) => work({} as any),
-      runInReadTransaction: async (work) => work({} as any),
+      runInTransaction: async (work) => work({} as never),
+      runInReadTransaction: async (work) => work({} as never),
       verifyConnectivity: async () => true,
       getServerInfo: async () => ({
         address: 'localhost:7687',
@@ -85,7 +85,7 @@ describe('schema DSL + neo4j-driver integration', () => {
   });
 
   it('NodeConfig type is compatible across packages', () => {
-    const config: NodeConfig<string, Record<string, any>> = {
+    const config: NodeConfig<string, Record<string, never>> = {
       label: 'Test',
       properties: {},
       relations: {},

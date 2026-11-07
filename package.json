@@ -11,6 +11,7 @@
   "scripts": {
     "prepare": "husky",
     "build": "turbo run build",
+    "size": "pnpm build && size-limit",
     "dev": "turbo run dev",
     "clean": "turbo run clean && rm -rf node_modules .turbo",
     "test": "turbo run test",
@@ -18,8 +19,8 @@
     "test:coverage": "turbo run test:coverage",
     "test:root": "vitest run",
     "test:root:ci": "vitest run --reporter=verbose",
-    "benchmark": "node -e \"require('@graph-om/graph-om/benchmark').runCIOBenchmarks(require('@graph-om/neo4j').createNeo4jDriver({uri:process.env.NEO4J_URI,username:process.env.NEO4J_USER,password:process.env.NEO4J_PASSWORD}))\"",
-    "benchmark:ci": "node -e \"require('@graph-om/graph-om/benchmark').runCIOBenchmarks(require('@graph-om/neo4j').createNeo4jDriver({uri:process.env.NEO4J_URI,username:process.env.NEO4J_USER,password:process.env.NEO4J_PASSWORD}),{threshold:20,failOnRegression:true,outputFormat:'github-actions'})\"",
+    "benchmark": "node -e \"require('@graph-om/sdk/benchmark').runCIOBenchmarks(require('@graph-om/neo4j').createNeo4jDriver({uri:process.env.NEO4J_URI,username:process.env.NEO4J_USER,password:process.env.NEO4J_PASSWORD}))\"",
+    "benchmark:ci": "node -e \"require('@graph-om/sdk/benchmark').runCIOBenchmarks(require('@graph-om/neo4j').createNeo4jDriver({uri:process.env.NEO4J_URI,username:process.env.NEO4J_USER,password:process.env.NEO4J_PASSWORD}),{threshold:20,failOnRegression:true,outputFormat:'github-actions'})\"",
     "lint": "ultracite check",
     "typecheck": "turbo run typecheck",
     "format": "ultracite fix",
@@ -31,17 +32,33 @@
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
     "@changesets/cli": "^2.27.1",
+    "@size-limit/file": "^14.3.0",
     "@t3-oss/env-core": "^0.13.11",
     "@types/node": "^20.10.0",
     "husky": "^9.1.7",
-    "turbo": "^1.11.0",
-    "typescript": "^5.3.0",
+    "size-limit": "^14.3.0",
+    "turbo": "^2.11.10",
+    "typescript": "^5.9.3",
     "ultracite": "^8.0.1",
-    "vitest": "^1.0.0",
+    "vite": "^7.0.0",
+    "vitest": "^4.1.12",
     "zod": "^4.6.7"
   },
   "packageManager": "pnpm@9.15.9",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild": "^0.28.1",
+      "postcss@8": "^8.5.23",
+      "nanoid@3": "^3.3.18",
+      "source-map-js": "^1.2.2",
+      "js-yaml@3": "^3.15.2",
+      "js-yaml@4": "^4.3.2",
+      "tar@6": "^7.5.21",
+      "tar@7": "^7.5.21",
+      "@opentelemetry/core@2": "^2.8.0"
+    }
   }
 }

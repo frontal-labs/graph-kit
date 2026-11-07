@@ -4,14 +4,14 @@
 /package.json       @frontal-labs
 /pnpm-lock.yaml     @frontal-labs
 /pnpm-workspace.yaml @frontal-labs
-/tsconfig.base.json @frontal-labs
+/tsconfig.json      @frontal-labs
 /turbo.json         @frontal-labs
 /biome.json         @frontal-labs
 /.github/**         @frontal-labs
 
 # Packages
-/packages/core/     @frontal-labs
-/adapters/neo4j/    @frontal-labs
+/packages/sdk/      @frontal-labs
+/packages/neo4j/   @frontal-labs
 /packages/zod/      @frontal-labs
 
 # CLI

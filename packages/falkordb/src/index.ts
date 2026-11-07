@@ -3,17 +3,28 @@
 
 import type {
   DriverAdapter,
+  DriverCapabilities,
   FalkorDBDriverConfig,
   QueryRecord,
   QueryResult,
   TransactionContext,
-} from '@graph-om/graph-om';
+} from '@graph-om/sdk';
 import { createClient, type RedisClientType } from 'redis';
 
 export class FalkorDBDriverAdapter implements DriverAdapter {
   private client: RedisClientType;
   private config: FalkorDBDriverConfig;
   private connected: boolean = false;
+  private capabilities: DriverCapabilities = {
+    transactions: false, // No native multi-query transactions (MULTI/EXEC serializes all graphs)
+    readReplicas: false,
+    boltProtocol: false,
+    httpProtocol: false,
+    vectorSearch: true, // euclidean / cosine vector indexes
+    fullTextSearch: true, // db.idx.fulltext.* procedures
+    geospatial: true, // point() type
+    procedures: ['db.idx.fulltext'],
+  };
 
   constructor(config: FalkorDBDriverConfig) {
     this.config = config;
@@ -23,7 +34,7 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
         port: config.port ?? 6379,
       },
       password: config.password,
-      database: config.database ?? 0,
+      database: Number(config.database ?? 0),
     });
 
     this.client.on('error', (err) => {
@@ -105,7 +116,7 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
 
     const info = await this.client.info('server');
     const versionMatch = info.match(/redis_version:([^\r\n]+)/);
-    const version = versionMatch ? versionMatch[1] : 'unknown';
+    const version = versionMatch?.[1] ?? 'unknown';
 
     return {
       address: `${this.config.host}:${this.config.port}`,
@@ -136,14 +147,15 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
     return flattened;
   }
 
-  private mapResult(result: any): QueryResult {
+  private mapResult(result: unknown): QueryResult {
     // FalkorDB returns results in a specific format
-    // { header: string[], results: any[][] }
-    const header = result.header || [];
-    const results = result.results || [];
+    // { header: string[], results: unknown[][] }
+    const reply = (result ?? {}) as { header?: string[]; results?: unknown[] };
+    const header = reply.header || [];
+    const results = reply.results || [];
 
     return {
-      records: results.map((row: any[]) => this.mapRecord(header, row)),
+      records: results.map((row) => this.mapRecord(header, Array.isArray(row) ? row : [])),
       summary: {
         query: { text: '', parameters: {} },
         counters: {},
@@ -156,7 +168,11 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
     };
   }
 
-  private mapRecord(header: string[], row: any[]): QueryRecord {
+  getCapabilities(): DriverCapabilities {
+    return this.capabilities;
+  }
+
+  private mapRecord(header: string[], row: unknown[]): QueryRecord {
     const obj: Record<string, unknown> = {};
     header.forEach((key, index) => {
       obj[key] = this.parseValue(row[index]);
@@ -168,7 +184,7 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
     };
   }
 
-  private parseValue(value: any): unknown {
+  private parseValue(value: unknown): unknown {
     if (value === null || value === undefined) return value;
     if (typeof value === 'string') {
       // Try to parse JSON

@@ -7,7 +7,7 @@ import type {
   DriverConfig,
   QueryResult,
   TransactionContext,
-} from '@graph-om/graph-om';
+} from '@graph-om/sdk';
 import neo4j, {
   type Driver,
   type ManagedTransaction,

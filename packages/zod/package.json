@@ -44,17 +44,18 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "zod": "^3.22.0"
+    "zod": "^4.6.7"
   },
   "peerDependencies": {
-    "@graph-om/core": "workspace:^"
+    "@graph-om/sdk": "workspace:^"
   },
   "devDependencies": {
-    "@graph-om/core": "workspace:*",
+    "@graph-om/sdk": "workspace:*",
     "@types/node": "^20.10.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.3.0",
-    "vitest": "^1.0.0"
+    "typescript": "^5.9.3",
+    "vite": "^7.0.0",
+    "vitest": "^4.1.12"
   },
   "publishConfig": {
     "access": "public",
