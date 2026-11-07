@@ -52,10 +52,10 @@
   "devDependencies": {
     "@graph-om/sdk": "workspace:*",
     "@types/node": "^20.10.0",
-    "tsup": "^8.0.0",
-    "typescript": "^5.9.3",
+    "tsup": "^9.0.0",
+    "typescript": "^7.0.2",
     "vite": "^7.0.0",
-    "vitest": "^4.1.12"
+    "vitest": "^5.1.0"
   },
   "publishConfig": {
     "access": "public",

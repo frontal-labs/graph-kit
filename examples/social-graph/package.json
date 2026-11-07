@@ -31,8 +31,8 @@
     "@graph-om/cli": "workspace:*",
     "@types/node": "^20.0.0",
     "tsx": "^4.0.0",
-    "typescript": "^5.9.3",
+    "typescript": "^7.0.2",
     "vite": "^7.0.0",
-    "vitest": "^4.1.12"
+    "vitest": "^5.1.0"
   }
 }
