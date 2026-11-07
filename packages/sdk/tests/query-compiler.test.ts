@@ -377,43 +377,57 @@ describe('QueryCompiler', () => {
   });
 
   describe('compileCreateRelation', () => {
+    const from = { label: 'User', key: 'id', value: 'a1' };
+    const to = { label: 'User', key: 'id', value: 'b1' };
+
     it('generates CREATE for OUT direction', () => {
-      const result = compiler.compileCreateRelation('a1', 'FOLLOWS', 'b1', 'OUT');
+      const result = compiler.compileCreateRelation(from, 'FOLLOWS', to, 'OUT');
       expect(result.cypher).toContain('CREATE (a)-[r:FOLLOWS]->(b)');
       expect(result.params).toEqual({ fromId: 'a1', toId: 'b1' });
     });
 
     it('generates CREATE for IN direction', () => {
-      const result = compiler.compileCreateRelation('a1', 'FOLLOWS', 'b1', 'IN');
+      const result = compiler.compileCreateRelation(from, 'FOLLOWS', to, 'IN');
       expect(result.cypher).toContain('CREATE (a)<-[r:FOLLOWS]-(b)');
     });
 
     it('generates CREATE for BOTH direction', () => {
-      const result = compiler.compileCreateRelation('a1', 'KNOWS', 'b1', 'BOTH');
+      const result = compiler.compileCreateRelation(from, 'KNOWS', to, 'BOTH');
       expect(result.cypher).toContain('CREATE (a)-[r:KNOWS]-(b)');
     });
 
-    it('uses elementId() instead of deprecated id()', () => {
-      const result = compiler.compileCreateRelation('a1', 'FOLLOWS', 'b1', 'OUT');
-      expect(result.cypher).toContain('elementId(a) = $fromId');
-      expect(result.cypher).toContain('elementId(b) = $toId');
-      expect(result.cypher).not.toContain('id(a)');
-      expect(result.cypher).not.toMatch(/\bid\(/);
+    it('matches each endpoint by its label and primary key', () => {
+      const result = compiler.compileCreateRelation(
+        { label: 'User', key: 'email', value: 'a@x' },
+        'FOLLOWS',
+        { label: 'Post', key: 'id', value: 'p1' },
+      );
+      expect(result.cypher).toContain('MATCH (a:User {email: $fromId})');
+      expect(result.cypher).toContain('MATCH (b:Post {id: $toId})');
+    });
+
+    it('rejects labels that are not plain identifiers', () => {
+      expect(() =>
+        compiler.compileCreateRelation(
+          { label: 'User) DETACH DELETE (n', key: 'id', value: 'a1' },
+          'FOLLOWS',
+          to,
+        ),
+      ).toThrow('Invalid node label');
     });
   });
 
   describe('compileDeleteRelation', () => {
-    it('generates DELETE for OUT direction', () => {
-      const result = compiler.compileDeleteRelation('a1', 'FOLLOWS', 'b1', 'OUT');
-      expect(result.cypher).toContain('MATCH (a)-[r:FOLLOWS]->(b)');
-      expect(result.cypher).toContain('DELETE r');
-    });
+    const from = { label: 'User', key: 'id', value: 'a1' };
+    const to = { label: 'Post', key: 'id', value: 'p1' };
 
-    it('filters both endpoints by elementId', () => {
-      const result = compiler.compileDeleteRelation('a1', 'FOLLOWS', 'b1', 'OUT');
-      expect(result.cypher).toContain('elementId(a) = $fromId');
-      expect(result.cypher).toContain('elementId(b) = $toId');
-      expect(result.params).toEqual({ fromId: 'a1', toId: 'b1' });
+    it('generates DELETE for OUT direction', () => {
+      const result = compiler.compileDeleteRelation(from, 'FOLLOWS', to, 'OUT');
+      expect(result.cypher).toContain(
+        'MATCH (a:User {id: $fromId})-[r:FOLLOWS]->(b:Post {id: $toId})',
+      );
+      expect(result.cypher).toContain('DELETE r');
+      expect(result.params).toEqual({ fromId: 'a1', toId: 'p1' });
     });
   });
 

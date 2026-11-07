@@ -225,6 +225,7 @@ export interface ClientConfig {
 
 export async function createClient(config: ClientConfig = {}): Promise<GraphClient> {
   const driver: DriverAdapter = createNeo4jDriver({
+    type: 'neo4j',
     uri: config.uri || env.NEO4J_URI,
     username: config.username || env.NEO4J_USER,
     password: config.password || env.NEO4J_PASSWORD,

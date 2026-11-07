@@ -192,8 +192,10 @@ export async function initializeOTel(config: OTelConfig): Promise<void> {
   try {
     // Dynamic imports to avoid requiring OTel as a dependency
     const { NodeTracerProvider } = await import('@opentelemetry/sdk-trace-node');
-    const { Resource } = await import('@opentelemetry/resources');
-    const { SemanticResourceAttributes } = await import('@opentelemetry/semantic-conventions');
+    const { resourceFromAttributes } = await import('@opentelemetry/resources');
+    const { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } = await import(
+      '@opentelemetry/semantic-conventions'
+    );
     const { BatchSpanProcessor } = await import('@opentelemetry/sdk-trace-base');
     const { OTLPTraceExporter } = await import('@opentelemetry/exporter-trace-otlp-http');
     const { trace, context, propagation } = await import('@opentelemetry/api');
@@ -206,38 +208,39 @@ export async function initializeOTel(config: OTelConfig): Promise<void> {
     const { DnsInstrumentation } = await import('@opentelemetry/instrumentation-dns');
 
     // Create resource
-    const resource = new Resource({
-      [SemanticResourceAttributes.SERVICE_NAME]: config.serviceName,
-      [SemanticResourceAttributes.SERVICE_VERSION]: config.serviceVersion ?? '1.0.0',
+    const resource = resourceFromAttributes({
+      [ATTR_SERVICE_NAME]: config.serviceName,
+      [ATTR_SERVICE_VERSION]: config.serviceVersion ?? '1.0.0',
     });
 
-    // Create trace provider
-    const traceProvider = new NodeTracerProvider({ resource });
-
-    // Configure exporter
-    if (config.endpoint) {
-      const traceExporter = new OTLPTraceExporter({
-        url: `${config.endpoint}/v1/traces`,
-        headers: config.headers,
-      });
-      traceProvider.addSpanProcessor(new BatchSpanProcessor(traceExporter));
-    }
+    // Create trace provider with its exporter
+    const spanProcessors = config.endpoint
+      ? [
+          new BatchSpanProcessor(
+            new OTLPTraceExporter({
+              url: `${config.endpoint}/v1/traces`,
+              headers: config.headers,
+            }),
+          ),
+        ]
+      : [];
+    const traceProvider = new NodeTracerProvider({ resource, spanProcessors });
 
     // Register trace provider
     traceProvider.register();
 
     // Create meter provider
-    const meterProvider = new MeterProvider({ resource });
-
-    if (config.endpoint) {
-      const metricExporter = new OTLPMetricExporter({
-        url: `${config.endpoint}/v1/metrics`,
-        headers: config.headers,
-      });
-      meterProvider.addMetricReader(
-        new PeriodicExportingMetricReader({ exporter: metricExporter }),
-      );
-    }
+    const readers = config.endpoint
+      ? [
+          new PeriodicExportingMetricReader({
+            exporter: new OTLPMetricExporter({
+              url: `${config.endpoint}/v1/metrics`,
+              headers: config.headers,
+            }),
+          }),
+        ]
+      : [];
+    const meterProvider = new MeterProvider({ resource, readers });
 
     // Set global instances
     globalTracer = trace.getTracer(config.serviceName, config.serviceVersion);

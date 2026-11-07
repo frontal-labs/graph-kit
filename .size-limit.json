@@ -88,7 +88,7 @@
     "path": "packages/sdk/dist/index.mjs",
     "gzip": true,
     "brotli": false,
-    "limit": "284000 B"
+    "limit": "244500 B"
   },
   {
     "name": "@graph-om/sdk/schema (import)",
@@ -121,6 +121,34 @@
   {
     "name": "@graph-om/sdk/driver (import)",
     "path": "packages/sdk/dist/driver/index.mjs",
+    "gzip": true,
+    "brotli": false,
+    "limit": "2200 B"
+  },
+  {
+    "name": "@graph-om/sdk/driver/neo4j (import)",
+    "path": "packages/sdk/dist/driver/neo4j.mjs",
+    "gzip": true,
+    "brotli": false,
+    "limit": "1800 B"
+  },
+  {
+    "name": "@graph-om/sdk/driver/memgraph (import)",
+    "path": "packages/sdk/dist/driver/memgraph.mjs",
+    "gzip": true,
+    "brotli": false,
+    "limit": "2100 B"
+  },
+  {
+    "name": "@graph-om/sdk/driver/kuzu (import)",
+    "path": "packages/sdk/dist/driver/kuzu.mjs",
+    "gzip": true,
+    "brotli": false,
+    "limit": "1600 B"
+  },
+  {
+    "name": "@graph-om/sdk/driver/falkordb (import)",
+    "path": "packages/sdk/dist/driver/falkordb.mjs",
     "gzip": true,
     "brotli": false,
     "limit": "2200 B"
@@ -168,6 +196,13 @@
     "limit": "3600 B"
   },
   {
+    "name": "@graph-om/sdk/batch (import)",
+    "path": "packages/sdk/dist/batch/index.mjs",
+    "gzip": true,
+    "brotli": false,
+    "limit": "7200 B"
+  },
+  {
     "name": "@graph-om/sdk/auth (import)",
     "path": "packages/sdk/dist/auth/index.mjs",
     "gzip": true,
@@ -186,7 +221,7 @@
     "path": "packages/sdk/dist/otel/index.mjs",
     "gzip": true,
     "brotli": false,
-    "limit": "248500 B"
+    "limit": "209000 B"
   },
   {
     "name": "@graph-om/sdk/benchmark (import)",
@@ -200,7 +235,7 @@
     "path": "packages/sdk/dist/index.js",
     "gzip": true,
     "brotli": false,
-    "limit": "284800 B"
+    "limit": "245200 B"
   },
   {
     "name": "@graph-om/testing (import)",
@@ -242,6 +277,6 @@
     "path": "cli/dist/index.js",
     "gzip": true,
     "brotli": false,
-    "limit": "13200 B"
+    "limit": "13300 B"
   }
 ]

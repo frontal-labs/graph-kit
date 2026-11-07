@@ -379,7 +379,7 @@ export class GraphClient {
         const node: unknown = record.get(targetAlias);
         const target = isNodeLike(node)
           ? toPlainRecord<Record<string, unknown>>(node.properties)
-          : {};
+          : this.toObject<Record<string, unknown>>(node ?? {});
         let bucket = grouped.get(sourceId);
         if (!bucket) {
           bucket = [];

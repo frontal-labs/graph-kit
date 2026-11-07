@@ -9,6 +9,8 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: ['tests/**/*.test.ts'],
+    // Schema parsing builds a TypeScript program, which needs more than the 5s default
+    testTimeout: 20_000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

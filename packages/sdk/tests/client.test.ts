@@ -217,26 +217,27 @@ describe('GraphClient', () => {
     expect(count).toBe(5);
   });
 
-  it('relate uses elementId-based Cypher', async () => {
+  it('relate matches both endpoints by primary key', async () => {
     const runQuery = vi.fn(async (_cypher: string, _params?: Record<string, unknown>) =>
       makeResult([]),
     );
-    const client = new GraphClient(makeAdapter(runQuery), { User: userConfig });
+    const client = new GraphClient(makeAdapter(runQuery), { User: userConfig, Post: postConfig });
     await client.relate('User', 'a1', 'POSTED', 'Post', 'p1', 'OUT');
     const [cypher, params] = runQuery.mock.calls[0]!;
-    expect(cypher).toContain('elementId(a) = $fromId');
+    expect(cypher).toContain('MATCH (a:User {id: $fromId})');
+    expect(cypher).toContain('MATCH (b:Post {id: $toId})');
     expect(params).toEqual({ fromId: 'a1', toId: 'p1' });
   });
 
-  it('unrelate filters endpoints and deletes the relationship', async () => {
+  it('unrelate deletes the relationship between the matched endpoints', async () => {
     const runQuery = vi.fn(async (_cypher: string, _params?: Record<string, unknown>) =>
       makeResult([]),
     );
-    const client = new GraphClient(makeAdapter(runQuery), { User: userConfig });
+    const client = new GraphClient(makeAdapter(runQuery), { User: userConfig, Post: postConfig });
     await client.unrelate('User', 'a1', 'POSTED', 'Post', 'p1', 'OUT');
     const [cypher] = runQuery.mock.calls[0]!;
     expect(cypher).toContain('DELETE r');
-    expect(cypher).toContain('elementId(a) = $fromId');
+    expect(cypher).toContain('MATCH (a:User {id: $fromId})');
   });
 
   it('include batches relation hydration with UNWIND (single query per relation)', async () => {
