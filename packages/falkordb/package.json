@@ -45,7 +45,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "redis": "^4.6.0"
+    "redis": "^6.3.1"
   },
   "devDependencies": {
     "@graph-om/sdk": "workspace:*",
