@@ -81,6 +81,7 @@ describeIntegration('GraphClient integration (live Neo4j)', () => {
   }, 20_000);
 
   it('relates and unrelates nodes by primary key', async () => {
+    await client.raw('MATCH (n:ItUser) DETACH DELETE n');
     await client.create('ItUser', { data: { id: 'r1', name: 'R1' } });
     await client.create('ItUser', { data: { id: 'r2', name: 'R2' } });
 
