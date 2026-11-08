@@ -1,10 +1,10 @@
 # Environment Variables
 
-Graph-OM uses [@t3-oss/env-core](https://env.t3.gg/) with [zod](https://zod.dev/) to validate and type environment variables. All env access goes through the `env` export from `@graph-om/core`.
+Graph-OM uses [@t3-oss/env-core](https://env.t3.gg/) with [zod](https://zod.dev/) to validate and type environment variables. All env access goes through the `env` export from `@graph-om/sdk`.
 
 ## Schema Definition
 
-The env schema lives in `packages/core/src/config/keys.ts`:
+The env schema lives in `packages/sdk/src/config/keys.ts`:
 
 ```ts
 import { createEnv } from '@t3-oss/env-core';
@@ -36,7 +36,7 @@ export const env = createEnv({
 ## Usage
 
 ```ts
-import { env } from '@graph-om/core';
+import { env } from '@graph-om/sdk';
 
 // Typed access — no process.env checks needed
 const uri = env.NEO4J_URI;

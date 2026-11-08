@@ -31,6 +31,13 @@ const fake = vi.hoisted(() => {
       state.calls.push({ command, args });
       if (state.callError) throw state.callError;
       if (command === 'GRAPH.QUERY') return state.queryReply;
+      if (command === 'GRAPH.RO_QUERY') {
+        // CALL db.labels() and friends: one row per name, indexed by id
+        const procedure = String(args[1])
+          .replace(/^CALL /, '')
+          .replace(/\(\)$/, '');
+        return [[[2, 'name']], (state.metadata[procedure] ?? []).map((name) => [[2, name]])];
+      }
       return 'OK';
     }
   }
@@ -48,6 +55,11 @@ describe('FalkorDBDriverAdapter', () => {
     state.calls.length = 0;
     state.instances.length = 0;
     state.queryReply = [[[2, 'n.name']], [[[2, 'Ada']]], ['Query internal execution time: 0.1 ms']];
+    state.metadata = {
+      'db.labels': ['Person'],
+      'db.relationshipTypes': ['FOLLOWS'],
+      'db.propertyKeys': ['name'],
+    };
     state.connectError = null;
     state.callError = null;
     adapter = new FalkorDBDriverAdapter({
@@ -101,6 +113,7 @@ describe('FalkorDBDriverAdapter', () => {
     expect(lastCommands('GRAPH.QUERY').at(-1)?.args).toEqual([
       'social',
       'CYPHER `id`="a" MATCH (n {id: $id}) RETURN n.name',
+      '--compact',
     ]);
   });
 
@@ -172,6 +185,48 @@ describe('FalkorDBDriverAdapter', () => {
     const result = await adapter.runQuery('CREATE (n:User {id: $id})', { id: 'x' });
 
     expect(result.records).toEqual([]);
+  });
+
+  it('decodes nodes and edges with their label, relationship and property names', async () => {
+    state.queryReply = [
+      [
+        [8, 'n'],
+        [7, 'r'],
+      ],
+      [
+        [
+          // node 7 with label id 0 (Person) and property key id 0 (name)
+          [8, [7, [0], [[0, 2, 'Ada']]]],
+          // edge 5 with relationship type id 0 (FOLLOWS) from node 7 to node 8
+          [7, [5, 0, 7, 8, [[0, 2, 'since']]]],
+        ],
+      ],
+      ['stats'],
+    ];
+    await adapter.connect();
+    const [row] = (await adapter.runQuery('MATCH (n)-[r]->(m) RETURN n, r')).records;
+
+    expect(row?.get('n')).toEqual({ id: 7, labels: ['Person'], properties: { name: 'Ada' } });
+    expect(row?.get('r')).toEqual({
+      id: 5,
+      relationshipType: 'FOLLOWS',
+      sourceId: 7,
+      destinationId: 8,
+      properties: { name: 'since' },
+    });
+  });
+
+  it('reads names again when an id is not in the cached names', async () => {
+    state.queryReply = [[[8, 'n']], [[[8, [1, [0], []]]]], ['stats']];
+    await adapter.connect();
+    await adapter.runQuery('MATCH (n) RETURN n');
+
+    // A label created since the names were read gets the next id
+    state.metadata['db.labels'] = ['Person', 'Company'];
+    state.queryReply = [[[8, 'n']], [[[8, [2, [1], []]]]], ['stats']];
+    const [row] = (await adapter.runQuery('MATCH (n:Company) RETURN n')).records;
+
+    expect(row?.get('n')).toMatchObject({ labels: ['Company'] });
   });
 
   it('refuses queries before connect with driver_not_connected', async () => {

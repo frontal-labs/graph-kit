@@ -18,4 +18,4 @@ Generated files land in `src/__generated__` by default:
 
 ## License
 
-MIT
+Apache-2.0

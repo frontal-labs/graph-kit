@@ -4,7 +4,7 @@ Graph-OM follows a layered architecture inspired by Prisma and Drizzle.
 
 ## Layers
 
-### 1. Schema DSL (`packages/core/src/schema`)
+### 1. Schema DSL (`packages/sdk/src/schema`)
 
 User-facing API for defining graph schemas. Uses the builder pattern:
 
@@ -13,22 +13,21 @@ node('User') → .add() → .build() → NodeConfig
 schema() → .add() → .rel() → .build() → GraphSchemaRegistry
 ```
 
-### 2. Cypher Compiler (`packages/core/src/query`)
+### 2. Cypher Compiler (`packages/sdk/src/query`)
 
 Compiles Graph-OM operations (find, create, update, delete, include) into Cypher queries and parameters. Type-safe via generics over `NodeConfig`.
 
-### 3. Client (`packages/core/src/client`)
+### 3. Client (`packages/sdk/src/client`)
 
 `GraphClient` wraps a `DriverAdapter` and schema registry. Provides high-level CRUD methods that delegate to the compiler.
 
-### 4. Driver Adapters (`adapters/`)
+### 4. Driver Adapters (`packages/sdk/src/driver/`)
 
 Multiple driver adapters implement the `DriverAdapter` interface:
 
-- **Neo4j** (`adapters/neo4j`): Uses the official Neo4j JavaScript driver
-- **Memgraph** (`adapters/memgraph`): Uses Neo4j driver with Memgraph-specific configuration
-- **FalkorDB** (`adapters/falkordb`): Uses Redis client with RedisGraph protocol
-- **ArangoDB** (`adapters/arangodb`): Uses arangojs with AQL
+- **Neo4j** (`packages/sdk/src/driver/neo4j.ts`): Uses the official Neo4j JavaScript driver
+- **Memgraph** (`packages/sdk/src/driver/memgraph.ts`): Uses Neo4j driver with Memgraph-specific configuration
+- **FalkorDB** (`packages/sdk/src/driver/falkordb.ts`): Uses Redis client with RedisGraph protocol
 
 All adapters abstract connection management and query execution behind a common interface.
 
@@ -57,7 +56,6 @@ Cypher/AQL Compiler (query compilation)
     ↓
 Driver Adapter (query execution)
     ↓
-Graph Database (Neo4j, Memgraph, FalkorDB, ArangoDB, etc.)
 ```
 
 ## Type Safety
@@ -72,10 +70,8 @@ Graph Database (Neo4j, Memgraph, FalkorDB, ArangoDB, etc.)
 ```
 graph-om/
 ├── cli/                    # @graph-om/cli — scaffolding + codegen
-├── packages/core/          # @graph-om/core — schema, compiler, client, config
-├── adapters/
-│   ├── sdk/driver/        # @graph-om/sdk/driver/* — Neo4j, Memgraph, Kuzu, FalkorDB adapters
-│   └── arangodb/          # @graph-om/arangodb — ArangoDB driver adapter
+├── packages/sdk/          # @graph-om/sdk — schema, compiler, client, config
+│   ├── sdk/driver/        # @graph-om/sdk/driver/* — Neo4j, Memgraph, Kuzu, FalkorDB adapters (inside packages/sdk)
 ├── packages/zod/           # @graph-om/zod — zod validation
 ├── examples/social-graph/  # End-to-end demo
 └── docs/                   # Documentation

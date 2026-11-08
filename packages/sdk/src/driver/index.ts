@@ -2,6 +2,9 @@
 // Driver adapter abstraction for multi-database support (types only - implementations in separate packages)
 
 import { raiseGraphError } from '../errors';
+import { createFalkorDBDriver, type FalkorDBConfig } from './falkordb';
+import { createMemgraphDriver, type MemgraphConfig } from './memgraph';
+import { createNeo4jDriver, type Neo4jConfig } from './neo4j';
 
 // Kuzu driver config (defined here to avoid Rollup static analysis issues with kuzu.ts)
 export interface KuzuConfig {
@@ -99,10 +102,9 @@ export interface KuzuDriverConfig extends DriverConfig {
 
 export interface FalkorDBDriverConfig extends DriverConfig {
   type: 'falkordb';
-  host: string;
-  port: number;
-  graphName: string;
-  password?: string;
+  uri: string;
+  username: string;
+  password: string;
   database?: string;
   maxRetriesPerRequest?: number;
   enableReadyCheck?: boolean;
@@ -167,6 +169,14 @@ export function registerDriver<C extends AnyDriverConfig>(
 ): void {
   driverRegistry.set(type.toLowerCase(), factory as unknown as RegisteredFactory);
 }
+
+// Built-in drivers are registered here, so createDriver({ type: 'neo4j' }) works without
+// importing the driver module first. Kuzu is registered too: its synchronous factory explains
+// that Kuzu needs createKuzuDriverAsync.
+registerDriver<Neo4jConfig>('neo4j', createNeo4jDriver);
+registerDriver<MemgraphConfig>('memgraph', createMemgraphDriver);
+registerDriver<FalkorDBConfig>('falkordb', createFalkorDBDriver);
+registerDriver<KuzuConfig>('kuzu', createKuzuDriver);
 
 export function getDriverFactory(type: string): RegisteredFactory | undefined {
   return driverRegistry.get(type.toLowerCase());

@@ -44,9 +44,8 @@ Requirements: Node.js ≥ 20, pnpm 9 (`corepack enable` recommended).
 ## Project Layout
 
 - `cli/` — `@graph-om/cli` — `graph-om init` / `graph-om generate`
-- `packages/core/` — `@graph-om/core` — schema DSL, Cypher compiler, client, config
+- `packages/sdk/` — `@graph-om/sdk` — schema DSL, Cypher compiler, client, config
 - `packages/sdk/src/driver/` — `@graph-om/sdk/driver/*` — DriverAdapter implementations (Neo4j, Memgraph, Kuzu, FalkorDB)
-- `adapters/arangodb/` — `@graph-om/arangodb` — ArangoDB DriverAdapter
 - `packages/zod/` — `@graph-om/zod` — Zod validation integration
 - `examples/social-graph/` — end-to-end example app
 - `docs/` — documentation (uppercase snake_case file names)
@@ -57,4 +56,4 @@ Open an issue with a minimal reproduction. For security issues, see `SECURITY.md
 
 ## License
 
-MIT
+Apache-2.0

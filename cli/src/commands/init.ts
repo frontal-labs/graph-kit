@@ -1,6 +1,7 @@
 // @graph-om/cli/src/commands/init.ts
 import fs from 'node:fs';
 import path from 'node:path';
+import { cliVersion } from '../version.js';
 
 interface InitOptions {
   database: string;
@@ -28,10 +29,10 @@ export async function initCommand(directory: string, _options: InitOptions): Pro
       typecheck: 'tsc --noEmit',
     },
     dependencies: {
-      '@graph-om/sdk': 'latest',
+      '@graph-om/sdk': `^${cliVersion()}`,
     },
     devDependencies: {
-      '@graph-om/cli': 'latest',
+      '@graph-om/cli': `^${cliVersion()}`,
       typescript: '^5.3.0',
       tsx: '^4.0.0',
       '@types/node': '^20.0.0',
@@ -84,6 +85,7 @@ import { graph } from './schema.js';
 
 async function main() {
   const driver = createNeo4jDriver({
+    type: 'neo4j',
     uri: env.NEO4J_URI,
     username: env.NEO4J_USER,
     password: env.NEO4J_PASSWORD,

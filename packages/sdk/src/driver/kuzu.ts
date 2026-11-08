@@ -1,6 +1,5 @@
 // @graph-om/sdk/src/driver/kuzu.ts
-// Kuzu driver adapter - Kuzu is an embedded graph database
-// Uses native Node.js bindings or HTTP API
+// Kuzu driver adapter - Kuzu is an embedded graph database, used through the `kuzu` npm package
 
 import {
   classifyDriverError,
@@ -17,28 +16,29 @@ import type {
   TransactionContext,
 } from './index';
 
-// Minimal type definitions for kuzu (kuzu doesn't have official types)
-// These are used internally and don't conflict with declaration files
+// The part of the `kuzu` package API this adapter uses. The package ships no type declarations.
+interface KuzuResult {
+  getColumnNames(): Promise<string[]>;
+  getAll(): Promise<Array<Record<string, unknown>>>;
+}
+
+type KuzuPreparedStatement = unknown;
+
 interface KuzuConnection {
-  query(cypher: string, params?: Record<string, unknown>): Promise<KuzuQueryResult>;
+  query(cypher: string): Promise<KuzuResult>;
+  prepare(cypher: string): Promise<KuzuPreparedStatement>;
+  execute(prepared: KuzuPreparedStatement, params: Record<string, unknown>): Promise<KuzuResult>;
   close(): Promise<void>;
 }
 
-interface KuzuQueryResult {
-  getColumnNames(): string[] | undefined;
-  getNext(): boolean;
-  getValue(index: number): unknown;
-  hasNext(): boolean;
+interface KuzuDatabase {
+  init(): Promise<void>;
+  close(): Promise<void>;
 }
 
 interface KuzuModule {
-  Database: new (path: string) => { connect(): KuzuConnection };
-  Connection: new (
-    db: unknown,
-  ) => {
-    query(cypher: string, params?: Record<string, unknown>): Promise<KuzuQueryResult>;
-    close(): Promise<void>;
-  };
+  Database: new (path: string) => KuzuDatabase;
+  Connection: new (db: KuzuDatabase) => KuzuConnection;
 }
 
 let kuzuModule: KuzuModule | undefined;
@@ -67,7 +67,7 @@ export interface KuzuConfig extends DriverConfig {
 }
 
 export class KuzuDriverAdapter implements DriverAdapter {
-  private db: InstanceType<KuzuModule['Database']> | null = null;
+  private db: KuzuDatabase | null = null;
   private conn: KuzuConnection | null = null;
   private config: KuzuConfig;
   private capabilities: DriverCapabilities;
@@ -98,8 +98,10 @@ export class KuzuDriverAdapter implements DriverAdapter {
     }
 
     try {
-      this.db = new kuzu.Database(this.config.databasePath);
-      this.conn = this.db.connect();
+      const db = new kuzu.Database(this.config.databasePath);
+      await db.init();
+      this.db = db;
+      this.conn = new kuzu.Connection(db);
     } catch (error) {
       this.db = null;
       this.conn = null;
@@ -117,35 +119,31 @@ export class KuzuDriverAdapter implements DriverAdapter {
       await this.conn.close();
       this.conn = null;
     }
-    this.db = null;
+    if (this.db) {
+      await this.db.close();
+      this.db = null;
+    }
   }
 
   async runQuery(cypher: string, params?: Record<string, unknown>): Promise<QueryResult> {
-    if (!this.conn) {
+    const conn = this.conn;
+    if (!conn) {
       raiseGraphError('Kuzu not connected. Call connect() first.', {
         code: 'driver_not_connected',
         statusCode: 500,
         attributes: { 'db.system': 'kuzu' },
       });
     }
-
-    // Kuzu uses parameterized queries with $param syntax
-    const _paramKeys = params ? Object.keys(params) : [];
-    const finalCypher = cypher;
-
-    // Convert Neo4j $param syntax to Kuzu $param syntax (they're the same)
-    // No conversion needed for basic parameters
-
     try {
-      const result = await this.conn.query(finalCypher, params);
-      return this.mapResult(result);
+      return await this.execute(conn, cypher, params);
     } catch (error) {
       throw classifyDriverError(error, 'kuzu');
     }
   }
 
   async runInTransaction<T>(work: (txc: TransactionContext) => Promise<T>): Promise<T> {
-    if (!this.conn) {
+    const conn = this.conn;
+    if (!conn) {
       raiseGraphError('Kuzu not connected. Call connect() first.', {
         code: 'driver_not_connected',
         statusCode: 500,
@@ -155,11 +153,10 @@ export class KuzuDriverAdapter implements DriverAdapter {
 
     // Each query runs immediately, so reads inside the transaction see their own writes.
     // BEGIN/COMMIT/ROLLBACK provide the atomicity.
-    const conn = this.conn;
     const txc: TransactionContext = {
       run: async (query: string, params?: Record<string, unknown>) => {
         try {
-          return this.mapResult(await conn.query(query, params));
+          return await this.execute(conn, query, params);
         } catch (error) {
           throw classifyDriverError(error, 'kuzu');
         }
@@ -210,30 +207,25 @@ export class KuzuDriverAdapter implements DriverAdapter {
     return this.capabilities;
   }
 
-  private mapResult(result: KuzuQueryResult): QueryResult {
-    const keys = result.getColumnNames() ?? [];
-    const records: QueryRecord[] = [];
+  /** Parameters need a prepared statement in Kuzu; a plain query takes none. */
+  private async execute(
+    conn: KuzuConnection,
+    cypher: string,
+    params?: Record<string, unknown>,
+  ): Promise<QueryResult> {
+    const result =
+      params && Object.keys(params).length > 0
+        ? await conn.execute(await conn.prepare(cypher), params)
+        : await conn.query(cypher);
+    return this.mapResult(await result.getColumnNames(), await result.getAll());
+  }
 
-    while (result.hasNext()) {
-      result.getNext();
-      const record: QueryRecord = {
-        keys,
-        get: (key: string) => {
-          const index = keys.indexOf(key);
-          return index >= 0 ? result.getValue(index) : null;
-        },
-        toObject: () => {
-          const obj: Record<string, unknown> = {};
-          for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
-            if (key === undefined) continue;
-            obj[key] = result.getValue(i);
-          }
-          return obj;
-        },
-      };
-      records.push(record);
-    }
+  private mapResult(keys: string[], rows: Array<Record<string, unknown>>): QueryResult {
+    const records: QueryRecord[] = rows.map((row) => ({
+      keys,
+      get: (key: string) => row[key] ?? null,
+      toObject: () => ({ ...row }),
+    }));
 
     return {
       records,

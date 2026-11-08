@@ -1,6 +1,6 @@
 # API Reference
 
-## @graph-om/core
+## @graph-om/sdk
 
 ### Schema DSL
 

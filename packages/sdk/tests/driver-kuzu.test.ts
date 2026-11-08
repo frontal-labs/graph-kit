@@ -13,47 +13,55 @@ const fake = vi.hoisted(() => {
     queryError: null as Error | null,
     connectError: null as Error | null,
     databasePaths: [] as string[],
-    closed: 0,
+    connectionsClosed: 0,
+    databasesClosed: 0,
   };
 
+  // The result shape the adapter reads: async column names and rows as objects
   function makeResult(rows: Row[]) {
     const columns = rows.length > 0 ? Object.keys(rows[0] as object) : [];
-    let index = -1;
     return {
-      getColumnNames: () => columns,
-      hasNext: () => index + 1 < rows.length,
-      getNext: () => {
-        index++;
-      },
-      getValue: (i: number) => rows[index]?.[columns[i] ?? ''] ?? null,
+      getColumnNames: async () => columns,
+      getAll: async () => rows,
     };
   }
 
-  const connection = {
-    query: async (cypher: string, params?: Record<string, unknown>) => {
-      state.statements.push({ cypher, params });
+  // Like the real package: parameters only go through prepare and execute
+  class FakeConnection {
+    constructor(_db: unknown) {}
+    async query(cypher: string) {
+      state.statements.push({ cypher });
       if (state.queryError) throw state.queryError;
       return makeResult(state.rowsFor(cypher));
-    },
-    close: async () => {
-      state.closed++;
-    },
-  };
+    }
+    async prepare(cypher: string) {
+      return { cypher };
+    }
+    async execute(prepared: { cypher: string }, params: Record<string, unknown>) {
+      state.statements.push({ cypher: prepared.cypher, params });
+      if (state.queryError) throw state.queryError;
+      return makeResult(state.rowsFor(prepared.cypher));
+    }
+    async close() {
+      state.connectionsClosed++;
+    }
+  }
 
   class FakeDatabase {
     constructor(path: string) {
       if (state.connectError) throw state.connectError;
       state.databasePaths.push(path);
     }
-    connect() {
-      return connection;
+    async init() {}
+    async close() {
+      state.databasesClosed++;
     }
   }
 
-  return { state, FakeDatabase };
+  return { state, FakeDatabase, FakeConnection };
 });
 
-vi.mock('kuzu', () => ({ Database: fake.FakeDatabase }));
+vi.mock('kuzu', () => ({ Database: fake.FakeDatabase, Connection: fake.FakeConnection }));
 
 describe('KuzuDriverAdapter', () => {
   const { state } = fake;
@@ -71,7 +79,8 @@ describe('KuzuDriverAdapter', () => {
     state.queryError = null;
     state.connectError = null;
     state.databasePaths.length = 0;
-    state.closed = 0;
+    state.connectionsClosed = 0;
+    state.databasesClosed = 0;
   });
 
   it('refuses the synchronous factory and points to the async one', () => {
@@ -91,7 +100,8 @@ describe('KuzuDriverAdapter', () => {
     await driver.disconnect();
 
     expect(state.databasePaths).toEqual(['/tmp/graph.kuzu']);
-    expect(state.closed).toBe(1);
+    expect(state.connectionsClosed).toBe(1);
+    expect(state.databasesClosed).toBe(1);
   });
 
   it('maps result rows into records', async () => {
@@ -103,6 +113,17 @@ describe('KuzuDriverAdapter', () => {
 
     expect(result.keys).toEqual(['n.name']);
     expect(result.records[0]?.get('n.name')).toBe('Ada');
+  });
+
+  it('sends parameters through a prepared statement, not as loose arguments', async () => {
+    const driver = await createKuzuDriverAsync(config);
+    await driver.connect();
+    await driver.runQuery('MATCH (n:User {id: $id}) RETURN n.id', { id: 'x' });
+
+    expect(state.statements.at(-1)).toEqual({
+      cypher: 'MATCH (n:User {id: $id}) RETURN n.id',
+      params: { id: 'x' },
+    });
   });
 
   it('refuses queries before connect with driver_not_connected', async () => {

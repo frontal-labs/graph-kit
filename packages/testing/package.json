@@ -1,8 +1,8 @@
 {
   "name": "@graph-om/testing",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Graph-OM testing utilities - mock driver, test helpers, fixtures",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/frontal-labs/graph-om.git",
@@ -20,7 +20,8 @@
   ],
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "LICENSE.md"
   ],
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

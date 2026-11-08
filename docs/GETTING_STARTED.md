@@ -8,11 +8,9 @@ Graph-OM is a TypeScript OGM (Object-Graph Mapper) for graph databases, starting
 graph-om/
 ├── cli/                  # @graph-om/cli — graph-om init / graph-om generate
 ├── packages/
-│   ├── core/             # @graph-om/core — schema DSL, Cypher compiler, client, config
+│   ├── sdk/              # @graph-om/sdk — schema DSL, Cypher compiler, client, config, drivers
+│   │   └── src/driver/   #   Neo4j, Memgraph, Kuzu and FalkorDB adapters
 │   └── zod/              # @graph-om/zod — Zod validation integration
-├── adapters/
-│   ├── sdk/driver/       # @graph-om/sdk/driver/* — Neo4j, Memgraph, Kuzu, FalkorDB adapters
-│   └── arangodb/         # @graph-om/arangodb — ArangoDB DriverAdapter
 ├── examples/
 │   └── social-graph/     # End-to-end example app
 ├── docs/                 # This documentation
@@ -26,7 +24,7 @@ graph-om/
 
 ### Prerequisites
 
-- Node.js >= 20
+- Node.js >= 22
 - pnpm 9 (corepack enable recommended)
 - A running Neo4j instance (local or remote)
 
@@ -55,10 +53,10 @@ npx tsx src/index.ts
 
 ### Environment Variables
 
-All environment variables are validated through `@t3-oss/env-core` + zod in `packages/core/src/config/keys.ts`. Export `env` from `@graph-om/core`:
+All environment variables are validated through `@t3-oss/env-core` + zod in `packages/sdk/src/config/keys.ts`. Export `env` from `@graph-om/sdk`:
 
 ```ts
-import { env } from '@graph-om/core';
+import { env } from '@graph-om/sdk';
 
 console.log(env.NEO4J_URI);      // bolt://localhost:7687 (default)
 console.log(env.NEO4J_USER);     // neo4j (default)
@@ -78,7 +76,7 @@ console.log(env.GRAPH_OM_DEBUG);    // boolean, from GRAPH_OM_DEBUG=true
 ### graph-om.config.ts
 
 ```ts
-import { defineConfig, env } from '@graph-om/core';
+import { defineConfig, env } from '@graph-om/sdk';
 
 export default defineConfig({
   schema: './src/schema.ts',
@@ -103,7 +101,7 @@ export default defineConfig({
 Define your graph schema with the `node`, `defineRel`, and `schema` helpers:
 
 ```ts
-import { node, defineRel, schema, string, number, date } from '@graph-om/core';
+import { node, defineRel, schema, string, number, date } from '@graph-om/sdk';
 
 const User = node('User')
   .add('id', string({ primary: true }))
@@ -132,7 +130,7 @@ const graph = schema()
 ## Client
 
 ```ts
-import { GraphClient } from '@graph-om/core';
+import { GraphClient } from '@graph-om/sdk';
 import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 import { graph } from './schema.js';
 
@@ -187,4 +185,4 @@ pnpm release     # Build and publish
 
 ## License
 
-MIT
+Apache-2.0

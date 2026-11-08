@@ -9,17 +9,9 @@ import { initCommand } from './commands/init.js';
 import { createMigrateCommand } from './commands/migrate.js';
 import { createSeedCommand } from './commands/seed.js';
 import { createStudioCommand } from './commands/studio.js';
+import { cliVersion } from './version.js';
 
 // Injected at build time by tsup; falls back in dev/test.
-declare const __GRAPH_OM_CLI_VERSION__: string | undefined;
-
-function readPackageVersion(): string {
-  try {
-    return typeof __GRAPH_OM_CLI_VERSION__ !== 'undefined' ? __GRAPH_OM_CLI_VERSION__ : '0.0.0';
-  } catch {
-    return '0.0.0';
-  }
-}
 
 export function createProgram(): Command {
   const program = new Command();
@@ -27,7 +19,7 @@ export function createProgram(): Command {
   program
     .name('graph-om')
     .description('Graph-OM - Prisma-like DX for graph databases')
-    .version(readPackageVersion());
+    .version(cliVersion());
 
   program
     .command('init')

@@ -223,6 +223,8 @@ export class GraphOMMCPServer {
   }
 
   async start(): Promise<void> {
+    // Connect the database first, so tool calls do not fail with driver_not_connected
+    await this.driver.connect();
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     console.error('Graph-OM MCP Server running on stdio');
@@ -230,6 +232,7 @@ export class GraphOMMCPServer {
 
   async stop(): Promise<void> {
     await this.server.close();
+    await this.driver.disconnect();
   }
 }
 

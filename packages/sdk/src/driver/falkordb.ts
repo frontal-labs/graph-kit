@@ -140,12 +140,51 @@ const VALUE_TYPE = {
   VECTORF32: 12,
 } as const;
 
+/** The graph's label, relationship-type and property-key names, indexed by id. */
+interface GraphNames {
+  labels: string[];
+  relationshipTypes: string[];
+  propertyKeys: string[];
+}
+
 /**
- * Decode one typed cell. Nodes and edges come back as ids and property lists: resolving
- * label, relationship and property names needs FalkorDB's metadata calls, which this
- * adapter does not make. Temporal and path values are returned as the raw cell value.
+ * Resolves node, edge and property ids to names. Records a miss when an id is unknown, so
+ * the caller can refresh the names once and decode again.
  */
-function decodeCell(cell: unknown): unknown {
+class NameResolver {
+  misses = 0;
+
+  constructor(private readonly names: GraphNames) {}
+
+  resolve(kind: keyof GraphNames, id: number): string {
+    const name = this.names[kind][id];
+    if (name === undefined) {
+      this.misses++;
+      return String(id);
+    }
+    return name;
+  }
+}
+
+/** True when a cell holds a node or edge, which needs names to decode. */
+function holdsGraphEntity(cell: unknown): boolean {
+  if (!Array.isArray(cell)) return false;
+  const [rawType, value] = cell as [unknown, unknown];
+  switch (Number(rawType)) {
+    case VALUE_TYPE.NODE:
+    case VALUE_TYPE.EDGE:
+      return true;
+    case VALUE_TYPE.ARRAY:
+      return (value as unknown[]).some(holdsGraphEntity);
+    case VALUE_TYPE.MAP:
+      return (value as unknown[]).some((item, i) => i % 2 === 1 && holdsGraphEntity(item));
+    default:
+      return false;
+  }
+}
+
+/** Decode one typed cell. Nodes and edges need `resolver` to get their label and key names. */
+function decodeCell(cell: unknown, resolver?: NameResolver): unknown {
   if (!Array.isArray(cell)) return cell;
   const [rawType, value] = cell as [unknown, unknown];
   switch (Number(rawType)) {
@@ -161,13 +200,13 @@ function decodeCell(cell: unknown): unknown {
     case VALUE_TYPE.DOUBLE:
       return typeof value === 'number' ? value : parseFloat(String(value));
     case VALUE_TYPE.ARRAY:
-      return (value as unknown[]).map(decodeCell);
+      return (value as unknown[]).map((item) => decodeCell(item, resolver));
     case VALUE_TYPE.MAP: {
       // Flat sequence: key, typed value, key, typed value, ...
       const items = value as unknown[];
       const map: Record<string, unknown> = {};
       for (let i = 0; i + 1 < items.length; i += 2) {
-        map[String(items[i])] = decodeCell(items[i + 1]);
+        map[String(items[i])] = decodeCell(items[i + 1], resolver);
       }
       return map;
     }
@@ -181,8 +220,8 @@ function decodeCell(cell: unknown): unknown {
       const [id, labelIds, properties] = value as [unknown, unknown[], unknown[]];
       return {
         id: Number(id),
-        labelIds: labelIds.map(Number),
-        properties: decodeProperties(properties),
+        labels: labelIds.map((labelId) => resolve(resolver, 'labels', labelId)),
+        properties: decodeProperties(properties, resolver),
       };
     }
     case VALUE_TYPE.EDGE: {
@@ -195,23 +234,30 @@ function decodeCell(cell: unknown): unknown {
       ];
       return {
         id: Number(id),
-        relationshipTypeId: Number(relationshipTypeId),
+        relationshipType: resolve(resolver, 'relationshipTypes', relationshipTypeId),
         sourceId: Number(sourceId),
         destinationId: Number(destinationId),
-        properties: decodeProperties(properties),
+        properties: decodeProperties(properties, resolver),
       };
     }
     default:
+      // Temporal and path values are returned as the raw cell value
       return value;
   }
 }
 
-/** Properties arrive as [keyId, type, value] triples. */
-function decodeProperties(triples: unknown[]): Array<{ keyId: number; value: unknown }> {
-  return triples.map((triple) => {
+function resolve(resolver: NameResolver | undefined, kind: keyof GraphNames, id: unknown): string {
+  return resolver ? resolver.resolve(kind, Number(id)) : String(id);
+}
+
+/** Properties arrive as [keyId, type, value] triples; keys are named through the resolver. */
+function decodeProperties(triples: unknown[], resolver?: NameResolver): Record<string, unknown> {
+  const properties: Record<string, unknown> = {};
+  for (const triple of triples) {
     const [keyId, type, value] = triple as [unknown, unknown, unknown];
-    return { keyId: Number(keyId), value: decodeCell([type, value]) };
-  });
+    properties[resolve(resolver, 'propertyKeys', keyId)] = decodeCell([type, value], resolver);
+  }
+  return properties;
 }
 
 /** One parameter value as a Cypher literal, the way FalkorDB's CYPHER header expects it. */
@@ -248,7 +294,10 @@ function withParams(cypher: string, params?: Record<string, unknown>): string {
  * Parse a GRAPH.QUERY reply: [headers, data, statistics]. Headers are [type, name] pairs.
  * Data is absent for writes without RETURN, in which case there are no rows.
  */
-function parseFalkorDBResult(reply: unknown): { keys: string[]; rows: unknown[][] } {
+function parseFalkorDBResult(
+  reply: unknown,
+  resolver?: NameResolver,
+): { keys: string[]; rows: unknown[][] } {
   if (!Array.isArray(reply)) return { keys: [], rows: [] };
   const [headers, data] = reply as [unknown, unknown];
   if (!Array.isArray(data)) return { keys: [], rows: [] };
@@ -256,8 +305,20 @@ function parseFalkorDBResult(reply: unknown): { keys: string[]; rows: unknown[][
   const keys = Array.isArray(headers)
     ? headers.map((header) => (Array.isArray(header) ? String(header[1]) : String(header)))
     : [];
-  const rows = data.map((row) => (Array.isArray(row) ? row.map(decodeCell) : [decodeCell(row)]));
+  const rows = data.map((row) =>
+    Array.isArray(row)
+      ? row.map((cell) => decodeCell(cell, resolver))
+      : [decodeCell(row, resolver)],
+  );
   return { keys, rows };
+}
+
+/** True when any data cell in a reply is a node or edge. */
+function replyHoldsGraphEntity(reply: unknown): boolean {
+  if (!Array.isArray(reply) || !Array.isArray(reply[1])) return false;
+  return (reply[1] as unknown[]).some((row) =>
+    Array.isArray(row) ? row.some(holdsGraphEntity) : holdsGraphEntity(row),
+  );
 }
 
 export class FalkorDBDriverAdapter implements DriverAdapter {
@@ -265,6 +326,7 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
   private config: FalkorDBConfig;
   private capabilities: DriverCapabilities;
   private selectedGraph: string = '';
+  private names: GraphNames | null = null;
 
   constructor(config: FalkorDBConfig) {
     this.config = config;
@@ -347,13 +409,52 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
 
     // Convert params to FalkorDB format
 
-    const command: string[] = ['GRAPH.QUERY', this.selectedGraph, withParams(cypher, params)];
+    // --compact makes the server return typed cells, which the decoder above expects
+    const command: string[] = [
+      'GRAPH.QUERY',
+      this.selectedGraph,
+      withParams(cypher, params),
+      '--compact',
+    ];
     try {
-      const result = await this.client.sendCommand(command, []);
-      return this.mapResult(result, cypher, params);
+      const reply = await this.client.sendCommand(command, []);
+      if (!replyHoldsGraphEntity(reply)) return this.mapResult(reply, cypher, params);
+
+      const resolver = new NameResolver(await this.graphNames());
+      const decoded = this.mapResult(reply, cypher, params, resolver);
+      if (resolver.misses === 0) return decoded;
+      // An id the cache does not know: the graph gained names since it was read
+      return this.mapResult(reply, cypher, params, new NameResolver(await this.graphNames(true)));
     } catch (error) {
       throw classifyDriverError(error, 'falkordb');
     }
+  }
+
+  /** The graph's label, relationship-type and property-key names, cached until a miss. */
+  private async graphNames(refresh = false): Promise<GraphNames> {
+    if (this.names && !refresh) return this.names;
+    const client = this.client;
+    if (!client) {
+      raiseGraphError('FalkorDB not connected. Call connect() first.', {
+        code: 'driver_not_connected',
+        statusCode: 500,
+        attributes: { 'db.system': 'falkordb' },
+      });
+    }
+    const read = async (procedure: string) => {
+      const reply = await client.sendCommand(
+        ['GRAPH.RO_QUERY', this.selectedGraph, `CALL ${procedure}()`, '--compact'],
+        [],
+      );
+      return parseFalkorDBResult(reply).rows.map((row) => String(row[0]));
+    };
+    const [labels, relationshipTypes, propertyKeys] = await Promise.all([
+      read('db.labels'),
+      read('db.relationshipTypes'),
+      read('db.propertyKeys'),
+    ]);
+    this.names = { labels, relationshipTypes, propertyKeys };
+    return this.names;
   }
 
   async runInTransaction<T>(work: (txc: TransactionContext) => Promise<T>): Promise<T> {
@@ -398,6 +499,7 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
           'GRAPH.QUERY',
           this.selectedGraph,
           withParams(cypher, params),
+          '--compact',
         ];
         await this.client.sendCommand(queryCommand, []);
       }
@@ -457,8 +559,9 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
     result: unknown,
     cypher: string,
     params?: Record<string, unknown>,
+    resolver?: NameResolver,
   ): QueryResult {
-    const { keys, rows } = parseFalkorDBResult(result);
+    const { keys, rows } = parseFalkorDBResult(result, resolver);
 
     const records: QueryRecord[] = rows.map((row) => ({
       keys,

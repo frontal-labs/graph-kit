@@ -40,6 +40,17 @@ describeIntegration('FalkorDB integration', () => {
     expect(result.records.map((r) => r.get('name'))).toEqual(['Grace']);
   });
 
+  it('returns lists as arrays and nodes with their label and property names', async () => {
+    await driver.runQuery("CREATE (:Person {name: 'Ada'})");
+    const result = await driver.runQuery("MATCH (n:Person {name: 'Ada'}) RETURN [1, 2] AS list, n");
+
+    expect(result.records[0]?.get('list')).toEqual([1, 2]);
+    expect(result.records[0]?.get('n')).toMatchObject({
+      labels: ['Person'],
+      properties: { name: 'Ada' },
+    });
+  });
+
   it('returns no records for a write without RETURN', async () => {
     const result = await driver.runQuery("CREATE (:Person {name: 'Linus'})");
     expect(result.records).toEqual([]);

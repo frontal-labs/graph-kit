@@ -7,7 +7,7 @@ Graph-OM configuration is centered around `defineConfig` and environment variabl
 `defineConfig` is an identity function that provides type-safety for your Graph-OM project configuration. It does not perform validation at runtime — validation happens through the `env` object.
 
 ```ts
-import { defineConfig, env } from '@graph-om/core';
+import { defineConfig, env } from '@graph-om/sdk';
 
 export default defineConfig({
   schema: './src/schema.ts',
@@ -60,10 +60,10 @@ export default defineConfig({
 
 ## Environment Variables
 
-All environment variables are parsed and validated by `@t3-oss/env-core` + zod. See `packages/core/src/config/keys.ts` for the full schema.
+All environment variables are parsed and validated by `@t3-oss/env-core` + zod. See `packages/sdk/src/config/keys.ts` for the full schema.
 
 ```ts
-import { env } from '@graph-om/core';
+import { env } from '@graph-om/sdk';
 
 // All values are typed and have defaults where applicable
 env.NEO4J_URI;        // string
@@ -90,7 +90,7 @@ Copy `.env.example` to `.env` after running `graph-om init`.
 `resolveConfig` takes a `GraphConfig` and returns a fully-resolved config with defaults applied:
 
 ```ts
-import { resolveConfig } from '@graph-om/core';
+import { resolveConfig } from '@graph-om/sdk';
 
 const config = resolveConfig({
   schema: './src/schema.ts',
@@ -116,7 +116,7 @@ const config = resolveConfig({
 - `graph-om.config.json`
 
 ```ts
-import { loadConfig } from '@graph-om/core';
+import { loadConfig } from '@graph-om/sdk';
 
 const config = await loadConfig(); // or loadConfig('/path/to/project')
 ```
