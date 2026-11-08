@@ -30,7 +30,6 @@ function raiseNodeNotRegistered(label: string): never {
     {
       code: 'node_not_registered',
       statusCode: 400,
-      retry: { retryable: false },
       metadata: { label },
     },
   );
@@ -156,7 +155,6 @@ export class GraphClient {
       raiseGraphError(`Failed to create ${label}`, {
         code: 'create_failed',
         statusCode: 500,
-        retry: { retryable: false },
         metadata: { label },
       });
     }
@@ -181,7 +179,6 @@ export class GraphClient {
       raiseGraphError(`Failed to update ${label}: record not found`, {
         code: 'record_not_found',
         statusCode: 404,
-        retry: { retryable: false },
         metadata: { label },
       });
     }
@@ -216,7 +213,6 @@ export class GraphClient {
       raiseGraphError(`Failed to upsert ${label}`, {
         code: 'upsert_failed',
         statusCode: 500,
-        retry: { retryable: false },
         metadata: { label },
       });
     }
@@ -536,7 +532,6 @@ export class GraphTransaction {
       raiseGraphError(`Failed to create ${label}`, {
         code: 'create_failed',
         statusCode: 500,
-        retry: { retryable: false },
         metadata: { label },
       });
     }
@@ -554,7 +549,6 @@ export class GraphTransaction {
       raiseGraphError(`Failed to update ${label}: record not found`, {
         code: 'record_not_found',
         statusCode: 404,
-        retry: { retryable: false },
         metadata: { label },
       });
     }

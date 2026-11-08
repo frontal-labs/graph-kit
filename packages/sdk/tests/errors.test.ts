@@ -8,6 +8,7 @@ import {
   graphErrors,
   hasCode,
   isFrontalError,
+  isRetryable,
   mapDriverError,
   raiseGraphError,
 } from '../src/errors';
@@ -53,6 +54,16 @@ describe('graph-om errors', () => {
     expect(() => raiseGraphError('nope', { code: 'node_not_registered', statusCode: 400 })).toThrow(
       GraphError,
     );
+  });
+
+  it('isRetryable is true only for errors marked retryable', () => {
+    expect(
+      isRetryable(
+        graphErrors.create('x', { code: 'connection_failed', retry: { retryable: true } }),
+      ),
+    ).toBe(true);
+    expect(isRetryable(graphErrors.create('x', { code: 'record_not_found' }))).toBe(false);
+    expect(isRetryable(new Error('plain'))).toBe(false);
   });
 
   it('hasCode narrows by a single code or a list of codes', () => {

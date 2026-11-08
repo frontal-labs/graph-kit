@@ -298,7 +298,7 @@ export function runGenerate(projectRoot: string): GenerateResult {
     raiseGraphError(
       `Schema file not found at ${schemaPath}. ` +
         `Check the "schema" field in graph-om.config.ts or run \`graph-om init\`.`,
-      { code: 'invalid_config', statusCode: 400, retry: { retryable: false } },
+      { code: 'invalid_config', statusCode: 400 },
     );
   }
 

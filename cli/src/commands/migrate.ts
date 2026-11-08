@@ -310,7 +310,6 @@ async function loadMigrationFiles(migrationsDir: string): Promise<Migration[]> {
       raiseGraphError(`Failed to load migration ${file}: ${reason}`, {
         code: 'migration_failed',
         statusCode: 500,
-        retry: { retryable: false },
         cause: error,
       });
     }
@@ -320,7 +319,6 @@ async function loadMigrationFiles(migrationsDir: string): Promise<Migration[]> {
       raiseGraphError(`Migration ${file} must export a migration with version ${version}`, {
         code: 'migration_failed',
         statusCode: 500,
-        retry: { retryable: false },
       });
     }
     migrations.push(migration);

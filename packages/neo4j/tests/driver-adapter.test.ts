@@ -1,5 +1,7 @@
 // @graph-om/neo4j/tests/driver-adapter.test.ts
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import neo4j from 'neo4j-driver';
+import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 import { Neo4jDriverAdapter } from '../src/index';
 
 vi.mock('neo4j-driver', () => {
@@ -251,5 +253,141 @@ describe('Neo4jDriverAdapter', () => {
       expect(session).toBeDefined();
       session.close();
     });
+  });
+});
+
+describe('Neo4jDriverAdapter error classification', () => {
+  const uri = 'bolt://localhost:7687';
+  let adapter: Neo4jDriverAdapter;
+
+  const driverError = (code: string, message = 'driver said no') =>
+    Object.assign(new Error(message), { code });
+
+  // The mocked driver hands out the same session object every time, so tests can
+  // make its next run or transaction fail.
+  const session = () =>
+    adapter.getDriver().session() as unknown as {
+      run: Mock;
+      executeWrite: Mock;
+      executeRead: Mock;
+    };
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    adapter = new Neo4jDriverAdapter({ type: 'neo4j', uri, username: 'neo4j', password: 'pw' });
+    await adapter.connect();
+  });
+
+  it('maps a syntax error from runQuery to query_syntax_error and keeps the driver error', async () => {
+    const original = driverError('Neo.ClientError.Statement.SyntaxError', 'Invalid input');
+    session().run.mockRejectedValueOnce(original);
+
+    const error = await adapter.runQuery('MATCH (n RETURN n').catch((e: unknown) => e);
+
+    expect(error).toMatchObject({ code: 'query_syntax_error', statusCode: 400 });
+    expect((error as { cause: unknown }).cause).toBe(original);
+    expect((error as { metadata: unknown }).metadata).toEqual({
+      driverCode: 'Neo.ClientError.Statement.SyntaxError',
+    });
+    expect((error as { attributes: unknown }).attributes).toEqual({ 'db.system': 'neo4j' });
+  });
+
+  it('maps a constraint violation from runQuery to constraint_violation', async () => {
+    session().run.mockRejectedValueOnce(
+      driverError('Neo.ClientError.Schema.ConstraintValidationFailed'),
+    );
+
+    await expect(adapter.runQuery('CREATE (n:User {id: $id})', { id: 'x' })).rejects.toMatchObject({
+      code: 'constraint_violation',
+      statusCode: 409,
+      retry: { retryable: false },
+    });
+  });
+
+  it('marks transient driver errors as retryable', async () => {
+    session().run.mockRejectedValueOnce(
+      driverError('Neo.TransientError.Transaction.DeadlockDetected'),
+    );
+
+    await expect(adapter.runQuery('MATCH (n) RETURN n')).rejects.toMatchObject({
+      code: 'transient_failure',
+      retry: { retryable: true },
+    });
+  });
+
+  it('never copies query parameters into the error', async () => {
+    session().run.mockRejectedValueOnce(driverError('Neo.ClientError.Statement.SyntaxError'));
+
+    const error = await adapter
+      .runQuery('MATCH (n {password: $pw}) RETURN n', { pw: 'hunter2' })
+      .catch((e: unknown) => e);
+
+    expect(JSON.stringify((error as { metadata: unknown }).metadata ?? {})).not.toContain(
+      'hunter2',
+    );
+  });
+
+  it('reports a failed connect as connection_failed, keeps the URI in metadata and the cause', async () => {
+    const original = new Error('ECONNREFUSED 10.0.0.1:7687');
+    vi.mocked(neo4j.driver).mockImplementationOnce(() => {
+      throw original;
+    });
+    const fresh = new Neo4jDriverAdapter({ type: 'neo4j', uri, username: 'neo4j', password: 'pw' });
+
+    const error = await fresh.connect().catch((e: unknown) => e);
+
+    expect(error).toMatchObject({
+      code: 'connection_failed',
+      message: 'Failed to connect to Neo4j',
+      statusCode: 503,
+      retry: { retryable: true },
+      metadata: { uri },
+    });
+    expect((error as { cause: unknown }).cause).toBe(original);
+    expect(() => fresh.getDriver()).toThrow(
+      expect.objectContaining({ code: 'driver_not_connected' }),
+    );
+  });
+
+  it('rethrows an error thrown by the user callback unchanged', async () => {
+    const userError = new Error('payment provider timed out');
+    session().executeWrite.mockImplementationOnce(
+      async (work: (txc: unknown) => Promise<unknown>) => work({ run: vi.fn() }),
+    );
+
+    await expect(
+      adapter.runInTransaction(async () => {
+        throw userError;
+      }),
+    ).rejects.toBe(userError);
+  });
+
+  it('passes a graph-om error from the user callback through unchanged', async () => {
+    session().executeWrite.mockImplementationOnce(
+      async (work: (txc: unknown) => Promise<unknown>) => work({ run: vi.fn() }),
+    );
+    const { graphErrors } = await import('@graph-om/sdk/errors');
+    const own = graphErrors.create('own', { code: 'invalid_argument', statusCode: 400 });
+
+    await expect(
+      adapter.runInTransaction(async () => {
+        throw own;
+      }),
+    ).rejects.toBe(own);
+  });
+
+  it('classifies a driver error raised inside the transaction', async () => {
+    const original = driverError('Neo.ClientError.Schema.ConstraintValidationFailed');
+    session().executeWrite.mockImplementationOnce(
+      async (work: (txc: unknown) => Promise<unknown>) =>
+        work({ run: vi.fn().mockRejectedValue(original) }),
+    );
+
+    const error = await adapter
+      .runInTransaction((tx) => tx.run('CREATE (n:User {id: $id})', { id: 'x' }))
+      .catch((e: unknown) => e);
+
+    expect(error).toMatchObject({ code: 'constraint_violation' });
+    expect((error as { cause: unknown }).cause).toBe(original);
   });
 });

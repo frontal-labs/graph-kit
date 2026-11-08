@@ -2,7 +2,7 @@
 // Kuzu driver adapter - Kuzu is an embedded graph database
 // Uses native Node.js bindings or HTTP API
 
-import { classifyDriverError, raiseGraphError } from '../errors';
+import { classifyDriverError, driverErrorBoundary, raiseGraphError } from '../errors';
 import type {
   DriverAdapter,
   DriverCapabilities,
@@ -49,7 +49,6 @@ async function loadKuzu(): Promise<KuzuModule> {
     raiseGraphError('Kuzu driver not installed. Run: pnpm add kuzu', {
       code: 'invalid_config',
       statusCode: 400,
-      retry: { retryable: false },
     });
   }
 }
@@ -90,7 +89,7 @@ export class KuzuDriverAdapter implements DriverAdapter {
       // Network mode - would need HTTP client
       raiseGraphError(
         'Kuzu network mode not yet implemented. Use embedded mode with databasePath.',
-        { code: 'unsupported_option', statusCode: 400, retry: { retryable: false } },
+        { code: 'unsupported_option', statusCode: 400 },
       );
     }
 
@@ -111,7 +110,6 @@ export class KuzuDriverAdapter implements DriverAdapter {
       raiseGraphError('Kuzu not connected. Call connect() first.', {
         code: 'driver_not_connected',
         statusCode: 500,
-        retry: { retryable: false },
         attributes: { 'db.system': 'kuzu' },
       });
     }
@@ -136,7 +134,6 @@ export class KuzuDriverAdapter implements DriverAdapter {
       raiseGraphError('Kuzu not connected. Call connect() first.', {
         code: 'driver_not_connected',
         statusCode: 500,
-        retry: { retryable: false },
         attributes: { 'db.system': 'kuzu' },
       });
     }
@@ -162,18 +159,12 @@ export class KuzuDriverAdapter implements DriverAdapter {
       },
     };
 
-    let workFailed = false;
+    const boundary = driverErrorBoundary('kuzu');
     try {
       // Start transaction
       await this.conn.query('BEGIN TRANSACTION');
 
-      let result: T;
-      try {
-        result = await work(txc);
-      } catch (error) {
-        workFailed = true;
-        throw error;
-      }
+      const result = await boundary.user(() => work(txc));
 
       // Execute all queued queries
       for (const { cypher, params } of this.transactionQueries) {
@@ -184,7 +175,7 @@ export class KuzuDriverAdapter implements DriverAdapter {
       return result;
     } catch (error) {
       await this.conn.query('ROLLBACK');
-      throw workFailed ? error : classifyDriverError(error, 'kuzu');
+      throw boundary.classify(error);
     } finally {
       this.transactionQueries = [];
     }

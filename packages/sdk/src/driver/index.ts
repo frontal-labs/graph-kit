@@ -31,7 +31,6 @@ export function createKuzuDriver(_config: KuzuConfig): KuzuDriverAdapter {
   raiseGraphError('Kuzu driver requires async initialization. Use createKuzuDriverAsync instead.', {
     code: 'unsupported_option',
     statusCode: 400,
-    retry: { retryable: false },
     attributes: { 'db.system': 'kuzu' },
   });
 }
@@ -180,7 +179,6 @@ export function createDriver(config: AnyDriverConfig): DriverAdapter {
     raiseGraphError(`Unknown driver type: "${config.type}". Available: ${available || 'none'}`, {
       code: 'invalid_config',
       statusCode: 400,
-      retry: { retryable: false },
       metadata: { type: config.type },
     });
   }

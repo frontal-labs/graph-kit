@@ -8,7 +8,7 @@ import type {
   QueryResult,
   TransactionContext,
 } from '@graph-om/sdk';
-import { classifyDriverError, raiseGraphError } from '@graph-om/sdk/errors';
+import { classifyDriverError, driverErrorBoundary, raiseGraphError } from '@graph-om/sdk/errors';
 import neo4j, {
   type Driver,
   type ManagedTransaction,
@@ -99,7 +99,6 @@ export class Neo4jDriverAdapter implements DriverAdapter {
         {
           code: 'driver_not_connected',
           statusCode: 500,
-          retry: { retryable: false },
           fix: 'Call connect() or GraphClient.connect() first.',
           attributes: { 'db.system': 'neo4j' },
         },
@@ -151,7 +150,7 @@ export class Neo4jDriverAdapter implements DriverAdapter {
     mode: 'read' | 'write',
   ): Promise<T> {
     const session = this.session(mode === 'read' ? { mode: 'READ' } : undefined);
-    let workFailed = false;
+    const boundary = driverErrorBoundary('neo4j');
     const body = async (txc: ManagedTransaction) => {
       const wrappedTxc = {
         run: async (query: string, params?: Record<string, unknown>) => {
@@ -163,17 +162,12 @@ export class Neo4jDriverAdapter implements DriverAdapter {
           }
         },
       };
-      try {
-        return await work(wrappedTxc);
-      } catch (error) {
-        workFailed = true;
-        throw error;
-      }
+      return boundary.user(() => work(wrappedTxc));
     };
     try {
       return mode === 'read' ? await session.executeRead(body) : await session.executeWrite(body);
     } catch (error) {
-      throw workFailed ? error : classifyDriverError(error, 'neo4j');
+      throw boundary.classify(error);
     } finally {
       await session.close();
     }

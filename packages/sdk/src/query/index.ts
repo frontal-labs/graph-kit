@@ -34,7 +34,6 @@ function assertIdentifier(name: string, what: string): void {
     raiseGraphError(`Invalid ${what}: "${name}"`, {
       code: 'invalid_argument',
       statusCode: 400,
-      retry: { retryable: false },
       metadata: { what },
     });
   }
@@ -586,7 +585,6 @@ export class QueryCompiler {
         {
           code: 'invalid_argument',
           statusCode: 400,
-          retry: { retryable: false },
           metadata: { primaryKey },
         },
       );

@@ -52,7 +52,6 @@ export function generateERDiagram(config: ERDiagramConfig): string {
       raiseGraphError(`Unsupported format: ${String(format)}`, {
         code: 'unsupported_option',
         statusCode: 400,
-        retry: { retryable: false },
       });
   }
 }
@@ -371,7 +370,6 @@ export function generateDocumentation(
       raiseGraphError(`Unsupported format: ${format}`, {
         code: 'unsupported_option',
         statusCode: 400,
-        retry: { retryable: false },
       });
   }
 }

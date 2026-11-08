@@ -135,7 +135,6 @@ export class MigrationRunner {
             {
               code: 'migration_failed',
               statusCode: 500,
-              retry: { retryable: false },
               metadata: { version },
             },
           );
@@ -412,6 +411,6 @@ export function generateMigrationFromDiff(diff: SchemaDiff, name: string): Migra
 export function loadMigrations(_migrationsDir: string): Migration[] {
   raiseGraphError(
     'loadMigrations() cannot import migration files yet. Import each migration module explicitly and pass the list to createMigrationRunner().migrate().',
-    { code: 'unsupported_option', statusCode: 400, retry: { retryable: false } },
+    { code: 'unsupported_option', statusCode: 400 },
   );
 }

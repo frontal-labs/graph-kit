@@ -288,7 +288,6 @@ export const DateTimeScalar: GraphQLScalarConfig = {
     raiseGraphError('DateTime must be a string or Date', {
       code: 'invalid_argument',
       statusCode: 400,
-      retry: { retryable: false },
     });
   },
   parseLiteral: (ast: unknown) => {
@@ -446,7 +445,7 @@ export interface ApolloServerConfig {
 export function createApolloServerConfig(_config: ApolloServerConfig): unknown {
   raiseGraphError(
     'createApolloServerConfig() is not implemented. Pass generateGraphQLSchema() and generateResolvers() to your Apollo Server instance directly.',
-    { code: 'unsupported_option', statusCode: 400, retry: { retryable: false } },
+    { code: 'unsupported_option', statusCode: 400 },
   );
 }
 
@@ -459,6 +458,6 @@ export interface GraphQLYogaConfig {
 export function createGraphQLYogaConfig(_config: GraphQLYogaConfig): unknown {
   raiseGraphError(
     'createGraphQLYogaConfig() is not implemented. Pass generateGraphQLSchema() and generateResolvers() to your Yoga server directly.',
-    { code: 'unsupported_option', statusCode: 400, retry: { retryable: false } },
+    { code: 'unsupported_option', statusCode: 400 },
   );
 }

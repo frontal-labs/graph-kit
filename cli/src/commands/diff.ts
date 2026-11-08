@@ -199,7 +199,6 @@ function assertGitRef(ref: string): void {
     raiseGraphError(`Invalid git ref: ${ref}`, {
       code: 'invalid_argument',
       statusCode: 400,
-      retry: { retryable: false },
     });
   }
 }

@@ -89,6 +89,7 @@ export {
   graphErrors,
   hasCode,
   isFrontalError,
+  isRetryable,
   mapDriverError,
   type RetryPolicy,
 } from './errors';

@@ -21,6 +21,8 @@ try {
 
 Driver failures keep the original error on `cause`, and the native driver code is on `metadata.driverCode`.
 
+Check errors with `hasCode`, `isFrontalError` or `isRetryable`, not `instanceof`. Each SDK entry point bundles its own copy of the error classes, so `instanceof GraphError` can be `false` for an error thrown by another entry point.
+
 Anchors below match the `link` that each error carries.
 
 ## node_not_registered

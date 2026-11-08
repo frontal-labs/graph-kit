@@ -2,7 +2,7 @@
 // FalkorDB driver adapter - FalkorDB is Redis-based graph database
 // Uses Redis Stack / RedisGraph protocol (Redis modules)
 
-import { classifyDriverError, raiseGraphError } from '../errors';
+import { classifyDriverError, driverErrorBoundary, raiseGraphError } from '../errors';
 import type {
   DriverAdapter,
   DriverCapabilities,
@@ -88,7 +88,6 @@ async function loadRedis(): Promise<{ createClient: (options: RedisOptions) => R
       raiseGraphError('Redis client not installed. Run: pnpm add ioredis or /client', {
         code: 'invalid_config',
         statusCode: 400,
-        retry: { retryable: false },
       });
     }
     return redisModule;
@@ -96,7 +95,6 @@ async function loadRedis(): Promise<{ createClient: (options: RedisOptions) => R
     raiseGraphError('Redis client not installed. Run: pnpm add ioredis or @redis/client', {
       code: 'invalid_config',
       statusCode: 400,
-      retry: { retryable: false },
     });
   }
 }
@@ -176,7 +174,6 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
       raiseGraphError('Not connected', {
         code: 'driver_not_connected',
         statusCode: 500,
-        retry: { retryable: false },
         attributes: { 'db.system': 'falkordb' },
       });
     }
@@ -190,7 +187,6 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
       raiseGraphError('FalkorDB not connected. Call connect() first.', {
         code: 'driver_not_connected',
         statusCode: 500,
-        retry: { retryable: false },
         attributes: { 'db.system': 'falkordb' },
       });
     }
@@ -212,7 +208,6 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
       raiseGraphError('FalkorDB not connected. Call connect() first.', {
         code: 'driver_not_connected',
         statusCode: 500,
-        retry: { retryable: false },
         attributes: { 'db.system': 'falkordb' },
       });
     }
@@ -237,18 +232,12 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
       },
     };
 
-    let workFailed = false;
+    const boundary = driverErrorBoundary('falkordb');
     try {
       // Start transaction with MULTI
       await this.client.sendCommand(['MULTI'], []);
 
-      let result: T;
-      try {
-        result = await work(txc);
-      } catch (error) {
-        workFailed = true;
-        throw error;
-      }
+      const result = await boundary.user(() => work(txc));
 
       // Execute all queries
       for (const { cypher, params } of queries) {
@@ -264,7 +253,7 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
     } catch (error) {
       // Discard transaction
       await this.client.sendCommand(['DISCARD'], []).catch(() => {});
-      throw workFailed ? error : classifyDriverError(error, 'falkordb');
+      throw boundary.classify(error);
     }
   }
 

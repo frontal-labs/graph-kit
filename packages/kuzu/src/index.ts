@@ -10,7 +10,7 @@ import type {
   QueryResult,
   TransactionContext,
 } from '@graph-om/sdk';
-import { classifyDriverError, raiseGraphError } from '@graph-om/sdk/errors';
+import { classifyDriverError, driverErrorBoundary, raiseGraphError } from '@graph-om/sdk/errors';
 
 // Type definitions for kuzu module (using any to avoid declaration file issues)
 interface KuzuConnection {
@@ -48,7 +48,6 @@ async function loadKuzu(): Promise<KuzuModule> {
     raiseGraphError('Kuzu driver not installed. Run: pnpm add kuzu', {
       code: 'invalid_config',
       statusCode: 400,
-      retry: { retryable: false },
     });
   }
 }
@@ -57,7 +56,6 @@ function notConnected(): never {
   raiseGraphError('Not connected to Kuzu', {
     code: 'driver_not_connected',
     statusCode: 500,
-    retry: { retryable: false },
     attributes: { 'db.system': 'kuzu' },
   });
 }
@@ -99,7 +97,7 @@ export class KuzuDriverAdapter implements DriverAdapter {
       // Network mode - would need HTTP client
       raiseGraphError(
         'Kuzu network mode not yet implemented. Use embedded mode with databasePath.',
-        { code: 'unsupported_option', statusCode: 400, retry: { retryable: false } },
+        { code: 'unsupported_option', statusCode: 400 },
       );
     }
 
@@ -130,26 +128,19 @@ export class KuzuDriverAdapter implements DriverAdapter {
       raiseGraphError('Nested transactions not supported', {
         code: 'unsupported_option',
         statusCode: 400,
-        retry: { retryable: false },
         attributes: { 'db.system': 'kuzu' },
       });
     }
     this.inTransaction = true;
     this.transactionQueries = [];
-    let workFailed = false;
+    const boundary = driverErrorBoundary('kuzu');
     try {
-      let result: T;
-      try {
-        result = await work(this.createTransactionContext());
-      } catch (error) {
-        workFailed = true;
-        throw error;
-      }
+      const result = await boundary.user(() => work(this.createTransactionContext()));
       await this.commitTransaction();
       return result;
     } catch (error) {
       await this.rollbackTransaction();
-      throw workFailed ? error : classifyDriverError(error, 'kuzu');
+      throw boundary.classify(error);
     } finally {
       this.inTransaction = false;
     }

@@ -177,7 +177,6 @@ export class AuthManager {
       raiseGraphError('User already exists', {
         code: 'user_exists',
         statusCode: 409,
-        retry: { retryable: false },
       });
     }
 
@@ -208,7 +207,6 @@ export class AuthManager {
       raiseGraphError('Invalid credentials', {
         code: 'invalid_credentials',
         statusCode: 401,
-        retry: { retryable: false },
       });
     }
 
@@ -220,7 +218,6 @@ export class AuthManager {
       raiseGraphError('Invalid credentials', {
         code: 'invalid_credentials',
         statusCode: 401,
-        retry: { retryable: false },
       });
     }
 
@@ -286,7 +283,6 @@ export class AuthManager {
       raiseGraphError('Invalid refresh token', {
         code: 'invalid_credentials',
         statusCode: 401,
-        retry: { retryable: false },
       });
     }
 
@@ -295,7 +291,6 @@ export class AuthManager {
       raiseGraphError('Invalid refresh token', {
         code: 'invalid_credentials',
         statusCode: 401,
-        retry: { retryable: false },
       });
     const userId = payload.sub;
     const user = await this.client.findUnique<Record<string, unknown>>(this.config.userNodeLabel, {
@@ -306,7 +301,6 @@ export class AuthManager {
       raiseGraphError('User not found', {
         code: 'not_found',
         statusCode: 404,
-        retry: { retryable: false },
       });
     }
 
@@ -526,7 +520,6 @@ export function requireAuth(
       raiseGraphError('Authentication required', {
         code: 'authentication_required',
         statusCode: 401,
-        retry: { retryable: false },
       });
     }
     return handler(user, ...args);
@@ -544,14 +537,12 @@ export function requireRole(
       raiseGraphError('Authentication required', {
         code: 'authentication_required',
         statusCode: 401,
-        retry: { retryable: false },
       });
     }
     if (!authManager.hasRole(user, role)) {
       raiseGraphError(`Role '${role}' required`, {
         code: 'forbidden',
         statusCode: 403,
-        retry: { retryable: false },
         metadata: { role },
       });
     }
@@ -570,14 +561,12 @@ export function requirePermission(
       raiseGraphError('Authentication required', {
         code: 'authentication_required',
         statusCode: 401,
-        retry: { retryable: false },
       });
     }
     if (!authManager.hasPermission(user, permission)) {
       raiseGraphError(`Permission '${permission}' required`, {
         code: 'forbidden',
         statusCode: 403,
-        retry: { retryable: false },
         metadata: { permission },
       });
     }

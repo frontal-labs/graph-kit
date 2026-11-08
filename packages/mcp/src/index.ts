@@ -142,7 +142,6 @@ export class GraphOMMCPServer {
       raiseGraphError(`Unknown resource: ${uri}`, {
         code: 'not_found',
         statusCode: 404,
-        retry: { retryable: false },
         metadata: { uri },
       });
     });
@@ -218,7 +217,6 @@ export class GraphOMMCPServer {
         raiseGraphError(`Unknown tool: ${name}`, {
           code: 'not_found',
           statusCode: 404,
-          retry: { retryable: false },
           metadata: { tool: name },
         });
     }

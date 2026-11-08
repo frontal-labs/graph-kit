@@ -104,7 +104,6 @@ export class SeedManager {
         raiseGraphError(`No factory registered for label: ${label}`, {
           code: 'invalid_argument',
           statusCode: 400,
-          retry: { retryable: false },
           metadata: { label },
         });
       }
@@ -269,7 +268,6 @@ export const Fixtures = {
       raiseGraphError('Cannot pick from empty array', {
         code: 'invalid_argument',
         statusCode: 400,
-        retry: { retryable: false },
       });
     return arr[Math.floor(Math.random() * arr.length)] as T;
   },

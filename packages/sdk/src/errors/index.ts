@@ -10,7 +10,7 @@ import {
   createErrors,
   FrontalError,
   getRootCause,
-  hasCode,
+  hasCode as hasFrontalCode,
   isFrontalError,
 } from '@frontal-labs/error';
 
@@ -79,7 +79,18 @@ export const graphErrors = {
   raise: raiseGraphError,
 };
 
-export { FrontalError, getRootCause, hasCode, isFrontalError };
+export { FrontalError, getRootCause, isFrontalError };
+
+/**
+ * True when `error` is a graph-om error with one of `codes`. Narrows to `GraphError`,
+ * so `statusCode`, `retry` and `metadata` stay typed after the check.
+ */
+export function hasCode(
+  error: unknown,
+  codes: GraphErrorCode | readonly GraphErrorCode[],
+): error is GraphError {
+  return hasFrontalCode(error, codes as GraphErrorCode);
+}
 
 const CONSTRAINT_VIOLATION = 'Neo.ClientError.Schema.ConstraintValidationFailed';
 const SYNTAX_ERROR = 'Neo.ClientError.Statement.SyntaxError';
@@ -128,6 +139,31 @@ export function mapDriverError(error: unknown, context: { driver: string }): Gra
     metadata: nativeCode ? { driverCode: nativeCode } : undefined,
     attributes: { 'db.system': context.driver },
   });
+}
+
+/**
+ * True when a graph-om error says it is safe to retry. Tag-based, so it works across
+ * package entry points, where `instanceof GraphError` can be false.
+ */
+export function isRetryable(error: unknown): boolean {
+  return isFrontalError(error) && (error as Partial<GraphError>).retry?.retryable === true;
+}
+
+/**
+ * Tracks which side of a transaction failed. Errors from the caller's own code pass
+ * through unchanged; errors from the driver are classified for `driver`.
+ */
+export function driverErrorBoundary(driver: string) {
+  let userFailed = false;
+  return {
+    user: <R>(work: () => Promise<R>): Promise<R> =>
+      work().catch((error: unknown) => {
+        userFailed = true;
+        throw error;
+      }),
+    classify: (error: unknown): unknown =>
+      userFailed ? error : classifyDriverError(error, driver),
+  };
 }
 
 /** The stable graph-om code of an error, or undefined for anything else. Safe for metric labels. */
