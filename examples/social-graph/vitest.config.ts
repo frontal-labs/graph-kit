@@ -14,7 +14,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@graph-om/sdk': path.resolve(__dirname, '../../packages/sdk/src/index.ts'),
-      '@graph-om/neo4j': path.resolve(__dirname, '../../packages/neo4j/src/index.ts'),
+      '@graph-om/sdk/driver/neo4j': path.resolve(
+        __dirname,
+        '../../packages/sdk/src/driver/neo4j.ts',
+      ),
       '@graph-om/zod': path.resolve(__dirname, '../../packages/zod/src/index.ts'),
       '@graph-om/testing': path.resolve(__dirname, '../../packages/sdk/src/testing/index.ts'),
       '@graph-om/sdk/migration': path.resolve(

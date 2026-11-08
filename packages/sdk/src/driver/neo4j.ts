@@ -7,6 +7,7 @@ import neo4j, {
   type QueryResult as Neo4jQueryResult,
   type Session,
 } from 'neo4j-driver';
+import { classifyDriverError, driverErrorBoundary, raiseGraphError } from '../errors';
 import type {
   DriverAdapter,
   DriverCapabilities,
@@ -31,6 +32,46 @@ export interface Neo4jSessionConfig {
   mode?: 'READ' | 'WRITE';
   bookmarks?: string | string[];
   fetchSize?: number;
+}
+
+/**
+ * The driver cannot send a JavaScript Date (it arrives as an empty map and the write fails),
+ * so Dates become Neo4j DateTime values on the way in, and come back as Dates.
+ */
+function toDriverValue(value: unknown): unknown {
+  if (value instanceof Date) return neo4j.types.DateTime.fromStandardDate(value);
+  if (Array.isArray(value)) return value.map(toDriverValue);
+  if (isPlainObject(value)) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [key, toDriverValue(item)]),
+    );
+  }
+  return value;
+}
+
+function fromDriverValue(value: unknown): unknown {
+  const types = neo4j.types;
+  if (types?.DateTime && value instanceof types.DateTime) return value.toStandardDate();
+  // Nodes and relationships keep their class; only their property values change
+  if (types && (value instanceof types.Node || value instanceof types.Relationship)) {
+    const entity = value as { properties: Record<string, unknown> };
+    return Object.assign(Object.create(Object.getPrototypeOf(value)), value, {
+      properties: fromDriverValue(entity.properties),
+    });
+  }
+  if (Array.isArray(value)) return value.map(fromDriverValue);
+  if (isPlainObject(value)) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [key, fromDriverValue(item)]),
+    );
+  }
+  return value;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return (
+    value !== null && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype
+  );
 }
 
 export class Neo4jDriverAdapter implements DriverAdapter {
@@ -72,9 +113,15 @@ export class Neo4jDriverAdapter implements DriverAdapter {
       await this.driver.getServerInfo();
     } catch (error) {
       this.driver = null;
-      throw new Error(
-        `Failed to connect to Neo4j at ${this.config.uri}: ${(error as Error).message}`,
-      );
+      raiseGraphError('Failed to connect to Neo4j', {
+        code: 'connection_failed',
+        statusCode: 503,
+        retry: { retryable: true },
+        cause: error,
+        fix: 'Check NEO4J_URI, credentials, and that the database is reachable.',
+        metadata: { uri: this.config.uri },
+        attributes: { 'db.system': 'neo4j' },
+      });
     }
   }
 
@@ -87,8 +134,14 @@ export class Neo4jDriverAdapter implements DriverAdapter {
 
   getDriver(): Driver {
     if (!this.driver) {
-      throw new Error(
+      raiseGraphError(
         'Neo4j driver not connected. Call connect() first or use GraphClient.connect().',
+        {
+          code: 'driver_not_connected',
+          statusCode: 500,
+          fix: 'Call connect() or GraphClient.connect() first.',
+          attributes: { 'db.system': 'neo4j' },
+        },
       );
     }
     return this.driver;
@@ -111,42 +164,56 @@ export class Neo4jDriverAdapter implements DriverAdapter {
   ): Promise<QueryResult> {
     const session = this.session(sessionConfig);
     try {
-      const result = await session.run(cypher, params ?? {});
+      const result = await session.run(
+        cypher,
+        toDriverValue(params ?? {}) as Record<string, unknown>,
+      );
       return this.mapResult(result);
+    } catch (error) {
+      throw classifyDriverError(error, 'neo4j');
     } finally {
       await session.close();
     }
   }
 
   async runInTransaction<T>(work: (txc: TransactionContext) => Promise<T>): Promise<T> {
-    const session = this.session();
-    try {
-      return await session.executeWrite(async (txc: ManagedTransaction) => {
-        const wrappedTxc = {
-          run: async (query: string, params?: Record<string, unknown>) => {
-            const result = await txc.run(query, params ?? {});
-            return this.mapResult(result);
-          },
-        };
-        return await work(wrappedTxc);
-      });
-    } finally {
-      await session.close();
-    }
+    return this.runManaged(work, 'write');
   }
 
   async runInReadTransaction<T>(work: (txc: TransactionContext) => Promise<T>): Promise<T> {
-    const session = this.session({ mode: 'READ' });
-    try {
-      return await session.executeRead(async (txc: ManagedTransaction) => {
-        const wrappedTxc = {
-          run: async (query: string, params?: Record<string, unknown>) => {
-            const result = await txc.run(query, params ?? {});
+    return this.runManaged(work, 'read');
+  }
+
+  /**
+   * Shared body for both transaction kinds. Errors thrown by the caller's `work`
+   * callback are rethrown unchanged; only driver failures are classified.
+   */
+  private async runManaged<T>(
+    work: (txc: TransactionContext) => Promise<T>,
+    mode: 'read' | 'write',
+  ): Promise<T> {
+    const session = this.session(mode === 'read' ? { mode: 'READ' } : undefined);
+    const boundary = driverErrorBoundary('neo4j');
+    const body = async (txc: ManagedTransaction) => {
+      const wrappedTxc = {
+        run: async (query: string, params?: Record<string, unknown>) => {
+          try {
+            const result = await txc.run(
+              query,
+              toDriverValue(params ?? {}) as Record<string, unknown>,
+            );
             return this.mapResult(result);
-          },
-        };
-        return await work(wrappedTxc);
-      });
+          } catch (error) {
+            throw classifyDriverError(error, 'neo4j');
+          }
+        },
+      };
+      return boundary.user(() => work(wrappedTxc));
+    };
+    try {
+      return mode === 'read' ? await session.executeRead(body) : await session.executeWrite(body);
+    } catch (error) {
+      throw boundary.classify(error);
     } finally {
       await session.close();
     }
@@ -185,14 +252,14 @@ export class Neo4jDriverAdapter implements DriverAdapter {
       keys: record.keys as string[],
       get: (key: string): unknown => {
         try {
-          return record.get(key);
+          return fromDriverValue(record.get(key));
         } catch {
           return null;
         }
       },
       toObject: (): Record<string, unknown> => {
         try {
-          return record.toObject();
+          return fromDriverValue(record.toObject()) as Record<string, unknown>;
         } catch {
           return {};
         }

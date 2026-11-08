@@ -18,10 +18,6 @@ A schema-first TypeScript library for modelling, querying, and traversing graph 
 │ @graph-om/sdk │────▶│ DriverAdapter │◀─── GraphClient(driver, nodes)
 │ QueryCompiler  │     └───────────────┘
 └────────────────┘            ▲
-                            │
-                  ┌────────────────────────┐
-                  │ @graph-om/neo4j        │
-                  └────────────────────────┘
 ```
 
 ## Packages
@@ -29,8 +25,7 @@ A schema-first TypeScript library for modelling, querying, and traversing graph 
 | Package | Description |
 | --- | --- |
 | [`@graph-om/sdk`](./packages/sdk) | Schema DSL, Cypher query compiler, typed client, config system |
-| [`@graph-om/cli`](./cli) | `graph init` and `graph generate` codegen |
-| [`@graph-om/neo4j`](./packages/neo4j) | Neo4j driver adapter implementing `DriverAdapter` |
+| [`@graph-om/cli`](./packages/cli) | `graph init` and `graph generate` codegen |
 | [`@graph-om/zod`](./packages/zod) | Zod schema generation and validation from node configs |
 
 ## Quick start
@@ -72,7 +67,7 @@ export const graph = sch().add('User', User).add('Post', Post).build();
 
 ```ts
 import { GraphClient } from '@graph-om/sdk';
-import { createNeo4jDriver } from '@graph-om/neo4j';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 import { graph } from './schema.js';
 
 const driver = createNeo4jDriver({
@@ -120,6 +115,25 @@ import { User } from './schema.js';
 const result = validateCreate(User, { id: '1', name: 'Alice' });
 if (!result.success) console.error(result.error.flatten());
 ```
+
+## Handling errors
+
+Every failure graph-om throws is a typed `GraphError` with a stable `code`, so you can branch on it rather than on the message:
+
+```ts
+import { hasCode } from '@graph-om/sdk/errors';
+
+try {
+  await client.update('Person', { where: { id }, data });
+} catch (error) {
+  if (hasCode(error, 'record_not_found')) {
+    // the record does not exist
+  }
+  throw error;
+}
+```
+
+Driver errors keep the original error on `cause`. Before sending an error to a client, convert it with `toPublic`, so the client sees only the code and a fixed message. See [docs/errors.md](https://github.com/frontal-labs/graph-om/blob/main/docs/errors.md) for every code.
 
 ## Configuration
 

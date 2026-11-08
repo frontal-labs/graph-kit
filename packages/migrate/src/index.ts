@@ -3,6 +3,7 @@
 
 import type { DriverAdapter, GraphSchemaRegistry } from '@graph-om/sdk';
 import { QueryCompiler } from '@graph-om/sdk';
+import { raiseGraphError } from '@graph-om/sdk/errors';
 
 export interface MigrationOptions {
   migrationsDir?: string;
@@ -129,7 +130,14 @@ export class MigrationRunner {
       .map((version) => {
         const migration = definitions.get(version);
         if (!migration) {
-          throw new Error(`Cannot roll back migration ${version}: no matching definition provided`);
+          raiseGraphError(
+            `Cannot roll back migration ${version}: no matching definition provided`,
+            {
+              code: 'migration_failed',
+              statusCode: 500,
+              metadata: { version },
+            },
+          );
         }
         return migration;
       });
@@ -401,7 +409,8 @@ export function generateMigrationFromDiff(diff: SchemaDiff, name: string): Migra
 }
 
 export function loadMigrations(_migrationsDir: string): Migration[] {
-  throw new Error(
+  raiseGraphError(
     'loadMigrations() cannot import migration files yet. Import each migration module explicitly and pass the list to createMigrationRunner().migrate().',
+    { code: 'unsupported_option', statusCode: 400 },
   );
 }

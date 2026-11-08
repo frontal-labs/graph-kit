@@ -2,6 +2,7 @@
 // Authentication and authorization helpers for Graph-OM
 
 import { GraphClient } from '../client';
+import { raiseGraphError } from '../errors';
 import type { DriverAdapter, GraphSchemaRegistry } from '../types';
 
 export interface User {
@@ -173,7 +174,10 @@ export class AuthManager {
     });
 
     if (existing) {
-      throw new Error('User already exists');
+      raiseGraphError('User already exists', {
+        code: 'user_exists',
+        statusCode: 409,
+      });
     }
 
     const passwordHash = await this.hashPassword(password);
@@ -200,7 +204,10 @@ export class AuthManager {
     });
 
     if (!user) {
-      throw new Error('Invalid credentials');
+      raiseGraphError('Invalid credentials', {
+        code: 'invalid_credentials',
+        statusCode: 401,
+      });
     }
 
     const valid = await this.verifyPassword(
@@ -208,7 +215,10 @@ export class AuthManager {
       (user as Record<string, unknown>)['passwordHash'] as string,
     );
     if (!valid) {
-      throw new Error('Invalid credentials');
+      raiseGraphError('Invalid credentials', {
+        code: 'invalid_credentials',
+        statusCode: 401,
+      });
     }
 
     return this.createSession(user as unknown as User);
@@ -270,18 +280,28 @@ export class AuthManager {
   async refreshToken(refreshToken: string): Promise<TokenPair> {
     const verification = this.verifyToken(refreshToken);
     if (!verification.valid || verification.payload?.tokenType !== 'refresh') {
-      throw new Error('Invalid refresh token');
+      raiseGraphError('Invalid refresh token', {
+        code: 'invalid_credentials',
+        statusCode: 401,
+      });
     }
 
     const payload = verification.payload;
-    if (!payload) throw new Error('Invalid refresh token');
+    if (!payload)
+      raiseGraphError('Invalid refresh token', {
+        code: 'invalid_credentials',
+        statusCode: 401,
+      });
     const userId = payload.sub;
     const user = await this.client.findUnique<Record<string, unknown>>(this.config.userNodeLabel, {
       where: { id: userId },
     });
 
     if (!user) {
-      throw new Error('User not found');
+      raiseGraphError('User not found', {
+        code: 'not_found',
+        statusCode: 404,
+      });
     }
 
     const accessTokenExpiry = this.config.tokenExpiry ?? 3600;
@@ -497,7 +517,10 @@ export function requireAuth(
   return async (token: string, ...args: unknown[]) => {
     const user = await authManager.getCurrentUser(token);
     if (!user) {
-      throw new Error('Authentication required');
+      raiseGraphError('Authentication required', {
+        code: 'authentication_required',
+        statusCode: 401,
+      });
     }
     return handler(user, ...args);
   };
@@ -511,10 +534,17 @@ export function requireRole(
   return async (token: string, ...args: unknown[]) => {
     const user = await authManager.getCurrentUser(token);
     if (!user) {
-      throw new Error('Authentication required');
+      raiseGraphError('Authentication required', {
+        code: 'authentication_required',
+        statusCode: 401,
+      });
     }
     if (!authManager.hasRole(user, role)) {
-      throw new Error(`Role '${role}' required`);
+      raiseGraphError(`Role '${role}' required`, {
+        code: 'forbidden',
+        statusCode: 403,
+        metadata: { role },
+      });
     }
     return handler(user, ...args);
   };
@@ -528,10 +558,17 @@ export function requirePermission(
   return async (token: string, ...args: unknown[]) => {
     const user = await authManager.getCurrentUser(token);
     if (!user) {
-      throw new Error('Authentication required');
+      raiseGraphError('Authentication required', {
+        code: 'authentication_required',
+        statusCode: 401,
+      });
     }
     if (!authManager.hasPermission(user, permission)) {
-      throw new Error(`Permission '${permission}' required`);
+      raiseGraphError(`Permission '${permission}' required`, {
+        code: 'forbidden',
+        statusCode: 403,
+        metadata: { permission },
+      });
     }
     return handler(user, ...args);
   };

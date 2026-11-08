@@ -1,8 +1,8 @@
 // index.ts - Basic CRUD with the Graph-OM client
 // Run: pnpm start
 
-import { createNeo4jDriver } from '@graph-om/neo4j';
 import { GraphClient } from '@graph-om/sdk';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 import { graph } from './schema.js';
 
 const driver = createNeo4jDriver({

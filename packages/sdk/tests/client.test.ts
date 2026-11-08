@@ -107,6 +107,9 @@ describe('GraphClient', () => {
   it('throws a helpful error for unregistered nodes', () => {
     const client = new GraphClient(makeAdapter(vi.fn()));
     expect(() => client.getNodeConfig('Nope')).toThrow(/not registered/);
+    expect(() => client.getNodeConfig('Nope')).toThrow(
+      expect.objectContaining({ code: 'node_not_registered', statusCode: 400 }),
+    );
   });
 
   it('registers nodes via registerNode and registerNodes', () => {
@@ -196,6 +199,9 @@ describe('GraphClient', () => {
     await expect(
       client.update('User', { where: { id: 'missing' }, data: { name: 'X' } }),
     ).rejects.toThrow(/record not found/);
+    await expect(
+      client.update('User', { where: { id: 'missing' }, data: { name: 'X' } }),
+    ).rejects.toMatchObject({ code: 'record_not_found', statusCode: 404 });
   });
 
   it('delete issues DETACH DELETE', async () => {

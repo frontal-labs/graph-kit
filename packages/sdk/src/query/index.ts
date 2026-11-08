@@ -1,6 +1,7 @@
 // @graph-om/sdk/src/query/index.ts
 // Cypher query compiler - translates high-level queries to optimized Cypher
 
+import { raiseGraphError } from '../errors';
 import type {
   AnyNodeConfig,
   CreateInput,
@@ -30,7 +31,11 @@ const IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 function assertIdentifier(name: string, what: string): void {
   if (!IDENTIFIER.test(name)) {
-    throw new Error(`Invalid ${what}: "${name}"`);
+    raiseGraphError(`Invalid ${what}: "${name}"`, {
+      code: 'invalid_argument',
+      statusCode: 400,
+      metadata: { what },
+    });
   }
 }
 
@@ -574,9 +579,14 @@ export class QueryCompiler {
     }
 
     if (!hasMergeValue) {
-      throw new Error(
+      raiseGraphError(
         `compileUpsert requires an equality condition on the primary key "${primaryKey}" ` +
           `(e.g. { ${primaryKey}: 'value' } or { id: 'value' }), but received: ${JSON.stringify(where)}`,
+        {
+          code: 'invalid_argument',
+          statusCode: 400,
+          metadata: { primaryKey },
+        },
       );
     }
 

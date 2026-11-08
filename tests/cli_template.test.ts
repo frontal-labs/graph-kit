@@ -6,7 +6,7 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 describe('CLI generated output cross-references', () => {
-  const cliSrc = path.join(process.cwd(), 'cli/src/commands');
+  const cliSrc = path.join(process.cwd(), 'packages/cli/src/commands');
 
   it('init.ts template imports env from @graph-om/sdk', () => {
     const initContent = fs.readFileSync(path.join(cliSrc, 'init.ts'), 'utf-8');
@@ -33,7 +33,9 @@ describe('CLI generated output cross-references', () => {
   });
 
   it('cli package.json has correct name and bin', () => {
-    const pkg = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'cli/package.json'), 'utf-8'));
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), 'packages/cli/package.json'), 'utf-8'),
+    );
 
     expect(pkg.name).toBe('@graph-om/cli');
     expect(pkg.bin?.['graph-om']).toBe('./dist/index.mjs');

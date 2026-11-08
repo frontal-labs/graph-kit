@@ -4,10 +4,12 @@
 
 import type { DriverAdapter, DriverConfig } from '@graph-om/sdk';
 import { type AnyDriverConfig, createDriver } from '@graph-om/sdk';
+import { errorResponse, raiseGraphError, toPublic } from '@graph-om/sdk/errors';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
   CallToolRequestSchema,
+  type CallToolResult,
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
@@ -17,6 +19,12 @@ export interface MCPConfig {
   driver: DriverAdapter | DriverConfig;
   name?: string;
   version?: string;
+}
+
+/** A failed tool call: an MCP tool result flagged as an error, with client-safe JSON. */
+function toToolError(error: unknown): CallToolResult {
+  const { body } = errorResponse(toPublic(error));
+  return { isError: true, content: [{ type: 'text', text: body }] };
 }
 
 export class GraphOMMCPServer {
@@ -94,72 +102,10 @@ export class GraphOMMCPServer {
     }));
 
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
-      const { name, arguments: args } = request.params;
-
-      switch (name) {
-        case 'run_query': {
-          const { cypher, params } = args as { cypher: string; params?: Record<string, unknown> };
-          const result = await this.driver.runQuery(cypher, params);
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify(result, null, 2),
-              },
-            ],
-          };
-        }
-
-        case 'get_schema': {
-          // This would need to be implemented based on the driver's capabilities
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify(
-                  { message: 'Schema introspection not yet implemented' },
-                  null,
-                  2,
-                ),
-              },
-            ],
-          };
-        }
-
-        case 'list_nodes': {
-          const { label, limit = 100 } = args as { label?: string; limit?: number };
-          const cypher = label
-            ? `MATCH (n:${label}) RETURN n LIMIT ${limit}`
-            : `MATCH (n) RETURN n LIMIT ${limit}`;
-          const result = await this.driver.runQuery(cypher);
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify(result, null, 2),
-              },
-            ],
-          };
-        }
-
-        case 'list_relationships': {
-          const { type, limit = 100 } = args as { type?: string; limit?: number };
-          const cypher = type
-            ? `MATCH ()-[r:${type}]->() RETURN r LIMIT ${limit}`
-            : `MATCH ()-[r]->() RETURN r LIMIT ${limit}`;
-          const result = await this.driver.runQuery(cypher);
-          return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify(result, null, 2),
-              },
-            ],
-          };
-        }
-
-        default:
-          throw new Error(`Unknown tool: ${name}`);
+      try {
+        return await this.callTool(request.params.name, request.params.arguments);
+      } catch (error) {
+        return toToolError(error);
       }
     });
 
@@ -193,11 +139,92 @@ export class GraphOMMCPServer {
         };
       }
 
-      throw new Error(`Unknown resource: ${uri}`);
+      raiseGraphError(`Unknown resource: ${uri}`, {
+        code: 'not_found',
+        statusCode: 404,
+        metadata: { uri },
+      });
     });
   }
 
+  private async callTool(
+    name: string,
+    args: Record<string, unknown> | undefined,
+  ): Promise<CallToolResult> {
+    switch (name) {
+      case 'run_query': {
+        const { cypher, params } = args as { cypher: string; params?: Record<string, unknown> };
+        const result = await this.driver.runQuery(cypher, params);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case 'get_schema': {
+        // This would need to be implemented based on the driver's capabilities
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                { message: 'Schema introspection not yet implemented' },
+                null,
+                2,
+              ),
+            },
+          ],
+        };
+      }
+
+      case 'list_nodes': {
+        const { label, limit = 100 } = args as { label?: string; limit?: number };
+        const cypher = label
+          ? `MATCH (n:${label}) RETURN n LIMIT ${limit}`
+          : `MATCH (n) RETURN n LIMIT ${limit}`;
+        const result = await this.driver.runQuery(cypher);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case 'list_relationships': {
+        const { type, limit = 100 } = args as { type?: string; limit?: number };
+        const cypher = type
+          ? `MATCH ()-[r:${type}]->() RETURN r LIMIT ${limit}`
+          : `MATCH ()-[r]->() RETURN r LIMIT ${limit}`;
+        const result = await this.driver.runQuery(cypher);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      default:
+        raiseGraphError(`Unknown tool: ${name}`, {
+          code: 'not_found',
+          statusCode: 404,
+          metadata: { tool: name },
+        });
+    }
+  }
+
   async start(): Promise<void> {
+    // Connect the database first, so tool calls do not fail with driver_not_connected
+    await this.driver.connect();
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     console.error('Graph-OM MCP Server running on stdio');
@@ -205,6 +232,7 @@ export class GraphOMMCPServer {
 
   async stop(): Promise<void> {
     await this.server.close();
+    await this.driver.disconnect();
   }
 }
 

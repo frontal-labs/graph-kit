@@ -14,7 +14,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      include: ['packages/**/src/**/*.ts', 'cli/src/**/*.ts'],
+      include: ['packages/**/src/**/*.ts', 'packages/cli/src/**/*.ts'],
       exclude: ['tests/**', 'node_modules', 'dist', 'coverage', '.turbo'],
     },
   },

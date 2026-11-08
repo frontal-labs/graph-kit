@@ -1,6 +1,6 @@
 # API Reference
 
-## @graph-om/core
+## @graph-om/sdk
 
 ### Schema DSL
 
@@ -125,14 +125,14 @@ Get default config shape.
 
 Validated environment variables (see ENVIRONMENT_VARIABLES.md).
 
-## @graph-om/neo4j
+## @graph-om/sdk/driver/neo4j
 
 ### `createNeo4jDriver(config)`
 
 Create a Neo4j driver adapter.
 
 ```ts
-import { createNeo4jDriver } from '@graph-om/neo4j';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 
 const driver = createNeo4jDriver({
   uri: env.NEO4J_URI,

@@ -45,7 +45,7 @@ services:
     volumes:
       - ./dist:/app/dist
       - ./packages:/app/packages
-      - ./cli:/app/cli
+      - ./packages/cli:/app/packages/cli
     restart: unless-stopped
 
   graph-om-dev:

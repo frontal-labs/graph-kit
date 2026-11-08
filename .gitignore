@@ -14,3 +14,6 @@ temp
 **/__generated__
 # Benchmark output written on every run
 **/benchmarks/baselines.json
+
+# TypeScript incremental build info (kept out of dist so typechecks never break declaration output)
+.tsbuildinfo

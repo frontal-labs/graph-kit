@@ -1,6 +1,7 @@
 // @graph-om/sdk/src/client/index.ts
 // GraphClient - Type-safe graph database client
 
+import { raiseGraphError } from '../errors';
 import { QueryCompiler, type RelationEndpoint } from '../query';
 import type {
   AnyNodeConfig,
@@ -21,6 +22,18 @@ import type {
   UpsertOptions,
   WhereCondition,
 } from '../types';
+
+function raiseNodeNotRegistered(label: string): never {
+  raiseGraphError(
+    `Node "${label}" is not registered in the schema. ` +
+      `Did you forget to call registerNode() or pass schemaNodes to the constructor?`,
+    {
+      code: 'node_not_registered',
+      statusCode: 400,
+      metadata: { label },
+    },
+  );
+}
 
 export class GraphClient {
   private driver: DriverAdapter;
@@ -44,7 +57,7 @@ export class GraphClient {
    *
    * @example
    * ```ts
-   * import { createNeo4jDriver } from '@graph-om/neo4j'
+   * import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j'
    * const client = GraphClient.fromConfig(driver, { schema: './src/schema.ts' })
    * ```
    */
@@ -81,12 +94,7 @@ export class GraphClient {
 
   getNodeConfig(label: string): AnyNodeConfig {
     const config = this.schemaNodes.get(label);
-    if (!config) {
-      throw new Error(
-        `Node "${label}" is not registered in the schema. ` +
-          `Did you forget to call registerNode() or pass schemaNodes to the constructor?`,
-      );
-    }
+    if (!config) raiseNodeNotRegistered(label);
     return config;
   }
 
@@ -143,7 +151,13 @@ export class GraphClient {
       : this.compiler.compileCreate(label as string, options.data, nodeConfig);
 
     const result = await this.driver.runQuery(query.cypher, query.params);
-    if (result.records.length === 0) throw new Error(`Failed to create ${label}`);
+    if (result.records.length === 0) {
+      raiseGraphError(`Failed to create ${label}`, {
+        code: 'create_failed',
+        statusCode: 500,
+        metadata: { label },
+      });
+    }
     const record = result.records[0];
     return this.toObject<T>(record);
   }
@@ -162,7 +176,11 @@ export class GraphClient {
     const result = await this.driver.runQuery(query.cypher, query.params);
 
     if (result.records.length === 0) {
-      throw new Error(`Failed to update ${label}: record not found`);
+      raiseGraphError(`Failed to update ${label}: record not found`, {
+        code: 'record_not_found',
+        statusCode: 404,
+        metadata: { label },
+      });
     }
 
     const record = result.records[0];
@@ -191,6 +209,13 @@ export class GraphClient {
       nodeConfig,
     );
     const result = await this.driver.runQuery(query.cypher, query.params);
+    if (result.records.length === 0) {
+      raiseGraphError(`Failed to upsert ${label}`, {
+        code: 'upsert_failed',
+        statusCode: 500,
+        metadata: { label },
+      });
+    }
     const record = result.records[0];
     return this.toObject<T>(record);
   }
@@ -468,9 +493,7 @@ export class GraphTransaction {
 
   getNodeConfig(label: string): AnyNodeConfig {
     const config = this.schemaNodes.get(label);
-    if (!config) {
-      throw new Error(`Node "${label}" is not registered in the schema.`);
-    }
+    if (!config) raiseNodeNotRegistered(label);
     return config;
   }
 
@@ -505,7 +528,13 @@ export class GraphTransaction {
       ? this.compiler.compileCreateAndConnect(label, options.data, options.relations, nodeConfig)
       : this.compiler.compileCreate(label, options.data, nodeConfig);
     const result = await this.runQuery(query.cypher, query.params);
-    if (result.records.length === 0) throw new Error(`Failed to create ${label}`);
+    if (result.records.length === 0) {
+      raiseGraphError(`Failed to create ${label}`, {
+        code: 'create_failed',
+        statusCode: 500,
+        metadata: { label },
+      });
+    }
     return this.toObject<T>(result.records[0]);
   }
 
@@ -516,7 +545,13 @@ export class GraphTransaction {
     const nodeConfig = this.getNodeConfig(label);
     const query = this.compiler.compileUpdate(label, options.where, options.data, nodeConfig);
     const result = await this.runQuery(query.cypher, query.params);
-    if (result.records.length === 0) throw new Error(`Failed to update ${label}: record not found`);
+    if (result.records.length === 0) {
+      raiseGraphError(`Failed to update ${label}: record not found`, {
+        code: 'record_not_found',
+        statusCode: 404,
+        metadata: { label },
+      });
+    }
     return this.toObject<T>(result.records[0]);
   }
 

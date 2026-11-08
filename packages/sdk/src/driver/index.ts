@@ -1,6 +1,11 @@
 // @graph-om/sdk/src/driver/index.ts
 // Driver adapter abstraction for multi-database support (types only - implementations in separate packages)
 
+import { raiseGraphError } from '../errors';
+import { createFalkorDBDriver, type FalkorDBConfig } from './falkordb';
+import { createMemgraphDriver, type MemgraphConfig } from './memgraph';
+import { createNeo4jDriver, type Neo4jConfig } from './neo4j';
+
 // Kuzu driver config (defined here to avoid Rollup static analysis issues with kuzu.ts)
 export interface KuzuConfig {
   type: 'kuzu';
@@ -26,7 +31,11 @@ export interface KuzuDriverAdapter {
 
 // Factory function for Kuzu driver (synchronous version - throws error to guide user to async version)
 export function createKuzuDriver(_config: KuzuConfig): KuzuDriverAdapter {
-  throw new Error('Kuzu driver requires async initialization. Use createKuzuDriverAsync instead.');
+  raiseGraphError('Kuzu driver requires async initialization. Use createKuzuDriverAsync instead.', {
+    code: 'unsupported_option',
+    statusCode: 400,
+    attributes: { 'db.system': 'kuzu' },
+  });
 }
 
 // Async version of the factory function
@@ -93,10 +102,9 @@ export interface KuzuDriverConfig extends DriverConfig {
 
 export interface FalkorDBDriverConfig extends DriverConfig {
   type: 'falkordb';
-  host: string;
-  port: number;
-  graphName: string;
-  password?: string;
+  uri: string;
+  username: string;
+  password: string;
   database?: string;
   maxRetriesPerRequest?: number;
   enableReadyCheck?: boolean;
@@ -162,6 +170,14 @@ export function registerDriver<C extends AnyDriverConfig>(
   driverRegistry.set(type.toLowerCase(), factory as unknown as RegisteredFactory);
 }
 
+// Built-in drivers are registered here, so createDriver({ type: 'neo4j' }) works without
+// importing the driver module first. Kuzu is registered too: its synchronous factory explains
+// that Kuzu needs createKuzuDriverAsync.
+registerDriver<Neo4jConfig>('neo4j', createNeo4jDriver);
+registerDriver<MemgraphConfig>('memgraph', createMemgraphDriver);
+registerDriver<FalkorDBConfig>('falkordb', createFalkorDBDriver);
+registerDriver<KuzuConfig>('kuzu', createKuzuDriver);
+
 export function getDriverFactory(type: string): RegisteredFactory | undefined {
   return driverRegistry.get(type.toLowerCase());
 }
@@ -170,7 +186,11 @@ export function createDriver(config: AnyDriverConfig): DriverAdapter {
   const factory = getDriverFactory(config.type);
   if (!factory) {
     const available = [...driverRegistry.keys()].join(', ');
-    throw new Error(`Unknown driver type: "${config.type}". Available: ${available || 'none'}`);
+    raiseGraphError(`Unknown driver type: "${config.type}". Available: ${available || 'none'}`, {
+      code: 'invalid_config',
+      statusCode: 400,
+      metadata: { type: config.type },
+    });
   }
   return factory(config);
 }

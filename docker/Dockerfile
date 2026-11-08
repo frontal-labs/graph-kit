@@ -51,7 +51,7 @@ RUN addgroup --system --gid 1001 nodejs \
     && adduser --system --uid 1001 graph-om
 
 COPY --from=builder /app/packages ./packages
-COPY --from=builder /app/cli ./cli
+COPY --from=builder /app/packages/cli ./packages/cli
 COPY --from=builder /app/dist ./dist 2>/dev/null || true
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
@@ -64,4 +64,4 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:3000/health || exit 1
 
-CMD ["node", "cli/dist/index.mjs"]
+CMD ["node", "packages/cli/dist/index.mjs"]

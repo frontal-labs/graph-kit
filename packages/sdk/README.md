@@ -8,27 +8,20 @@ Graph-OM - Prisma-like developer experience for graph databases. The core SDK pr
 pnpm add @graph-om/sdk
 ```
 
-Then install a driver adapter for your graph database:
+Drivers ship with the SDK. Import the one for your database from its subpath:
 
-```bash
-# Neo4j
-pnpm add @graph-om/neo4j
-
-# Memgraph
-pnpm add @graph-om/memgraph
-
-# Kuzu (embedded)
-pnpm add @graph-om/kuzu
-
-# FalkorDB (Redis Stack / RedisGraph)
-pnpm add @graph-om/falkordb
+```ts
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';        // Neo4j
+import { createMemgraphDriver } from '@graph-om/sdk/driver/memgraph';  // Memgraph
+import { createKuzuDriverAsync } from '@graph-om/sdk/driver';          // Kuzu (embedded), async factory
+import { createFalkorDBDriver } from '@graph-om/sdk/driver/falkordb';  // FalkorDB
 ```
 
 ## Quick start
 
 ```ts
 import { node, relation, string, GraphClient } from '@graph-om/sdk';
-import { createNeo4jDriver } from '@graph-om/neo4j';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 
 // 1. Define your schema with the DSL
 export const User = node('User')
@@ -72,6 +65,7 @@ await driver.disconnect();
 | `@graph-om/sdk` | Everything (schema, client, query, driver, config, migration, observability, otel, graphql, batch, seed, testing, visualization, auth, benchmark, types) |
 | `@graph-om/sdk/schema` | Schema builders: `node`, `relation`, `schema`, `string`, `number`, `boolean`, `date`, `float`, `bigint`, `uuid`, `json`, `path`, `property`, `allShortestPaths`, `shortestPath`, parsers |
 | `@graph-om/sdk/client` | `GraphClient`, `GraphTransaction`, value helpers |
+| `@graph-om/sdk/errors` | `GraphError`, `raiseGraphError`, `hasCode`, `isRetryable`, `isFrontalError`, `getRootCause`, `mapDriverError`, `toPublic`, `errorResponse`, `formatError` |
 | `@graph-om/sdk/query` | `QueryCompiler`, `createQueryCompiler`, `CompiledQuery` |
 | `@graph-om/sdk/config` | `defineConfig`, `loadConfig`, `resolveConfig`, `getDefaultConfig`, `env` |
 | `@graph-om/sdk/driver` | `DriverAdapter`, `DriverCapabilities`, `DriverConfig`, `createDriver`, `registerDriver`, `listDrivers`, `getDriverFactory`, config types (`Neo4jDriverConfig`, `MemgraphDriverConfig`, `FalkorDBDriverConfig`, `AnyDriverConfig`), `QueryResult`, `QueryRecord`, `TransactionContext` |
@@ -139,12 +133,12 @@ await client.upsert('User', { where: { id: 'u1' }, create: {}, update: {} });
 
 ### Driver abstraction
 
-Graph-OM abstracts database drivers behind `DriverAdapter`. Built-in drivers live in separate packages:
+Graph-OM abstracts database drivers behind `DriverAdapter`. Built-in drivers live under the SDK's `driver` subpaths:
 
-- `@graph-om/neo4j` — Neo4j (Bolt)
-- `@graph-om/memgraph` — Memgraph (Bolt-compatible)
-- `@graph-om/kuzu` — Kuzu (embedded)
-- `@graph-om/falkordb` — FalkorDB (RedisGraph)
+- `@graph-om/sdk/driver/neo4j` — Neo4j (Bolt)
+- `@graph-om/sdk/driver/memgraph` — Memgraph (Bolt-compatible)
+- `@graph-om/sdk/driver` (`createKuzuDriverAsync`) — Kuzu (embedded)
+- `@graph-om/sdk/driver/falkordb` — FalkorDB (RedisGraph)
 
 Register a custom driver:
 
@@ -154,6 +148,25 @@ import { registerDriver, createDriver } from '@graph-om/sdk/driver';
 registerDriver('my-db', MyDriverAdapter);
 const driver = createDriver({ type: 'my-db', ...config });
 ```
+
+## Handling errors
+
+Every failure graph-om throws is a typed `GraphError` with a stable `code`, so you can branch on it rather than on the message:
+
+```ts
+import { hasCode } from '@graph-om/sdk/errors';
+
+try {
+  await client.update('Person', { where: { id }, data });
+} catch (error) {
+  if (hasCode(error, 'record_not_found')) {
+    // the record does not exist
+  }
+  throw error;
+}
+```
+
+Driver errors keep the original error on `cause`. Before sending an error to a client, convert it with `toPublic`, so the client sees only the code and a fixed message. See [docs/errors.md](https://github.com/frontal-labs/graph-om/blob/main/docs/errors.md) for every code.
 
 ## Configuration
 

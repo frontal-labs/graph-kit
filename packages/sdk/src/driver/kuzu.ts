@@ -1,7 +1,12 @@
 // @graph-om/sdk/src/driver/kuzu.ts
-// Kuzu driver adapter - Kuzu is an embedded graph database
-// Uses native Node.js bindings or HTTP API
+// Kuzu driver adapter - Kuzu is an embedded graph database, used through the `kuzu` npm package
 
+import {
+  classifyDriverError,
+  connectionFailure,
+  driverErrorBoundary,
+  raiseGraphError,
+} from '../errors';
 import type {
   DriverAdapter,
   DriverCapabilities,
@@ -11,28 +16,29 @@ import type {
   TransactionContext,
 } from './index';
 
-// Minimal type definitions for kuzu (kuzu doesn't have official types)
-// These are used internally and don't conflict with declaration files
+// The part of the `kuzu` package API this adapter uses. The package ships no type declarations.
+interface KuzuResult {
+  getColumnNames(): Promise<string[]>;
+  getAll(): Promise<Array<Record<string, unknown>>>;
+}
+
+type KuzuPreparedStatement = unknown;
+
 interface KuzuConnection {
-  query(cypher: string, params?: Record<string, unknown>): Promise<KuzuQueryResult>;
+  query(cypher: string): Promise<KuzuResult>;
+  prepare(cypher: string): Promise<KuzuPreparedStatement>;
+  execute(prepared: KuzuPreparedStatement, params: Record<string, unknown>): Promise<KuzuResult>;
   close(): Promise<void>;
 }
 
-interface KuzuQueryResult {
-  getColumnNames(): string[] | undefined;
-  getNext(): boolean;
-  getValue(index: number): unknown;
-  hasNext(): boolean;
+interface KuzuDatabase {
+  init(): Promise<void>;
+  close(): Promise<void>;
 }
 
 interface KuzuModule {
-  Database: new (path: string) => { connect(): KuzuConnection };
-  Connection: new (
-    db: unknown,
-  ) => {
-    query(cypher: string, params?: Record<string, unknown>): Promise<KuzuQueryResult>;
-    close(): Promise<void>;
-  };
+  Database: new (path: string) => KuzuDatabase;
+  Connection: new (db: KuzuDatabase) => KuzuConnection;
 }
 
 let kuzuModule: KuzuModule | undefined;
@@ -45,7 +51,10 @@ async function loadKuzu(): Promise<KuzuModule> {
     kuzuModule = mod;
     return kuzuModule;
   } catch {
-    throw new Error('Kuzu driver not installed. Run: pnpm add kuzu');
+    raiseGraphError('Kuzu driver not installed. Run: pnpm add kuzu', {
+      code: 'invalid_config',
+      statusCode: 400,
+    });
   }
 }
 
@@ -58,11 +67,10 @@ export interface KuzuConfig extends DriverConfig {
 }
 
 export class KuzuDriverAdapter implements DriverAdapter {
-  private db: InstanceType<KuzuModule['Database']> | null = null;
+  private db: KuzuDatabase | null = null;
   private conn: KuzuConnection | null = null;
   private config: KuzuConfig;
   private capabilities: DriverCapabilities;
-  private transactionQueries: Array<{ cypher: string; params?: Record<string, unknown> }> = [];
 
   constructor(config: KuzuConfig) {
     this.config = config;
@@ -83,13 +91,27 @@ export class KuzuDriverAdapter implements DriverAdapter {
 
     if (this.config.uri) {
       // Network mode - would need HTTP client
-      throw new Error(
+      raiseGraphError(
         'Kuzu network mode not yet implemented. Use embedded mode with databasePath.',
+        { code: 'unsupported_option', statusCode: 400 },
       );
     }
 
-    this.db = new kuzu.Database(this.config.databasePath);
-    this.conn = this.db.connect();
+    try {
+      const db = new kuzu.Database(this.config.databasePath);
+      await db.init();
+      this.db = db;
+      this.conn = new kuzu.Connection(db);
+    } catch (error) {
+      this.db = null;
+      this.conn = null;
+      throw connectionFailure(
+        error,
+        'kuzu',
+        { databasePath: this.config.databasePath },
+        'Check that the database path is writable and not locked by another process.',
+      );
+    }
   }
 
   async disconnect(): Promise<void> {
@@ -97,69 +119,60 @@ export class KuzuDriverAdapter implements DriverAdapter {
       await this.conn.close();
       this.conn = null;
     }
-    this.db = null;
+    if (this.db) {
+      await this.db.close();
+      this.db = null;
+    }
   }
 
   async runQuery(cypher: string, params?: Record<string, unknown>): Promise<QueryResult> {
-    if (!this.conn) {
-      throw new Error('Kuzu not connected. Call connect() first.');
+    const conn = this.conn;
+    if (!conn) {
+      raiseGraphError('Kuzu not connected. Call connect() first.', {
+        code: 'driver_not_connected',
+        statusCode: 500,
+        attributes: { 'db.system': 'kuzu' },
+      });
     }
-
-    // Kuzu uses parameterized queries with $param syntax
-    const _paramKeys = params ? Object.keys(params) : [];
-    const finalCypher = cypher;
-
-    // Convert Neo4j $param syntax to Kuzu $param syntax (they're the same)
-    // No conversion needed for basic parameters
-
-    const result = await this.conn.query(finalCypher, params);
-    return this.mapResult(result);
+    try {
+      return await this.execute(conn, cypher, params);
+    } catch (error) {
+      throw classifyDriverError(error, 'kuzu');
+    }
   }
 
   async runInTransaction<T>(work: (txc: TransactionContext) => Promise<T>): Promise<T> {
-    if (!this.conn) {
-      throw new Error('Kuzu not connected. Call connect() first.');
+    const conn = this.conn;
+    if (!conn) {
+      raiseGraphError('Kuzu not connected. Call connect() first.', {
+        code: 'driver_not_connected',
+        statusCode: 500,
+        attributes: { 'db.system': 'kuzu' },
+      });
     }
 
-    this.transactionQueries = [];
-
+    // Each query runs immediately, so reads inside the transaction see their own writes.
+    // BEGIN/COMMIT/ROLLBACK provide the atomicity.
     const txc: TransactionContext = {
       run: async (query: string, params?: Record<string, unknown>) => {
-        this.transactionQueries.push({ cypher: query, params });
-        // Return empty result for now, actual execution happens on commit
-        return {
-          records: [],
-          summary: {
-            query: { text: query, parameters: params ?? {} },
-            counters: {},
-            notifications: [],
-            resultAvailableAfter: 0,
-            resultConsumedAfter: 0,
-            database: { name: 'kuzu' },
-          },
-          keys: [],
-        };
+        try {
+          return await this.execute(conn, query, params);
+        } catch (error) {
+          throw classifyDriverError(error, 'kuzu');
+        }
       },
     };
 
+    const boundary = driverErrorBoundary('kuzu');
     try {
-      // Start transaction
-      await this.conn.query('BEGIN TRANSACTION');
-
-      const result = await work(txc);
-
-      // Execute all queued queries
-      for (const { cypher, params } of this.transactionQueries) {
-        await this.conn?.query(cypher, params);
-      }
-
-      await this.conn.query('COMMIT');
+      await conn.query('BEGIN TRANSACTION');
+      const result = await boundary.user(() => work(txc));
+      await conn.query('COMMIT');
       return result;
     } catch (error) {
-      await this.conn.query('ROLLBACK');
-      throw error;
-    } finally {
-      this.transactionQueries = [];
+      // Best effort: a failing rollback must not hide the error that caused it
+      await conn.query('ROLLBACK').catch(() => {});
+      throw boundary.classify(error);
     }
   }
 
@@ -194,30 +207,25 @@ export class KuzuDriverAdapter implements DriverAdapter {
     return this.capabilities;
   }
 
-  private mapResult(result: KuzuQueryResult): QueryResult {
-    const keys = result.getColumnNames() ?? [];
-    const records: QueryRecord[] = [];
+  /** Parameters need a prepared statement in Kuzu; a plain query takes none. */
+  private async execute(
+    conn: KuzuConnection,
+    cypher: string,
+    params?: Record<string, unknown>,
+  ): Promise<QueryResult> {
+    const result =
+      params && Object.keys(params).length > 0
+        ? await conn.execute(await conn.prepare(cypher), params)
+        : await conn.query(cypher);
+    return this.mapResult(await result.getColumnNames(), await result.getAll());
+  }
 
-    while (result.hasNext()) {
-      result.getNext();
-      const record: QueryRecord = {
-        keys,
-        get: (key: string) => {
-          const index = keys.indexOf(key);
-          return index >= 0 ? result.getValue(index) : null;
-        },
-        toObject: () => {
-          const obj: Record<string, unknown> = {};
-          for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
-            if (key === undefined) continue;
-            obj[key] = result.getValue(i);
-          }
-          return obj;
-        },
-      };
-      records.push(record);
-    }
+  private mapResult(keys: string[], rows: Array<Record<string, unknown>>): QueryResult {
+    const records: QueryRecord[] = rows.map((row) => ({
+      keys,
+      get: (key: string) => row[key] ?? null,
+      toObject: () => ({ ...row }),
+    }));
 
     return {
       records,

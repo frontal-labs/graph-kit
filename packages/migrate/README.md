@@ -13,7 +13,7 @@ pnpm add @graph-om/migrate @graph-om/sdk
 ```ts
 import { MigrationRunner, generateVersion } from '@graph-om/migrate';
 import { QueryCompiler } from '@graph-om/sdk';
-import { createNeo4jDriver } from '@graph-om/neo4j';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 
 const driver = createNeo4jDriver({ uri, username, password });
 await driver.connect();
