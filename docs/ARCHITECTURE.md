@@ -74,9 +74,7 @@ graph-om/
 ├── cli/                    # @graph-om/cli — scaffolding + codegen
 ├── packages/core/          # @graph-om/core — schema, compiler, client, config
 ├── adapters/
-│   ├── neo4j/             # @graph-om/neo4j — Neo4j driver adapter
-│   ├── memgraph/          # @graph-om/memgraph — Memgraph driver adapter
-│   ├── falkordb/          # @graph-om/falkordb — FalkorDB driver adapter
+│   ├── sdk/driver/        # @graph-om/sdk/driver/* — Neo4j, Memgraph, Kuzu, FalkorDB adapters
 │   └── arangodb/          # @graph-om/arangodb — ArangoDB driver adapter
 ├── packages/zod/           # @graph-om/zod — zod validation
 ├── examples/social-graph/  # End-to-end demo

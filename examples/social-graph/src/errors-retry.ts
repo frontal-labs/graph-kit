@@ -2,8 +2,8 @@
 // Run: pnpm start:errors-retry
 // Uses a port nothing listens on, so it runs without a database.
 
-import { createNeo4jDriver } from '@graph-om/neo4j';
 import { hasCode, isRetryable } from '@graph-om/sdk';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 
 const MAX_ATTEMPTS = 3;
 

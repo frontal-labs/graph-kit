@@ -1,8 +1,8 @@
 // @graph-om/cli/src/commands/seed.ts
 import fs from 'node:fs';
 import path from 'node:path';
-import { createNeo4jDriver } from '@graph-om/neo4j';
 import { env } from '@graph-om/sdk';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 import { parseSchemaFile } from '@graph-om/sdk/schema';
 import { createSeedManager } from '@graph-om/sdk/seed';
 import { Command } from 'commander';
@@ -134,7 +134,7 @@ async function createSeedFile(name: string, template: string): Promise<void> {
 // Relational seed with factories
 
 import { createSeedManager, Fixtures, createUserFactory, createPostFactory } from '@graph-om/sdk/seed';
-import { createNeo4jDriver } from '@graph-om/neo4j';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 import { env } from '@graph-om/sdk';
 import { parseSchemaFile } from '@graph-om/sdk/schema';
 

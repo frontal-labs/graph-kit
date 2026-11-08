@@ -35,11 +35,8 @@ Requirements: **Node.js ≥ 20** and **pnpm 9** (`corepack enable` recommended).
 
 ## Project layout
 
-- `packages/sdk` — schema DSL, Cypher compiler, client, config
+- `packages/sdk` — schema DSL, Cypher compiler, client, config, and the driver adapters (`src/driver/`: Neo4j, Memgraph, Kuzu, FalkorDB)
 - `cli` — `graph-om init` / `graph-om generate`
-- `packages/neo4j` — Neo4j `DriverAdapter`
-- `packages/memgraph` — Memgraph `DriverAdapter`
-- `packages/falkordb` — FalkorDB `DriverAdapter`
 - `packages/zod` — Zod validation integration
 - `examples/social-graph` — end-to-end example app
 

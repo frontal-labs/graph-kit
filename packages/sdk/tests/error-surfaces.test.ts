@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
-import { errorResponse, graphErrors, toPublic } from '../src/errors';
+import { errorResponse, GraphError, toPublic } from '../src/errors';
 import { generateResolvers } from '../src/graphql';
 
 // A realistic internal failure: it carries a URI with credentials, Cypher text,
 // a label and a value in its developer fields. None of that may reach a client.
 function internalFailure() {
-  return graphErrors.create('Failed to update Person: record not found', {
+  return new GraphError('Failed to update Person: record not found', {
     code: 'record_not_found',
     statusCode: 404,
     retry: { retryable: false },

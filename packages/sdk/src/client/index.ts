@@ -57,7 +57,7 @@ export class GraphClient {
    *
    * @example
    * ```ts
-   * import { createNeo4jDriver } from '@graph-om/neo4j'
+   * import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j'
    * const client = GraphClient.fromConfig(driver, { schema: './src/schema.ts' })
    * ```
    */

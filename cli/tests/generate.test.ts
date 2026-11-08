@@ -189,7 +189,7 @@ describe('content generators', () => {
 
   it('generateClientContent imports neo4j driver and builds node configs', () => {
     const out = generateClientContent([node]);
-    expect(out).toContain("import { createNeo4jDriver } from '@graph-om/neo4j';");
+    expect(out).toContain("import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';");
     expect(out).toContain('export async function createClient');
     expect(out).toContain("label: 'User'");
     expect(out).not.toContain('GraphClient.connect');

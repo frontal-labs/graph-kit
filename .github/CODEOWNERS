@@ -11,7 +11,6 @@
 
 # Packages
 /packages/sdk/      @frontal-labs
-/packages/neo4j/   @frontal-labs
 /packages/zod/      @frontal-labs
 
 # CLI

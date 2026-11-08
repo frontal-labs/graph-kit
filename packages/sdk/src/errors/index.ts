@@ -7,7 +7,7 @@
 
 import {
   type CreateErrorOptions,
-  createErrors,
+  type ErrorMetadata,
   FrontalError,
   getRootCause,
   hasCode as hasFrontalCode,
@@ -49,35 +49,28 @@ export interface GraphErrorOptions extends CreateErrorOptions<GraphErrorCode> {
 const DOCS_URL = 'https://github.com/frontal-labs/graph-om/blob/main/docs/errors.md';
 
 /**
- * A graph-om error. `retry` is graph-om's own field, set by the thrower;
- * `@frontal-labs/error@0.7.0` has no retry option of its own.
+ * A graph-om error. Sets its own `scope` and a docs `link` derived from `code`.
+ * `retry` is graph-om's own field, set by the thrower; `@frontal-labs/error@0.7.0`
+ * has no retry option of its own.
  */
 export class GraphError extends FrontalError<GraphErrorCode> {
   readonly retry: RetryPolicy;
 
   constructor(message: string, options: GraphErrorOptions = {}) {
     const { retry, ...rest } = options;
-    super(message, rest);
+    super(message, {
+      ...rest,
+      scope: 'graph-om',
+      link: rest.link ?? (rest.code ? `${DOCS_URL}#${rest.code}` : undefined),
+    });
     this.retry = retry ?? { retryable: false };
   }
 }
 
-const factory = createErrors<GraphErrorCode, GraphError>({
-  scope: 'graph-om',
-  docsBaseUrl: (code) => `${DOCS_URL}#${code}`,
-  ErrorClass: GraphError,
-});
-
 /** Create and throw a graph-om error. Declared `never` so callers keep type narrowing. */
 export function raiseGraphError(message: string, options: GraphErrorOptions): never {
-  throw factory.create(message, options);
+  throw new GraphError(message, options);
 }
-
-export const graphErrors = {
-  create: (message: string, options: GraphErrorOptions): GraphError =>
-    factory.create(message, options),
-  raise: raiseGraphError,
-};
 
 export { FrontalError, getRootCause, isFrontalError };
 
@@ -95,6 +88,28 @@ export function hasCode(
 const CONSTRAINT_VIOLATION = 'Neo.ClientError.Schema.ConstraintValidationFailed';
 const SYNTAX_ERROR = 'Neo.ClientError.Statement.SyntaxError';
 const TRANSIENT_PREFIX = 'Neo.TransientError.';
+
+/**
+ * A failed connect. Keeps the driver's own message, and records where it tried to connect
+ * (`metadata`) and the original error (`cause`).
+ */
+export function connectionFailure(
+  error: unknown,
+  driver: string,
+  metadata: ErrorMetadata,
+  fix: string,
+): GraphError {
+  const message = error instanceof Error ? error.message : String(error);
+  return new GraphError(message, {
+    code: 'connection_failed',
+    statusCode: 503,
+    retry: { retryable: true },
+    cause: error,
+    fix,
+    metadata,
+    attributes: { 'db.system': driver },
+  });
+}
 
 /**
  * Adapter boundary helper: errors that are already graph-om errors pass through
@@ -131,7 +146,7 @@ export function mapDriverError(error: unknown, context: { driver: string }): Gra
     retry = { retryable: true };
   }
 
-  return graphErrors.create(message, {
+  return new GraphError(message, {
     code,
     statusCode,
     retry,

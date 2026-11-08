@@ -29,7 +29,6 @@ export async function initCommand(directory: string, _options: InitOptions): Pro
     },
     dependencies: {
       '@graph-om/sdk': 'latest',
-      '@graph-om/neo4j': 'latest',
     },
     devDependencies: {
       '@graph-om/cli': 'latest',
@@ -80,7 +79,7 @@ export const graph = sch()
 
   const mainContent = `// src/index.ts
 import { GraphClient, env } from '@graph-om/sdk';
-import { createNeo4jDriver } from '@graph-om/neo4j';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 import { graph } from './schema.js';
 
 async function main() {

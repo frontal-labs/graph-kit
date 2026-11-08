@@ -18,10 +18,6 @@ A schema-first TypeScript library for modelling, querying, and traversing graph 
 │ @graph-om/sdk │────▶│ DriverAdapter │◀─── GraphClient(driver, nodes)
 │ QueryCompiler  │     └───────────────┘
 └────────────────┘            ▲
-                            │
-                  ┌────────────────────────┐
-                  │ @graph-om/neo4j        │
-                  └────────────────────────┘
 ```
 
 ## Packages
@@ -30,7 +26,6 @@ A schema-first TypeScript library for modelling, querying, and traversing graph 
 | --- | --- |
 | [`@graph-om/sdk`](./packages/sdk) | Schema DSL, Cypher query compiler, typed client, config system |
 | [`@graph-om/cli`](./cli) | `graph init` and `graph generate` codegen |
-| [`@graph-om/neo4j`](./packages/neo4j) | Neo4j driver adapter implementing `DriverAdapter` |
 | [`@graph-om/zod`](./packages/zod) | Zod schema generation and validation from node configs |
 
 ## Quick start
@@ -72,7 +67,7 @@ export const graph = sch().add('User', User).add('Post', Post).build();
 
 ```ts
 import { GraphClient } from '@graph-om/sdk';
-import { createNeo4jDriver } from '@graph-om/neo4j';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 import { graph } from './schema.js';
 
 const driver = createNeo4jDriver({

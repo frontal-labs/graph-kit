@@ -14,7 +14,7 @@ pnpm add @graph-om/mcp @graph-om/sdk
 
 ```ts
 import { createMCPServer } from '@graph-om/mcp';
-import { createNeo4jDriver } from '@graph-om/neo4j';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 
 const driver = createNeo4jDriver({
   uri: 'bolt://localhost:7687',

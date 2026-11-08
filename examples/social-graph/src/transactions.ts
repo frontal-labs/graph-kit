@@ -1,8 +1,8 @@
 // transactions.ts - Atomic multi-step writes with client.transaction()
 // Run: pnpm start:transactions
 
-import { createNeo4jDriver } from '@graph-om/neo4j';
 import { GraphClient } from '@graph-om/sdk';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 import { graph } from './schema.js';
 
 const driver = createNeo4jDriver({

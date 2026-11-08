@@ -2,7 +2,12 @@
 // FalkorDB driver adapter - FalkorDB is Redis-based graph database
 // Uses Redis Stack / RedisGraph protocol (Redis modules)
 
-import { classifyDriverError, driverErrorBoundary, raiseGraphError } from '../errors';
+import {
+  classifyDriverError,
+  connectionFailure,
+  driverErrorBoundary,
+  raiseGraphError,
+} from '../errors';
 import type {
   DriverAdapter,
   DriverCapabilities,
@@ -61,7 +66,7 @@ async function loadRedis(): Promise<{ createClient: (options: RedisOptions) => R
             connect: () => client.connect(),
             disconnect: () => client.quit(),
             sendCommand: (command: string[], args: unknown[]) =>
-              client.call(command[0] ?? '', ...args),
+              client.call(command[0] ?? '', ...command.slice(1), ...args),
             executeIsolated: (command: string[]) =>
               client.call(command[0] ?? '', ...command.slice(1)),
           };
@@ -155,7 +160,17 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
     });
 
     this.client = client;
-    await client.connect();
+    try {
+      await client.connect();
+    } catch (error) {
+      this.client = null;
+      throw connectionFailure(
+        error,
+        'falkordb',
+        { uri: this.config.uri },
+        'Check the FalkorDB URI, credentials, and that the server is reachable.',
+      );
+    }
 
     // Select the graph (database)
     this.selectedGraph = this.config.database || 'default';

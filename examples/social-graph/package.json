@@ -26,7 +26,6 @@
   },
   "dependencies": {
     "@graph-om/sdk": "workspace:*",
-    "@graph-om/neo4j": "workspace:*",
     "@graph-om/zod": "workspace:*",
     "zod": "^4.6.7"
   },

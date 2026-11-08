@@ -45,9 +45,7 @@ Requirements: Node.js ≥ 20, pnpm 9 (`corepack enable` recommended).
 
 - `cli/` — `@graph-om/cli` — `graph-om init` / `graph-om generate`
 - `packages/core/` — `@graph-om/core` — schema DSL, Cypher compiler, client, config
-- `adapters/neo4j/` — `@graph-om/neo4j` — Neo4j DriverAdapter
-- `adapters/memgraph/` — `@graph-om/memgraph` — Memgraph DriverAdapter
-- `adapters/falkordb/` — `@graph-om/falkordb` — FalkorDB DriverAdapter
+- `packages/sdk/src/driver/` — `@graph-om/sdk/driver/*` — DriverAdapter implementations (Neo4j, Memgraph, Kuzu, FalkorDB)
 - `adapters/arangodb/` — `@graph-om/arangodb` — ArangoDB DriverAdapter
 - `packages/zod/` — `@graph-om/zod` — Zod validation integration
 - `examples/social-graph/` — end-to-end example app

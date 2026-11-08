@@ -4,8 +4,8 @@
 // @graph-om/sdk generates the SDL and the resolver map. It does not start a server: plug the
 // resolvers into your GraphQL server of choice (Apollo, Yoga, graphql-js).
 
-import { createNeo4jDriver } from '@graph-om/neo4j';
 import { GraphClient } from '@graph-om/sdk';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 import { generateGraphQLSchema, generateResolvers } from '@graph-om/sdk/graphql';
 import { graph } from './schema.js';
 

@@ -1,8 +1,8 @@
 // comprehensive.ts - Comprehensive Graph-OM Examples
 // Demonstrates all major features of the Graph-OM library
 
-import { createNeo4jDriver } from '@graph-om/neo4j';
 import { GraphClient } from '@graph-om/sdk';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 import { graph } from './schema.js';
 
 const URI = process.env.NEO4J_URI || 'bolt://localhost:7687';

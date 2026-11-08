@@ -34,14 +34,6 @@ export default defineConfig({
         replacement: path.resolve(__dirname, '../packages/sdk/src/$1/index.ts'),
       },
       {
-        find: '@graph-om/neo4j',
-        replacement: path.resolve(__dirname, '../packages/neo4j/src/index.ts'),
-      },
-      {
-        find: '@graph-om/memgraph',
-        replacement: path.resolve(__dirname, '../packages/memgraph/src/index.ts'),
-      },
-      {
         find: '@graph-om/zod',
         replacement: path.resolve(__dirname, '../packages/zod/src/index.ts'),
       },

@@ -11,9 +11,7 @@ graph-om/
 │   ├── core/             # @graph-om/core — schema DSL, Cypher compiler, client, config
 │   └── zod/              # @graph-om/zod — Zod validation integration
 ├── adapters/
-│   ├── neo4j/            # @graph-om/neo4j — Neo4j DriverAdapter
-│   ├── memgraph/         # @graph-om/memgraph — Memgraph DriverAdapter
-│   ├── falkordb/         # @graph-om/falkordb — FalkorDB DriverAdapter
+│   ├── sdk/driver/       # @graph-om/sdk/driver/* — Neo4j, Memgraph, Kuzu, FalkorDB adapters
 │   └── arangodb/         # @graph-om/arangodb — ArangoDB DriverAdapter
 ├── examples/
 │   └── social-graph/     # End-to-end example app
@@ -135,7 +133,7 @@ const graph = schema()
 
 ```ts
 import { GraphClient } from '@graph-om/core';
-import { createNeo4jDriver } from '@graph-om/neo4j';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 import { graph } from './schema.js';
 
 const driver = createNeo4jDriver({

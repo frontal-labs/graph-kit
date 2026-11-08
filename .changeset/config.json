@@ -7,10 +7,6 @@
     [
       "@graph-om/sdk",
       "@graph-om/cli",
-      "@graph-om/neo4j",
-      "@graph-om/memgraph",
-      "@graph-om/falkordb",
-      "@graph-om/kuzu",
       "@graph-om/zod",
       "@graph-om/mcp",
       "@graph-om/migrate",

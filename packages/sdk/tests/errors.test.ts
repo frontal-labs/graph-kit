@@ -5,7 +5,6 @@ import {
   GraphError,
   type GraphErrorCode,
   getRootCause,
-  graphErrors,
   hasCode,
   isFrontalError,
   isRetryable,
@@ -21,7 +20,7 @@ function driverError(code: string | undefined, message = 'driver said no'): Erro
 
 describe('graph-om errors', () => {
   it('creates scoped, tagged errors that still extend Error', () => {
-    const error = graphErrors.create('boom', { code: 'query_failed', statusCode: 500 });
+    const error = new GraphError('boom', { code: 'query_failed', statusCode: 500 });
 
     expect(error).toBeInstanceOf(GraphError);
     expect(error).toBeInstanceOf(FrontalError);
@@ -32,11 +31,11 @@ describe('graph-om errors', () => {
   });
 
   it('defaults retry to non-retryable', () => {
-    expect(graphErrors.create('x', { code: 'query_failed' }).retry).toEqual({ retryable: false });
+    expect(new GraphError('x', { code: 'query_failed' }).retry).toEqual({ retryable: false });
   });
 
   it('keeps retry as graph-om metadata, not as a frontal option', () => {
-    const error = graphErrors.create('x', {
+    const error = new GraphError('x', {
       code: 'connection_failed',
       retry: { retryable: true },
     });
@@ -44,7 +43,7 @@ describe('graph-om errors', () => {
   });
 
   it('links each code to its anchor in the errors doc', () => {
-    const error = graphErrors.create('x', { code: 'record_not_found' });
+    const error = new GraphError('x', { code: 'record_not_found' });
     expect(error.link).toBe(
       'https://github.com/frontal-labs/graph-om/blob/main/docs/errors.md#record_not_found',
     );
@@ -58,16 +57,14 @@ describe('graph-om errors', () => {
 
   it('isRetryable is true only for errors marked retryable', () => {
     expect(
-      isRetryable(
-        graphErrors.create('x', { code: 'connection_failed', retry: { retryable: true } }),
-      ),
+      isRetryable(new GraphError('x', { code: 'connection_failed', retry: { retryable: true } })),
     ).toBe(true);
-    expect(isRetryable(graphErrors.create('x', { code: 'record_not_found' }))).toBe(false);
+    expect(isRetryable(new GraphError('x', { code: 'record_not_found' }))).toBe(false);
     expect(isRetryable(new Error('plain'))).toBe(false);
   });
 
   it('hasCode narrows by a single code or a list of codes', () => {
-    const error: unknown = graphErrors.create('x', { code: 'record_not_found' });
+    const error: unknown = new GraphError('x', { code: 'record_not_found' });
     expect(hasCode(error, 'record_not_found')).toBe(true);
     expect(hasCode(error, 'create_failed')).toBe(false);
     expect(hasCode(error, ['create_failed', 'record_not_found'])).toBe(true);
@@ -76,7 +73,7 @@ describe('graph-om errors', () => {
 
   it('preserves cause through getRootCause', () => {
     const original = new Error('root');
-    const wrapped = graphErrors.create('wrapped', { code: 'query_failed', cause: original });
+    const wrapped = new GraphError('wrapped', { code: 'query_failed', cause: original });
     expect(wrapped.cause).toBe(original);
     expect(getRootCause(wrapped)).toBe(original);
   });
@@ -105,7 +102,7 @@ describe('graph-om errors', () => {
     ];
 
     it.each(cases)('%s uses status %i and retryable=%s', (code, status, retryable) => {
-      const error = graphErrors.create('x', {
+      const error = new GraphError('x', {
         code,
         statusCode: status,
         retry: { retryable },
@@ -181,7 +178,7 @@ describe('mapDriverError', () => {
 
 describe('classifyDriverError', () => {
   it('passes graph-om errors through unchanged', () => {
-    const original = graphErrors.create('x', { code: 'record_not_found' });
+    const original = new GraphError('x', { code: 'record_not_found' });
     expect(classifyDriverError(original, 'neo4j')).toBe(original);
   });
 

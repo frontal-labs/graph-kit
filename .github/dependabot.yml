@@ -43,11 +43,6 @@ updates:
         patterns:
           - "@frontal-labs/error"
 
-  - package-ecosystem: "npm"
-    directory: "/packages/neo4j"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
 
   - package-ecosystem: "npm"
     directory: "/packages/zod"

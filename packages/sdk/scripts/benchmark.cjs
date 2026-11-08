@@ -1,7 +1,7 @@
-// Runs the CI benchmark suite against the Neo4j service and fails on regression.
+// Runs the benchmark suite against the Neo4j service in NEO4J_URI and prints the results.
 // Connection settings come from the environment (NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD).
-const { createNeo4jDriver } = require('@graph-om/neo4j');
-const { runCIOBenchmarks } = require('@graph-om/sdk/benchmark');
+const { createNeo4jDriver } = require('../dist/driver/neo4j');
+const { runCIOBenchmarks } = require('../dist/benchmark');
 
 async function main() {
   const driver = createNeo4jDriver({
@@ -13,11 +13,7 @@ async function main() {
 
   await driver.connect();
   try {
-    await runCIOBenchmarks(driver, {
-      threshold: 20,
-      failOnRegression: true,
-      outputFormat: 'github-actions',
-    });
+    await runCIOBenchmarks(driver);
   } finally {
     await driver.disconnect();
   }

@@ -1,7 +1,6 @@
 ---
 '@graph-om/sdk': patch
 '@graph-om/cli': patch
-'@graph-om/neo4j': patch
 '@graph-om/zod': patch
 ---
 
@@ -28,7 +27,7 @@ Production hardening across all packages.
 - Generated `client.ts` now registers node configs and has valid `GraphNodeMap` types.
 - Drop unused `chalk`/`execa` dependencies; add `files`, `sideEffects`, MIT license metadata.
 
-@graph-om/neo4j:
+@graph-om/sdk driver adapters (formerly `@graph-om/neo4j`, now `@graph-om/sdk/driver/neo4j`):
 
 - Generate `.d.ts` (was declared but never built); type-safe result mapping against official driver types; package hygiene (`files`, `sideEffects`, license).
 

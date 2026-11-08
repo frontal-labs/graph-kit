@@ -4,7 +4,6 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { createNeo4jDriver } from '@graph-om/neo4j';
 import {
   type DriverAdapter,
   env,
@@ -14,6 +13,7 @@ import {
   type PropertyType,
   type RelationConfig,
 } from '@graph-om/sdk';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 import { raiseGraphError } from '@graph-om/sdk/errors';
 import {
   diffSchemas,

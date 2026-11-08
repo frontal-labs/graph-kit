@@ -23,10 +23,6 @@
   },
   "references": [
     { "path": "./packages/sdk" },
-    { "path": "./packages/neo4j" },
-    { "path": "./packages/memgraph" },
-    { "path": "./packages/kuzu" },
-    { "path": "./packages/falkordb" },
     { "path": "./packages/mcp" },
     { "path": "./packages/migrate" },
     { "path": "./packages/testing" },

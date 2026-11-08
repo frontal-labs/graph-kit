@@ -47,7 +47,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@graph-om/neo4j": "workspace:*",
     "@graph-om/sdk": "workspace:*",
     "commander": "^15.0.0"
   },

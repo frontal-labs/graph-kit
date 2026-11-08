@@ -2,12 +2,12 @@
 // Run: pnpm start:errors-public
 // No database needed: this builds errors by hand, the way the SDK does internally.
 
-import { graphErrors } from '@graph-om/sdk';
+import { GraphError } from '@graph-om/sdk';
 import { errorResponse, formatError, toPublic } from '@graph-om/sdk/errors';
 import { toGraphQLError } from '@graph-om/sdk/graphql';
 
 // An internal failure, with details that must never reach a client
-const internal = graphErrors.create('Failed to update User: record not found', {
+const internal = new GraphError('Failed to update User: record not found', {
   code: 'record_not_found',
   statusCode: 404,
   retry: { retryable: false },

@@ -2,7 +2,12 @@
 // Kuzu driver adapter - Kuzu is an embedded graph database
 // Uses native Node.js bindings or HTTP API
 
-import { classifyDriverError, driverErrorBoundary, raiseGraphError } from '../errors';
+import {
+  classifyDriverError,
+  connectionFailure,
+  driverErrorBoundary,
+  raiseGraphError,
+} from '../errors';
 import type {
   DriverAdapter,
   DriverCapabilities,
@@ -66,7 +71,6 @@ export class KuzuDriverAdapter implements DriverAdapter {
   private conn: KuzuConnection | null = null;
   private config: KuzuConfig;
   private capabilities: DriverCapabilities;
-  private transactionQueries: Array<{ cypher: string; params?: Record<string, unknown> }> = [];
 
   constructor(config: KuzuConfig) {
     this.config = config;
@@ -93,8 +97,19 @@ export class KuzuDriverAdapter implements DriverAdapter {
       );
     }
 
-    this.db = new kuzu.Database(this.config.databasePath);
-    this.conn = this.db.connect();
+    try {
+      this.db = new kuzu.Database(this.config.databasePath);
+      this.conn = this.db.connect();
+    } catch (error) {
+      this.db = null;
+      this.conn = null;
+      throw connectionFailure(
+        error,
+        'kuzu',
+        { databasePath: this.config.databasePath },
+        'Check that the database path is writable and not locked by another process.',
+      );
+    }
   }
 
   async disconnect(): Promise<void> {
@@ -138,46 +153,29 @@ export class KuzuDriverAdapter implements DriverAdapter {
       });
     }
 
-    this.transactionQueries = [];
-
+    // Each query runs immediately, so reads inside the transaction see their own writes.
+    // BEGIN/COMMIT/ROLLBACK provide the atomicity.
+    const conn = this.conn;
     const txc: TransactionContext = {
       run: async (query: string, params?: Record<string, unknown>) => {
-        this.transactionQueries.push({ cypher: query, params });
-        // Return empty result for now, actual execution happens on commit
-        return {
-          records: [],
-          summary: {
-            query: { text: query, parameters: params ?? {} },
-            counters: {},
-            notifications: [],
-            resultAvailableAfter: 0,
-            resultConsumedAfter: 0,
-            database: { name: 'kuzu' },
-          },
-          keys: [],
-        };
+        try {
+          return this.mapResult(await conn.query(query, params));
+        } catch (error) {
+          throw classifyDriverError(error, 'kuzu');
+        }
       },
     };
 
     const boundary = driverErrorBoundary('kuzu');
     try {
-      // Start transaction
-      await this.conn.query('BEGIN TRANSACTION');
-
+      await conn.query('BEGIN TRANSACTION');
       const result = await boundary.user(() => work(txc));
-
-      // Execute all queued queries
-      for (const { cypher, params } of this.transactionQueries) {
-        await this.conn?.query(cypher, params);
-      }
-
-      await this.conn.query('COMMIT');
+      await conn.query('COMMIT');
       return result;
     } catch (error) {
-      await this.conn.query('ROLLBACK');
+      // Best effort: a failing rollback must not hide the error that caused it
+      await conn.query('ROLLBACK').catch(() => {});
       throw boundary.classify(error);
-    } finally {
-      this.transactionQueries = [];
     }
   }
 

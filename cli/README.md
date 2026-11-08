@@ -13,7 +13,7 @@ Reads `graph-om.config.ts` (or `graph-om.config.json`) for the schema path, outp
 Generated files land in `src/__generated__` by default:
 
 - `types.ts` — node interfaces, `Where`, `CreateInput`, `UpdateInput` types
-- `client.ts` — `createClient()` factory wiring `@graph-om/neo4j` to `GraphClient`
+- `client.ts` — `createClient()` factory wiring `@graph-om/sdk/driver/neo4j` to `GraphClient`
 - `zod.ts` — Zod schemas (when `output.zod: true`)
 
 ## License

@@ -1,9 +1,5 @@
 ---
 "@graph-om/sdk": minor
-"@graph-om/neo4j": minor
-"@graph-om/memgraph": minor
-"@graph-om/kuzu": minor
-"@graph-om/falkordb": minor
 "@graph-om/migrate": patch
 "@graph-om/mcp": patch
 "@graph-om/cli": patch

@@ -4,7 +4,7 @@
 // The migration modules are imported explicitly. `loadMigrations()` in @graph-om/sdk does not
 // import files yet, so the list is built here from the files in ../migrations.
 
-import { createNeo4jDriver } from '@graph-om/neo4j';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 import { createMigrationRunner, type Migration } from '@graph-om/sdk/migration';
 import { migration as initialSchema } from '../migrations/20240115143000_initial_schema.js';
 import { migration as addUserBio } from '../migrations/20240116100000_add_user_bio.js';

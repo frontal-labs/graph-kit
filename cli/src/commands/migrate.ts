@@ -2,8 +2,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { createNeo4jDriver } from '@graph-om/neo4j';
 import { env } from '@graph-om/sdk';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 import { raiseGraphError } from '@graph-om/sdk/errors';
 import {
   createMigrationRunner,

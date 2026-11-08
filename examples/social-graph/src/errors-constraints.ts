@@ -2,8 +2,8 @@
 // Run: pnpm start:errors-constraints
 // Needs a running Neo4j (docker compose up -d from the repo root).
 
-import { createNeo4jDriver } from '@graph-om/neo4j';
 import { GraphClient, hasCode } from '@graph-om/sdk';
+import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
 import { graph } from './schema.js';
 
 const driver = createNeo4jDriver({
