@@ -25,7 +25,7 @@ A schema-first TypeScript library for modelling, querying, and traversing graph 
 | Package | Description |
 | --- | --- |
 | [`@graph-om/sdk`](./packages/sdk) | Schema DSL, Cypher query compiler, typed client, config system |
-| [`@graph-om/cli`](./cli) | `graph init` and `graph generate` codegen |
+| [`@graph-om/cli`](./packages/cli) | `graph init` and `graph generate` codegen |
 | [`@graph-om/zod`](./packages/zod) | Zod schema generation and validation from node configs |
 
 ## Quick start

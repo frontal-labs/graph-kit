@@ -218,14 +218,14 @@
   },
   {
     "name": "@graph-om/cli bin (import)",
-    "path": "cli/dist/index.mjs",
+    "path": "packages/cli/dist/index.mjs",
     "gzip": true,
     "brotli": false,
     "limit": "13300 B"
   },
   {
     "name": "@graph-om/cli (require)",
-    "path": "cli/dist/index.js",
+    "path": "packages/cli/dist/index.js",
     "gzip": true,
     "brotli": false,
     "limit": "13500 B"

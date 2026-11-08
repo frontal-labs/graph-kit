@@ -14,7 +14,7 @@
 /packages/zod/      @frontal-labs
 
 # CLI
-/cli/               @frontal-labs
+/packages/cli/        @frontal-labs
 
 # Examples
 /examples/          @frontal-labs

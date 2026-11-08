@@ -1,4 +1,4 @@
-// The CLI version, injected at build time from cli/package.json (see tsup.config.ts)
+// The CLI version, injected at build time from packages/cli/package.json (see tsup.config.ts)
 declare const __GRAPH_OM_CLI_VERSION__: string | undefined;
 
 export function cliVersion(): string {

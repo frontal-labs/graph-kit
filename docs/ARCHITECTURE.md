@@ -31,7 +31,7 @@ Multiple driver adapters implement the `DriverAdapter` interface:
 
 All adapters abstract connection management and query execution behind a common interface.
 
-### 5. CLI (`cli/`)
+### 5. CLI (`packages/cli/`)
 
 `@graph-om/cli` provides `graph-om init` (scaffolding) and `graph-om generate` (code generation from schema).
 
@@ -69,7 +69,7 @@ Driver Adapter (query execution)
 
 ```
 graph-om/
-├── cli/                    # @graph-om/cli — scaffolding + codegen
+├── packages/cli/           # @graph-om/cli — scaffolding + codegen
 ├── packages/sdk/          # @graph-om/sdk — schema, compiler, client, config
 │   ├── sdk/driver/        # @graph-om/sdk/driver/* — Neo4j, Memgraph, Kuzu, FalkorDB adapters (inside packages/sdk)
 ├── packages/zod/           # @graph-om/zod — zod validation

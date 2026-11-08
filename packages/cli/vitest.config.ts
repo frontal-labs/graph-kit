@@ -23,27 +23,27 @@ export default defineConfig({
       // Exact matches only, so '@graph-om/sdk' does not swallow its subpaths
       {
         find: /^@graph-om\/sdk$/,
-        replacement: path.resolve(__dirname, '../packages/sdk/src/index.ts'),
+        replacement: path.resolve(__dirname, '../sdk/src/index.ts'),
       },
       {
         find: /^@graph-om\/sdk\/driver\/(neo4j|memgraph|kuzu|falkordb)$/,
-        replacement: path.resolve(__dirname, '../packages/sdk/src/driver/$1.ts'),
+        replacement: path.resolve(__dirname, '../sdk/src/driver/$1.ts'),
       },
       {
         find: /^@graph-om\/sdk\/(schema|client|query|config|driver|migration|seed|visualization|testing|graphql|batch|auth|observability|otel|benchmark)$/,
-        replacement: path.resolve(__dirname, '../packages/sdk/src/$1/index.ts'),
+        replacement: path.resolve(__dirname, '../sdk/src/$1/index.ts'),
       },
       {
         find: '@graph-om/zod',
-        replacement: path.resolve(__dirname, '../packages/zod/src/index.ts'),
+        replacement: path.resolve(__dirname, '../zod/src/index.ts'),
       },
       {
         find: '@graph-om/testing',
-        replacement: path.resolve(__dirname, '../packages/testing/src/index.ts'),
+        replacement: path.resolve(__dirname, '../testing/src/index.ts'),
       },
       {
         find: '@graph-om/migrate',
-        replacement: path.resolve(__dirname, '../packages/migrate/src/index.ts'),
+        replacement: path.resolve(__dirname, '../migrate/src/index.ts'),
       },
     ],
   },

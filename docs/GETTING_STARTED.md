@@ -6,7 +6,7 @@ Graph-OM is a TypeScript OGM (Object-Graph Mapper) for graph databases, starting
 
 ```
 graph-om/
-├── cli/                  # @graph-om/cli — graph-om init / graph-om generate
+│   ├── cli/              # @graph-om/cli — graph-om init / graph-om generate
 ├── packages/
 │   ├── sdk/              # @graph-om/sdk — schema DSL, Cypher compiler, client, config, drivers
 │   │   └── src/driver/   #   Neo4j, Memgraph, Kuzu and FalkorDB adapters

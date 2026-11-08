@@ -43,7 +43,7 @@ Requirements: Node.js ≥ 20, pnpm 9 (`corepack enable` recommended).
 
 ## Project Layout
 
-- `cli/` — `@graph-om/cli` — `graph-om init` / `graph-om generate`
+- `packages/cli/` — `@graph-om/cli` — `graph-om init` / `graph-om generate`
 - `packages/sdk/` — `@graph-om/sdk` — schema DSL, Cypher compiler, client, config
 - `packages/sdk/src/driver/` — `@graph-om/sdk/driver/*` — DriverAdapter implementations (Neo4j, Memgraph, Kuzu, FalkorDB)
 - `packages/zod/` — `@graph-om/zod` — Zod validation integration
