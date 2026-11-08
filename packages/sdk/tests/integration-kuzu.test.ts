@@ -65,6 +65,14 @@ describe('Kuzu integration', () => {
     expect(linus.records).toEqual([]);
   });
 
+  it('returns a node with its properties', async () => {
+    const result = await driver.runQuery("MATCH (p:Person {name: 'Ada'}) RETURN p");
+    const node = result.records[0]?.get('p') as Record<string, unknown>;
+
+    // Kuzu returns nodes as plain objects: the property values sit beside the internal _ID and _LABEL
+    expect(node).toMatchObject({ name: 'Ada', age: 36 });
+  });
+
   it('classifies a malformed query as query_failed with the driver error as cause', async () => {
     const error = await driver.runQuery('MATCH (p:Person RETURN p').catch((e: unknown) => e);
 

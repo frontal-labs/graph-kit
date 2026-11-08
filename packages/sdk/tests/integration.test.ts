@@ -3,7 +3,7 @@
 // Run: docker compose up -d && NEO4J_URI=bolt://localhost:7687 NEO4J_USER=neo4j NEO4J_PASSWORD=password pnpm test
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { GraphClient } from '../src/client';
-import { node, relation, schema as sch, string } from '../src/schema';
+import { date, node, relation, schema as sch, string } from '../src/schema';
 import type { DriverAdapter } from '../src/types';
 
 const uri = process.env['NEO4J_URI'];
@@ -19,6 +19,7 @@ describeIntegration('GraphClient integration (live Neo4j)', () => {
   const User = node('ItUser')
     .add('id', string({ primary: true }))
     .add('name', string())
+    .add('joinedAt', date({ nullable: true }))
     .add('friend', relation('IT_FOLLOWS', 'OUT', 'ItUser', { multiple: true }))
     .build();
 
@@ -63,6 +64,17 @@ describeIntegration('GraphClient integration (live Neo4j)', () => {
     const gone = await client.findUnique('ItUser', { where: { id: 'i1' } });
     expect(gone).toBeNull();
   }, 20_000);
+
+  it('stores Date fields and reads them back as Dates', async () => {
+    const joinedAt = new Date('2024-05-01T10:00:00Z');
+    await client.create('ItUser', { data: { id: 'it-date', name: 'Dated', joinedAt } });
+
+    const found = await client.findUnique<{ joinedAt: Date }>('ItUser', {
+      where: { id: 'it-date' },
+    });
+    expect(found?.joinedAt).toBeInstanceOf(Date);
+    expect(found?.joinedAt.toISOString()).toBe(joinedAt.toISOString());
+  });
 
   it('upserts by primary key', async () => {
     const first = await client.upsert('ItUser', {

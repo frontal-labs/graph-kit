@@ -77,6 +77,7 @@ async function runSeed(file: string, clear: boolean): Promise<void> {
   await driver.connect();
 
   const seedManager = createSeedManager({ driver, schema });
+  let failures = 0;
 
   try {
     if (clear) {
@@ -93,7 +94,7 @@ async function runSeed(file: string, clear: boolean): Promise<void> {
       const data = await seedData(seedManager);
       if (data) {
         const results = await seedManager.seed(data);
-        printSeedResults(results);
+        failures += printSeedResults(results);
       }
     } else if (Array.isArray(seedData)) {
       // It's an array of seed operations
@@ -106,13 +107,17 @@ async function runSeed(file: string, clear: boolean): Promise<void> {
             seedManager.registerFactory(op.label, factory);
           }
           const results = await seedManager.seedWithFactories({ [op.label]: op.count });
-          printSeedResults(results);
+          failures += printSeedResults(results);
         }
       }
     } else {
       // Assume it's seed data object
       const results = await seedManager.seed(seedData);
-      printSeedResults(results);
+      failures += printSeedResults(results);
+    }
+    if (failures > 0) {
+      console.error(`${failures} record(s) failed to seed`);
+      process.exitCode = 1;
     }
   } finally {
     await driver.disconnect();
@@ -121,7 +126,7 @@ async function runSeed(file: string, clear: boolean): Promise<void> {
 
 async function createSeedFile(name: string, template: string): Promise<void> {
   const projectRoot = process.cwd();
-  const seedDir = path.join(projectRoot, 'prisma', 'seed');
+  const seedDir = path.join(projectRoot, 'seed');
   fs.mkdirSync(seedDir, { recursive: true });
 
   const fileName = `${name}.ts`;
@@ -220,15 +225,27 @@ async function clearSeed(labels: string[]): Promise<void> {
 }
 
 function printSeedResults(
-  results: Array<{ label: string; created: number; failed: number }>,
-): void {
+  results: Array<{
+    label: string;
+    created: number;
+    failed: number;
+    errors?: Array<{ error: Error }>;
+  }>,
+): number {
   console.log('\nSeed Results:');
   console.log('────────────────────────────────────────');
+  let failures = 0;
   for (const result of results) {
     const status = result.failed > 0 ? '⚠' : '✓';
     console.log(
       `${status} ${result.label}: ${result.created} created${result.failed > 0 ? `, ${result.failed} failed` : ''}`,
     );
+    // Show why records failed, a few at a time: the usual cause is a unique constraint
+    for (const { error } of (result.errors ?? []).slice(0, 3)) {
+      console.log(`    - ${error.message}`);
+    }
+    failures += result.failed;
   }
   console.log('');
+  return failures;
 }

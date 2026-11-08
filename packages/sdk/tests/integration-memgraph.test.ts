@@ -40,6 +40,26 @@ describeIntegration('Memgraph integration', () => {
     expect(result.records[0]?.toObject()).toEqual({ name: 'Ada', age: 36, nothing: null });
   });
 
+  it('returns nodes with their labels and properties, and round-trips dates', async () => {
+    const joinedAt = new Date('2024-05-01T10:00:00Z');
+    await driver.runQuery('CREATE (:Member {name: $name, joinedAt: $joinedAt})', {
+      name: 'Ada',
+      joinedAt,
+    });
+    const result = await driver.runQuery('MATCH (m:Member {name: $name}) RETURN m', {
+      name: 'Ada',
+    });
+    const node = result.records[0]?.get('m') as {
+      labels: string[];
+      properties: { name: string; joinedAt: Date };
+    };
+
+    expect(node.labels).toEqual(['Member']);
+    expect(node.properties.name).toBe('Ada');
+    expect(node.properties.joinedAt).toBeInstanceOf(Date);
+    expect(node.properties.joinedAt.toISOString()).toBe(joinedAt.toISOString());
+  });
+
   it('commits a transaction so later reads see it', async () => {
     await driver.runInTransaction(async (tx) => {
       await tx.run("CREATE (:Person {name: 'Grace'})");
