@@ -1,6 +1,7 @@
 // @graph-om/sdk/src/visualization/index.ts
 // Schema visualization and ER diagram generation for Graph-OM
 
+import { raiseGraphError } from '../errors';
 import type { GraphSchemaRegistry, NodeConfig, PropertyConfig, RelationConfig } from '../types';
 
 export interface VisualizationOptions {
@@ -48,7 +49,11 @@ export function generateERDiagram(config: ERDiagramConfig): string {
         direction,
       });
     default:
-      throw new Error(`Unsupported format: ${String(format)}`);
+      raiseGraphError(`Unsupported format: ${String(format)}`, {
+        code: 'unsupported_option',
+        statusCode: 400,
+        retry: { retryable: false },
+      });
   }
 }
 
@@ -363,7 +368,11 @@ export function generateDocumentation(
         includeConstraints: true,
       });
     default:
-      throw new Error(`Unsupported format: ${format}`);
+      raiseGraphError(`Unsupported format: ${format}`, {
+        code: 'unsupported_option',
+        statusCode: 400,
+        retry: { retryable: false },
+      });
   }
 }
 

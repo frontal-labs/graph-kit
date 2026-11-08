@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { type ParsedNode, parseSchemaFile } from '@graph-om/sdk';
+import { raiseGraphError } from '@graph-om/sdk/errors';
 
 interface GenerateOptions {
   watch?: boolean;
@@ -294,9 +295,10 @@ export function runGenerate(projectRoot: string): GenerateResult {
   const { schemaPath, outputDir, zod, exclude } = loadProjectConfig(projectRoot);
 
   if (!fs.existsSync(schemaPath)) {
-    throw new Error(
+    raiseGraphError(
       `Schema file not found at ${schemaPath}. ` +
         `Check the "schema" field in graph-om.config.ts or run \`graph-om init\`.`,
+      { code: 'invalid_config', statusCode: 400, retry: { retryable: false } },
     );
   }
 

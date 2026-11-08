@@ -5,6 +5,7 @@ export default defineConfig({
     'src/index.ts',
     'src/schema/index.ts',
     'src/client/index.ts',
+    'src/errors/index.ts',
     'src/query/index.ts',
     'src/config/index.ts',
     'src/driver/index.ts',
@@ -30,6 +31,8 @@ export default defineConfig({
   clean: true,
   treeshake: true,
   external: ['neo4j-driver', 'zod', 'ioredis', '@redis/client', 'kuzu'],
+  // @frontal-labs/error is ESM-only; bundle it so the CJS build keeps working.
+  noExternal: ['@frontal-labs/error'],
   banner: {
     js: '// @graph-om/sdk - Prisma-like DX for graph databases',
   },

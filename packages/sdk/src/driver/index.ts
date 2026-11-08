@@ -1,6 +1,8 @@
 // @graph-om/sdk/src/driver/index.ts
 // Driver adapter abstraction for multi-database support (types only - implementations in separate packages)
 
+import { raiseGraphError } from '../errors';
+
 // Kuzu driver config (defined here to avoid Rollup static analysis issues with kuzu.ts)
 export interface KuzuConfig {
   type: 'kuzu';
@@ -26,7 +28,12 @@ export interface KuzuDriverAdapter {
 
 // Factory function for Kuzu driver (synchronous version - throws error to guide user to async version)
 export function createKuzuDriver(_config: KuzuConfig): KuzuDriverAdapter {
-  throw new Error('Kuzu driver requires async initialization. Use createKuzuDriverAsync instead.');
+  raiseGraphError('Kuzu driver requires async initialization. Use createKuzuDriverAsync instead.', {
+    code: 'unsupported_option',
+    statusCode: 400,
+    retry: { retryable: false },
+    attributes: { 'db.system': 'kuzu' },
+  });
 }
 
 // Async version of the factory function
@@ -170,7 +177,12 @@ export function createDriver(config: AnyDriverConfig): DriverAdapter {
   const factory = getDriverFactory(config.type);
   if (!factory) {
     const available = [...driverRegistry.keys()].join(', ');
-    throw new Error(`Unknown driver type: "${config.type}". Available: ${available || 'none'}`);
+    raiseGraphError(`Unknown driver type: "${config.type}". Available: ${available || 'none'}`, {
+      code: 'invalid_config',
+      statusCode: 400,
+      retry: { retryable: false },
+      metadata: { type: config.type },
+    });
   }
   return factory(config);
 }

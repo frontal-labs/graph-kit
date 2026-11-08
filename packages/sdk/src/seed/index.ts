@@ -1,6 +1,7 @@
 // @graph-om/sdk/src/seed/index.ts
 // Seed/Fixture system for Graph-OM - database seeding and test data generation
 
+import { raiseGraphError } from '../errors';
 import type { AnyNodeConfig, DriverAdapter, GraphSchemaRegistry } from '../types';
 
 export interface SeedConfig {
@@ -100,7 +101,12 @@ export class SeedManager {
     for (const [label, count] of Object.entries(counts)) {
       const factory = this.factories.get(label);
       if (!factory) {
-        throw new Error(`No factory registered for label: ${label}`);
+        raiseGraphError(`No factory registered for label: ${label}`, {
+          code: 'invalid_argument',
+          statusCode: 400,
+          retry: { retryable: false },
+          metadata: { label },
+        });
       }
       data[label] = Array.from({ length: count }, (_, i) => factory({}, i));
     }
@@ -259,7 +265,12 @@ export const Fixtures = {
   },
 
   randomFromArray: <T>(arr: T[]): T => {
-    if (arr.length === 0) throw new Error('Cannot pick from empty array');
+    if (arr.length === 0)
+      raiseGraphError('Cannot pick from empty array', {
+        code: 'invalid_argument',
+        statusCode: 400,
+        retry: { retryable: false },
+      });
     return arr[Math.floor(Math.random() * arr.length)] as T;
   },
 

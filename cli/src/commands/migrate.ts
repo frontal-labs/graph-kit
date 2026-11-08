@@ -4,6 +4,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createNeo4jDriver } from '@graph-om/neo4j';
 import { env } from '@graph-om/sdk';
+import { raiseGraphError } from '@graph-om/sdk/errors';
 import {
   createMigrationRunner,
   createMigrationTemplate,
@@ -306,12 +307,21 @@ async function loadMigrationFiles(migrationsDir: string): Promise<Migration[]> {
       mod = (await import(pathToFileURL(filePath).href)) as typeof mod;
     } catch (error) {
       const reason = error instanceof Error ? error.message : String(error);
-      throw new Error(`Failed to load migration ${file}: ${reason}`);
+      raiseGraphError(`Failed to load migration ${file}: ${reason}`, {
+        code: 'migration_failed',
+        statusCode: 500,
+        retry: { retryable: false },
+        cause: error,
+      });
     }
 
     const migration = mod.migration ?? mod.default;
     if (!migration || migration.version !== version) {
-      throw new Error(`Migration ${file} must export a migration with version ${version}`);
+      raiseGraphError(`Migration ${file} must export a migration with version ${version}`, {
+        code: 'migration_failed',
+        statusCode: 500,
+        retry: { retryable: false },
+      });
     }
     migrations.push(migration);
   }

@@ -2,6 +2,7 @@
 // FalkorDB driver adapter - FalkorDB is Redis-based graph database
 // Uses Redis Stack / RedisGraph protocol (Redis modules)
 
+import { classifyDriverError, raiseGraphError } from '../errors';
 import type {
   DriverAdapter,
   DriverCapabilities,
@@ -84,11 +85,19 @@ async function loadRedis(): Promise<{ createClient: (options: RedisOptions) => R
       };
     }
     if (!redisModule) {
-      throw new Error('Redis client not installed. Run: pnpm add ioredis or /client');
+      raiseGraphError('Redis client not installed. Run: pnpm add ioredis or /client', {
+        code: 'invalid_config',
+        statusCode: 400,
+        retry: { retryable: false },
+      });
     }
     return redisModule;
   } catch {
-    throw new Error('Redis client not installed. Run: pnpm add ioredis or @redis/client');
+    raiseGraphError('Redis client not installed. Run: pnpm add ioredis or @redis/client', {
+      code: 'invalid_config',
+      statusCode: 400,
+      retry: { retryable: false },
+    });
   }
 }
 
@@ -163,7 +172,14 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
   }
 
   private async selectGraph(graphName: string): Promise<void> {
-    if (!this.client) throw new Error('Not connected');
+    if (!this.client) {
+      raiseGraphError('Not connected', {
+        code: 'driver_not_connected',
+        statusCode: 500,
+        retry: { retryable: false },
+        attributes: { 'db.system': 'falkordb' },
+      });
+    }
     // GRAPH.SELECT is not a standard command, graphs are selected via GRAPH.QUERY
     // We just store the name for query prefixing
     this.selectedGraph = graphName;
@@ -171,21 +187,34 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
 
   async runQuery(cypher: string, params?: Record<string, unknown>): Promise<QueryResult> {
     if (!this.client) {
-      throw new Error('FalkorDB not connected. Call connect() first.');
+      raiseGraphError('FalkorDB not connected. Call connect() first.', {
+        code: 'driver_not_connected',
+        statusCode: 500,
+        retry: { retryable: false },
+        attributes: { 'db.system': 'falkordb' },
+      });
     }
 
     // Convert params to FalkorDB format
     const paramArgs = params ? Object.entries(params).flatMap(([k, v]) => [k, String(v)]) : [];
 
     const command: string[] = ['GRAPH.QUERY', this.selectedGraph, cypher, ...paramArgs];
-    const result = await this.client.sendCommand(command, []);
-
-    return this.mapResult(result, cypher, params);
+    try {
+      const result = await this.client.sendCommand(command, []);
+      return this.mapResult(result, cypher, params);
+    } catch (error) {
+      throw classifyDriverError(error, 'falkordb');
+    }
   }
 
   async runInTransaction<T>(work: (txc: TransactionContext) => Promise<T>): Promise<T> {
     if (!this.client) {
-      throw new Error('FalkorDB not connected. Call connect() first.');
+      raiseGraphError('FalkorDB not connected. Call connect() first.', {
+        code: 'driver_not_connected',
+        statusCode: 500,
+        retry: { retryable: false },
+        attributes: { 'db.system': 'falkordb' },
+      });
     }
 
     const queries: Array<{ cypher: string; params?: Record<string, unknown> }> = [];
@@ -208,11 +237,18 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
       },
     };
 
+    let workFailed = false;
     try {
       // Start transaction with MULTI
       await this.client.sendCommand(['MULTI'], []);
 
-      const result = await work(txc);
+      let result: T;
+      try {
+        result = await work(txc);
+      } catch (error) {
+        workFailed = true;
+        throw error;
+      }
 
       // Execute all queries
       for (const { cypher, params } of queries) {
@@ -228,7 +264,7 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
     } catch (error) {
       // Discard transaction
       await this.client.sendCommand(['DISCARD'], []).catch(() => {});
-      throw error;
+      throw workFailed ? error : classifyDriverError(error, 'falkordb');
     }
   }
 

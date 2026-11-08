@@ -1,6 +1,7 @@
 // @graph-om/cli/src/index.ts
 // CLI entry point
 
+import { formatError } from '@graph-om/sdk/errors';
 import { Command } from 'commander';
 import { createDiffCommand } from './commands/diff.js';
 import { generateCommand } from './commands/generate.js';
@@ -56,5 +57,11 @@ function isExecutedDirectly(): boolean {
 }
 
 if (isExecutedDirectly()) {
-  createProgram().parse();
+  createProgram()
+    .parseAsync()
+    .catch((error: unknown) => {
+      // `auto` respects NO_COLOR and TTY detection; the CLI has no --no-color flag.
+      process.stderr.write(`${formatError(error as Error, { format: 'auto' })}\n`);
+      process.exitCode = 1;
+    });
 }

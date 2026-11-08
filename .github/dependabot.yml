@@ -38,6 +38,10 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    groups:
+      frontal-error:
+        patterns:
+          - "@frontal-labs/error"
 
   - package-ecosystem: "npm"
     directory: "/packages/neo4j"

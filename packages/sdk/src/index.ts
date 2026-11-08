@@ -81,6 +81,18 @@ export {
   type TransactionContext,
 } from './driver';
 export {
+  FrontalError,
+  GraphError,
+  type GraphErrorCode,
+  type GraphErrorOptions,
+  getRootCause,
+  graphErrors,
+  hasCode,
+  isFrontalError,
+  mapDriverError,
+  type RetryPolicy,
+} from './errors';
+export {
   type ApolloServerConfig,
   BigIntScalar,
   createApolloServerConfig,

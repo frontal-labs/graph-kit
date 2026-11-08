@@ -23,7 +23,8 @@
   ],
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "THIRD_PARTY_NOTICES.md"
   ],
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -43,6 +44,11 @@
       "types": "./dist/client/index.d.ts",
       "import": "./dist/client/index.mjs",
       "require": "./dist/client/index.js"
+    },
+    "./errors": {
+      "types": "./dist/errors/index.d.ts",
+      "import": "./dist/errors/index.mjs",
+      "require": "./dist/errors/index.js"
     },
     "./query": {
       "types": "./dist/query/index.d.ts",
@@ -173,6 +179,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
+    "@frontal-labs/error": "0.7.0",
     "@t3-oss/env-core": "^0.13.11",
     "neo4j-driver": "^5.14.0",
     "typescript": "^5.9.3",

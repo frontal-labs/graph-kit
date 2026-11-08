@@ -2,6 +2,7 @@
 // Kuzu driver adapter - Kuzu is an embedded graph database
 // Uses native Node.js bindings or HTTP API
 
+import { classifyDriverError, raiseGraphError } from '../errors';
 import type {
   DriverAdapter,
   DriverCapabilities,
@@ -45,7 +46,11 @@ async function loadKuzu(): Promise<KuzuModule> {
     kuzuModule = mod;
     return kuzuModule;
   } catch {
-    throw new Error('Kuzu driver not installed. Run: pnpm add kuzu');
+    raiseGraphError('Kuzu driver not installed. Run: pnpm add kuzu', {
+      code: 'invalid_config',
+      statusCode: 400,
+      retry: { retryable: false },
+    });
   }
 }
 
@@ -83,8 +88,9 @@ export class KuzuDriverAdapter implements DriverAdapter {
 
     if (this.config.uri) {
       // Network mode - would need HTTP client
-      throw new Error(
+      raiseGraphError(
         'Kuzu network mode not yet implemented. Use embedded mode with databasePath.',
+        { code: 'unsupported_option', statusCode: 400, retry: { retryable: false } },
       );
     }
 
@@ -102,7 +108,12 @@ export class KuzuDriverAdapter implements DriverAdapter {
 
   async runQuery(cypher: string, params?: Record<string, unknown>): Promise<QueryResult> {
     if (!this.conn) {
-      throw new Error('Kuzu not connected. Call connect() first.');
+      raiseGraphError('Kuzu not connected. Call connect() first.', {
+        code: 'driver_not_connected',
+        statusCode: 500,
+        retry: { retryable: false },
+        attributes: { 'db.system': 'kuzu' },
+      });
     }
 
     // Kuzu uses parameterized queries with $param syntax
@@ -112,13 +123,22 @@ export class KuzuDriverAdapter implements DriverAdapter {
     // Convert Neo4j $param syntax to Kuzu $param syntax (they're the same)
     // No conversion needed for basic parameters
 
-    const result = await this.conn.query(finalCypher, params);
-    return this.mapResult(result);
+    try {
+      const result = await this.conn.query(finalCypher, params);
+      return this.mapResult(result);
+    } catch (error) {
+      throw classifyDriverError(error, 'kuzu');
+    }
   }
 
   async runInTransaction<T>(work: (txc: TransactionContext) => Promise<T>): Promise<T> {
     if (!this.conn) {
-      throw new Error('Kuzu not connected. Call connect() first.');
+      raiseGraphError('Kuzu not connected. Call connect() first.', {
+        code: 'driver_not_connected',
+        statusCode: 500,
+        retry: { retryable: false },
+        attributes: { 'db.system': 'kuzu' },
+      });
     }
 
     this.transactionQueries = [];
@@ -142,11 +162,18 @@ export class KuzuDriverAdapter implements DriverAdapter {
       },
     };
 
+    let workFailed = false;
     try {
       // Start transaction
       await this.conn.query('BEGIN TRANSACTION');
 
-      const result = await work(txc);
+      let result: T;
+      try {
+        result = await work(txc);
+      } catch (error) {
+        workFailed = true;
+        throw error;
+      }
 
       // Execute all queued queries
       for (const { cypher, params } of this.transactionQueries) {
@@ -157,7 +184,7 @@ export class KuzuDriverAdapter implements DriverAdapter {
       return result;
     } catch (error) {
       await this.conn.query('ROLLBACK');
-      throw error;
+      throw workFailed ? error : classifyDriverError(error, 'kuzu');
     } finally {
       this.transactionQueries = [];
     }

@@ -1,6 +1,7 @@
 // @graph-om/sdk/src/otel/index.ts
 // OpenTelemetry integration for Graph-OM
 
+import { errorCode, isFrontalError } from '../errors';
 import type { MetricsCollector } from '../observability';
 import type { DriverAdapter, QueryResult, TransactionContext } from '../types';
 
@@ -172,6 +173,16 @@ class NoopMeter implements Meter {
 let globalTracer: Tracer = new NoopTracer();
 let globalMeter: Meter = new NoopMeter();
 let isInitialized = false;
+
+/** Tag a span with the graph-om error code and HTTP-style status, when the error has them. */
+function setErrorCode(span: Span, error: unknown): void {
+  const code = errorCode(error);
+  if (code === undefined) return;
+  span.setAttribute('error.code', code);
+  if (isFrontalError(error) && error.statusCode !== undefined) {
+    span.setAttribute('error.status_code', error.statusCode);
+  }
+}
 
 export function getTracer(): Tracer {
   return globalTracer;
@@ -345,6 +356,7 @@ export class TracedDriverAdapter implements DriverAdapter {
     } catch (error) {
       span.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message });
       span.recordException(error as Error);
+      setErrorCode(span, error);
       attributes.error = true;
       throw error;
     } finally {
@@ -388,6 +400,7 @@ export class TracedDriverAdapter implements DriverAdapter {
                 message: (error as Error).message,
               });
               childSpan.recordException(error as Error);
+              setErrorCode(childSpan, error);
               throw error;
             } finally {
               childSpan.end();
@@ -402,6 +415,7 @@ export class TracedDriverAdapter implements DriverAdapter {
     } catch (error) {
       span.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message });
       span.recordException(error as Error);
+      setErrorCode(span, error);
       throw error;
     } finally {
       span.end();

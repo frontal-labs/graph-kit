@@ -1,6 +1,7 @@
 // @graph-om/sdk/src/graphql/index.ts
 // GraphQL layer for Graph-OM - generates GraphQL schema from Graph-OM schema
 
+import { errorResponse, raiseGraphError, toPublic } from '../errors';
 import type { GraphSchemaRegistry, NodeConfig, PropertyConfig } from '../types';
 
 export interface GraphQLSchemaConfig {
@@ -284,7 +285,11 @@ export const DateTimeScalar: GraphQLScalarConfig = {
   parseValue: (value: unknown) => {
     if (typeof value === 'string') return new Date(value);
     if (value instanceof Date) return value;
-    throw new Error('DateTime must be a string or Date');
+    raiseGraphError('DateTime must be a string or Date', {
+      code: 'invalid_argument',
+      statusCode: 400,
+      retry: { retryable: false },
+    });
   },
   parseLiteral: (ast: unknown) => {
     // Simplified - in real implementation would parse GraphQL AST
@@ -391,7 +396,43 @@ export function generateResolvers(config: GraphQLResolversConfig): Record<string
     }
   }
 
-  return { Query: query, Mutation: mutation, ...nodeResolvers };
+  return {
+    Query: wrapResolvers(query),
+    Mutation: wrapResolvers(mutation),
+    ...Object.fromEntries(
+      Object.entries(nodeResolvers).map(([label, resolvers]) => [label, wrapResolvers(resolvers)]),
+    ),
+  };
+}
+
+type Resolver = (...args: unknown[]) => Promise<unknown>;
+
+/**
+ * Turn any thrown error into one a GraphQL server can send: the public message
+ * as `message`, and the client-safe error object as `extensions` (graphql-js
+ * copies `extensions` from the thrown error onto the GraphQLError).
+ */
+export function toGraphQLError(error: unknown): Error {
+  const publicError = toPublic(error);
+  const { error: clientError } = JSON.parse(errorResponse(publicError).body) as {
+    error: Record<string, unknown>;
+  };
+  return Object.assign(publicError, { extensions: clientError });
+}
+
+function wrapResolvers(resolvers: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(resolvers).map(([name, fn]) => [
+      name,
+      async (...args: unknown[]) => {
+        try {
+          return await (fn as Resolver)(...args);
+        } catch (error) {
+          throw toGraphQLError(error);
+        }
+      },
+    ]),
+  );
 }
 
 // Integration with popular GraphQL servers
@@ -403,8 +444,9 @@ export interface ApolloServerConfig {
 }
 
 export function createApolloServerConfig(_config: ApolloServerConfig): unknown {
-  throw new Error(
+  raiseGraphError(
     'createApolloServerConfig() is not implemented. Pass generateGraphQLSchema() and generateResolvers() to your Apollo Server instance directly.',
+    { code: 'unsupported_option', statusCode: 400, retry: { retryable: false } },
   );
 }
 
@@ -415,7 +457,8 @@ export interface GraphQLYogaConfig {
 }
 
 export function createGraphQLYogaConfig(_config: GraphQLYogaConfig): unknown {
-  throw new Error(
+  raiseGraphError(
     'createGraphQLYogaConfig() is not implemented. Pass generateGraphQLSchema() and generateResolvers() to your Yoga server directly.',
+    { code: 'unsupported_option', statusCode: 400, retry: { retryable: false } },
   );
 }

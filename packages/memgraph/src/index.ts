@@ -9,6 +9,7 @@ import type {
   QueryResult,
   TransactionContext,
 } from '@graph-om/sdk';
+import { classifyDriverError, raiseGraphError } from '@graph-om/sdk/errors';
 import neo4j, {
   type Driver,
   type ManagedTransaction as Neo4jManagedTransaction,
@@ -60,7 +61,19 @@ export class MemgraphDriverAdapter implements DriverAdapter {
   }
 
   async connect(): Promise<void> {
-    await this.driver.verifyConnectivity();
+    try {
+      await this.driver.verifyConnectivity();
+    } catch (error) {
+      raiseGraphError(error instanceof Error ? error.message : String(error), {
+        code: 'connection_failed',
+        statusCode: 503,
+        retry: { retryable: true },
+        cause: error,
+        fix: 'Check the Memgraph URI, credentials, and that the database is reachable.',
+        metadata: { uri: this.config.uri },
+        attributes: { 'db.system': 'memgraph' },
+      });
+    }
   }
 
   async disconnect(): Promise<void> {
@@ -72,6 +85,8 @@ export class MemgraphDriverAdapter implements DriverAdapter {
     try {
       const result = await session.run(cypher, params);
       return this.mapResult(result);
+    } catch (error) {
+      throw classifyDriverError(error, 'memgraph');
     } finally {
       await session.close();
     }
@@ -79,11 +94,16 @@ export class MemgraphDriverAdapter implements DriverAdapter {
 
   async runInTransaction<T>(work: (txc: TransactionContext) => Promise<T>): Promise<T> {
     const session = this.driver.session({ database: this.config.database });
+    let workFailed = false;
     try {
       const result = await session.executeWrite(async (txc) => {
-        return work(this.createTransactionContext(txc));
+        return this.runWork(work, txc, () => {
+          workFailed = true;
+        });
       });
       return result;
+    } catch (error) {
+      throw workFailed ? error : classifyDriverError(error, 'memgraph');
     } finally {
       await session.close();
     }
@@ -94,11 +114,16 @@ export class MemgraphDriverAdapter implements DriverAdapter {
       database: this.config.database,
       defaultAccessMode: neo4j.session.READ,
     });
+    let workFailed = false;
     try {
       const result = await session.executeRead(async (txc) => {
-        return work(this.createTransactionContext(txc));
+        return this.runWork(work, txc, () => {
+          workFailed = true;
+        });
       });
       return result;
+    } catch (error) {
+      throw workFailed ? error : classifyDriverError(error, 'memgraph');
     } finally {
       await session.close();
     }
@@ -121,7 +146,12 @@ export class MemgraphDriverAdapter implements DriverAdapter {
       );
       const record = result.records[0];
       if (!record) {
-        throw new Error('Memgraph returned no component information');
+        raiseGraphError('Memgraph returned no component information', {
+          code: 'query_failed',
+          statusCode: 500,
+          retry: { retryable: false },
+          attributes: { 'db.system': 'memgraph' },
+        });
       }
       return {
         address: this.config.uri,
@@ -140,10 +170,28 @@ export class MemgraphDriverAdapter implements DriverAdapter {
   private createTransactionContext(txc: Neo4jManagedTransaction): TransactionContext {
     return {
       run: async (query: string, params?: Record<string, unknown>): Promise<QueryResult> => {
-        const result = await txc.run(query, params);
-        return this.mapResult(result);
+        try {
+          const result = await txc.run(query, params);
+          return this.mapResult(result);
+        } catch (error) {
+          throw classifyDriverError(error, 'memgraph');
+        }
       },
     };
+  }
+
+  /** Runs the caller's work; errors it throws are marked so they are not reclassified. */
+  private async runWork<T>(
+    work: (txc: TransactionContext) => Promise<T>,
+    txc: Neo4jManagedTransaction,
+    onFail: () => void,
+  ): Promise<T> {
+    try {
+      return await work(this.createTransactionContext(txc));
+    } catch (error) {
+      onFail();
+      throw error;
+    }
   }
 
   private mapResult(result: Neo4jQueryResult): QueryResult {

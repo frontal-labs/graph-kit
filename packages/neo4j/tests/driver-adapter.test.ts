@@ -223,10 +223,17 @@ describe('Neo4jDriverAdapter', () => {
       await expect(adapter.runQuery('MATCH (n) RETURN n')).rejects.toThrow(
         'Neo4j driver not connected',
       );
+      await expect(adapter.runQuery('MATCH (n) RETURN n')).rejects.toMatchObject({
+        code: 'driver_not_connected',
+        statusCode: 500,
+      });
     });
 
     it('throws descriptive error when getting driver without connection', () => {
       expect(() => adapter.getDriver()).toThrow('Neo4j driver not connected');
+      expect(() => adapter.getDriver()).toThrow(
+        expect.objectContaining({ code: 'driver_not_connected' }),
+      );
     });
   });
 

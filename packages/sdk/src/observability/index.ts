@@ -1,6 +1,7 @@
 // @graph-om/sdk/src/observability/index.ts
 // Query logging, profiling, and observability for Graph-OM
 
+import { errorCode } from '../errors';
 import type { DriverAdapter, QueryResult, TransactionContext } from '../types';
 
 export interface QueryLogEntry {
@@ -124,6 +125,7 @@ export class QueryLogger {
         query: entry.query,
         params: entry.params,
         error: entry.error?.message,
+        errorCode: errorCode(entry.error),
       });
     }
   }
@@ -556,7 +558,10 @@ export function withMetrics(driver: DriverAdapter, collector: MetricsCollector):
         );
         return result;
       } catch (error) {
-        collector.incrementCounter('metal_queries_total', { status: 'error' });
+        collector.incrementCounter('metal_queries_total', {
+          status: 'error',
+          code: errorCode(error) ?? 'unknown',
+        });
         throw error;
       }
     },

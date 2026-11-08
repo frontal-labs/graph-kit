@@ -277,6 +277,9 @@ importers:
 
   packages/sdk:
     dependencies:
+      '@frontal-labs/error':
+        specifier: 0.7.0
+        version: 0.7.0
       '@t3-oss/env-core':
         specifier: ^0.13.11
         version: 0.13.11(typescript@5.9.3)(zod@4.6.7)
@@ -928,6 +931,10 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@frontal-labs/error@0.7.0':
+    resolution: {integrity: sha512-46mjctRgI7Arlcw8DzTRKhG1taE7OqCJSsbnMnrXQhJJHil1KX4M7XhgzB5EXVKZHytrfsP/YsIVedkBuRASkg==}
+    engines: {node: '>=22'}
 
   '@graphql-tools/merge@9.2.8':
     resolution: {integrity: sha512-OsCEmJ9RIMT4LB/1jBbyKHe7pMIlfGhLAQ0FVNaZqteydDUC+rTI9wZ+yaKqxQpPOFFycD+UtMhovg19lPq92Q==}
@@ -3525,6 +3532,8 @@ snapshots:
 
   '@esbuild/win32-x64@0.28.2':
     optional: true
+
+  '@frontal-labs/error@0.7.0': {}
 
   '@graphql-tools/merge@9.2.8(graphql@16.15.0)':
     dependencies:

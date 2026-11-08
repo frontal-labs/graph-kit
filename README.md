@@ -121,6 +121,25 @@ const result = validateCreate(User, { id: '1', name: 'Alice' });
 if (!result.success) console.error(result.error.flatten());
 ```
 
+## Handling errors
+
+Every failure graph-om throws is a typed `GraphError` with a stable `code`, so you can branch on it rather than on the message:
+
+```ts
+import { hasCode } from '@graph-om/sdk/errors';
+
+try {
+  await client.update('Person', { where: { id }, data });
+} catch (error) {
+  if (hasCode(error, 'record_not_found')) {
+    // the record does not exist
+  }
+  throw error;
+}
+```
+
+Driver errors keep the original error on `cause`. Before sending an error to a client, convert it with `toPublic`, so the client sees only the code and a fixed message. See [docs/errors.md](https://github.com/frontal-labs/graph-om/blob/main/docs/errors.md) for every code.
+
 ## Configuration
 
 `graph.config.ts` drives codegen:

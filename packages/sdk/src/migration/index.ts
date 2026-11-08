@@ -1,6 +1,7 @@
 // @graph-om/sdk/src/migration/index.ts
 // Migration system for Graph-OM - schema versioning and database migrations
 
+import { raiseGraphError } from '../errors';
 import { QueryCompiler } from '../query';
 import type { DriverAdapter, GraphSchemaRegistry } from '../types';
 
@@ -119,7 +120,12 @@ export class MigrationRunner {
 
   async rollbackMigration(migration: Migration): Promise<void> {
     if (!migration.down) {
-      throw new Error(`Migration ${migration.version} (${migration.name}) has no down migration`);
+      raiseGraphError(`Migration ${migration.version} (${migration.name}) has no down migration`, {
+        code: 'migration_failed',
+        statusCode: 500,
+        retry: { retryable: false },
+        metadata: { version: migration.version },
+      });
     }
 
     const downResult = migration.down(this.compiler);
@@ -163,7 +169,12 @@ export class MigrationRunner {
     for (const record of toRollback) {
       const migration = migrations.find((m) => m.version === record.version);
       if (!migration) {
-        throw new Error(`Migration ${record.version} not found in migration list`);
+        raiseGraphError(`Migration ${record.version} not found in migration list`, {
+          code: 'migration_failed',
+          statusCode: 500,
+          retry: { retryable: false },
+          metadata: { version: record.version },
+        });
       }
       await this.rollbackMigration(migration);
       rolledBack.push(record);
@@ -531,7 +542,8 @@ export function generateMigrationFromDiff(diff: SchemaDiff, name: string): Migra
  * synchronously. Import them explicitly and pass the list to `MigrationRunner`.
  */
 export function loadMigrations(_migrationsDir: string): Migration[] {
-  throw new Error(
+  raiseGraphError(
     'loadMigrations() cannot import migration files yet. Import each migration module explicitly and pass the list to createMigrationRunner().migrate().',
+    { code: 'unsupported_option', statusCode: 400, retry: { retryable: false } },
   );
 }

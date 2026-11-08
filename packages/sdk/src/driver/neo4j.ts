@@ -7,6 +7,7 @@ import neo4j, {
   type QueryResult as Neo4jQueryResult,
   type Session,
 } from 'neo4j-driver';
+import { classifyDriverError, raiseGraphError } from '../errors';
 import type {
   DriverAdapter,
   DriverCapabilities,
@@ -72,9 +73,15 @@ export class Neo4jDriverAdapter implements DriverAdapter {
       await this.driver.getServerInfo();
     } catch (error) {
       this.driver = null;
-      throw new Error(
-        `Failed to connect to Neo4j at ${this.config.uri}: ${(error as Error).message}`,
-      );
+      raiseGraphError('Failed to connect to Neo4j', {
+        code: 'connection_failed',
+        statusCode: 503,
+        retry: { retryable: true },
+        cause: error,
+        fix: 'Check NEO4J_URI, credentials, and that the database is reachable.',
+        metadata: { uri: this.config.uri },
+        attributes: { 'db.system': 'neo4j' },
+      });
     }
   }
 
@@ -87,8 +94,15 @@ export class Neo4jDriverAdapter implements DriverAdapter {
 
   getDriver(): Driver {
     if (!this.driver) {
-      throw new Error(
+      raiseGraphError(
         'Neo4j driver not connected. Call connect() first or use GraphClient.connect().',
+        {
+          code: 'driver_not_connected',
+          statusCode: 500,
+          retry: { retryable: false },
+          fix: 'Call connect() or GraphClient.connect() first.',
+          attributes: { 'db.system': 'neo4j' },
+        },
       );
     }
     return this.driver;
@@ -113,40 +127,53 @@ export class Neo4jDriverAdapter implements DriverAdapter {
     try {
       const result = await session.run(cypher, params ?? {});
       return this.mapResult(result);
+    } catch (error) {
+      throw classifyDriverError(error, 'neo4j');
     } finally {
       await session.close();
     }
   }
 
   async runInTransaction<T>(work: (txc: TransactionContext) => Promise<T>): Promise<T> {
-    const session = this.session();
-    try {
-      return await session.executeWrite(async (txc: ManagedTransaction) => {
-        const wrappedTxc = {
-          run: async (query: string, params?: Record<string, unknown>) => {
-            const result = await txc.run(query, params ?? {});
-            return this.mapResult(result);
-          },
-        };
-        return await work(wrappedTxc);
-      });
-    } finally {
-      await session.close();
-    }
+    return this.runManaged(work, 'write');
   }
 
   async runInReadTransaction<T>(work: (txc: TransactionContext) => Promise<T>): Promise<T> {
-    const session = this.session({ mode: 'READ' });
-    try {
-      return await session.executeRead(async (txc: ManagedTransaction) => {
-        const wrappedTxc = {
-          run: async (query: string, params?: Record<string, unknown>) => {
+    return this.runManaged(work, 'read');
+  }
+
+  /**
+   * Shared body for both transaction kinds. Errors thrown by the caller's `work`
+   * callback are rethrown unchanged; only driver failures are classified.
+   */
+  private async runManaged<T>(
+    work: (txc: TransactionContext) => Promise<T>,
+    mode: 'read' | 'write',
+  ): Promise<T> {
+    const session = this.session(mode === 'read' ? { mode: 'READ' } : undefined);
+    let workFailed = false;
+    const body = async (txc: ManagedTransaction) => {
+      const wrappedTxc = {
+        run: async (query: string, params?: Record<string, unknown>) => {
+          try {
             const result = await txc.run(query, params ?? {});
             return this.mapResult(result);
-          },
-        };
+          } catch (error) {
+            throw classifyDriverError(error, 'neo4j');
+          }
+        },
+      };
+      try {
         return await work(wrappedTxc);
-      });
+      } catch (error) {
+        workFailed = true;
+        throw error;
+      }
+    };
+    try {
+      return mode === 'read' ? await session.executeRead(body) : await session.executeWrite(body);
+    } catch (error) {
+      throw workFailed ? error : classifyDriverError(error, 'neo4j');
     } finally {
       await session.close();
     }

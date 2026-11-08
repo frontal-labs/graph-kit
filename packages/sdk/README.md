@@ -72,6 +72,7 @@ await driver.disconnect();
 | `@graph-om/sdk` | Everything (schema, client, query, driver, config, migration, observability, otel, graphql, batch, seed, testing, visualization, auth, benchmark, types) |
 | `@graph-om/sdk/schema` | Schema builders: `node`, `relation`, `schema`, `string`, `number`, `boolean`, `date`, `float`, `bigint`, `uuid`, `json`, `path`, `property`, `allShortestPaths`, `shortestPath`, parsers |
 | `@graph-om/sdk/client` | `GraphClient`, `GraphTransaction`, value helpers |
+| `@graph-om/sdk/errors` | `GraphError`, `graphErrors`, `hasCode`, `isFrontalError`, `getRootCause`, `mapDriverError`, `toPublic`, `errorResponse`, `formatError` |
 | `@graph-om/sdk/query` | `QueryCompiler`, `createQueryCompiler`, `CompiledQuery` |
 | `@graph-om/sdk/config` | `defineConfig`, `loadConfig`, `resolveConfig`, `getDefaultConfig`, `env` |
 | `@graph-om/sdk/driver` | `DriverAdapter`, `DriverCapabilities`, `DriverConfig`, `createDriver`, `registerDriver`, `listDrivers`, `getDriverFactory`, config types (`Neo4jDriverConfig`, `MemgraphDriverConfig`, `FalkorDBDriverConfig`, `AnyDriverConfig`), `QueryResult`, `QueryRecord`, `TransactionContext` |
@@ -154,6 +155,25 @@ import { registerDriver, createDriver } from '@graph-om/sdk/driver';
 registerDriver('my-db', MyDriverAdapter);
 const driver = createDriver({ type: 'my-db', ...config });
 ```
+
+## Handling errors
+
+Every failure graph-om throws is a typed `GraphError` with a stable `code`, so you can branch on it rather than on the message:
+
+```ts
+import { hasCode } from '@graph-om/sdk/errors';
+
+try {
+  await client.update('Person', { where: { id }, data });
+} catch (error) {
+  if (hasCode(error, 'record_not_found')) {
+    // the record does not exist
+  }
+  throw error;
+}
+```
+
+Driver errors keep the original error on `cause`. Before sending an error to a client, convert it with `toPublic`, so the client sees only the code and a fixed message. See [docs/errors.md](https://github.com/frontal-labs/graph-om/blob/main/docs/errors.md) for every code.
 
 ## Configuration
 

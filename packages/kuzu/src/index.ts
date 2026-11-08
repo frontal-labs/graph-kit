@@ -10,6 +10,7 @@ import type {
   QueryResult,
   TransactionContext,
 } from '@graph-om/sdk';
+import { classifyDriverError, raiseGraphError } from '@graph-om/sdk/errors';
 
 // Type definitions for kuzu module (using any to avoid declaration file issues)
 interface KuzuConnection {
@@ -44,8 +45,21 @@ async function loadKuzu(): Promise<KuzuModule> {
     kuzuModule = mod;
     return kuzuModule;
   } catch {
-    throw new Error('Kuzu driver not installed. Run: pnpm add kuzu');
+    raiseGraphError('Kuzu driver not installed. Run: pnpm add kuzu', {
+      code: 'invalid_config',
+      statusCode: 400,
+      retry: { retryable: false },
+    });
   }
+}
+
+function notConnected(): never {
+  raiseGraphError('Not connected to Kuzu', {
+    code: 'driver_not_connected',
+    statusCode: 500,
+    retry: { retryable: false },
+    attributes: { 'db.system': 'kuzu' },
+  });
 }
 
 export interface KuzuConfig extends DriverConfig {
@@ -83,8 +97,9 @@ export class KuzuDriverAdapter implements DriverAdapter {
 
     if (this.config.uri) {
       // Network mode - would need HTTP client
-      throw new Error(
+      raiseGraphError(
         'Kuzu network mode not yet implemented. Use embedded mode with databasePath.',
+        { code: 'unsupported_option', statusCode: 400, retry: { retryable: false } },
       );
     }
 
@@ -101,24 +116,40 @@ export class KuzuDriverAdapter implements DriverAdapter {
   }
 
   async runQuery(cypher: string, params?: Record<string, unknown>): Promise<QueryResult> {
-    if (!this.conn) throw new Error('Not connected to Kuzu');
-    const result = await this.conn.query(cypher, params);
-    return this.mapResult(result);
+    if (!this.conn) notConnected();
+    try {
+      const result = await this.conn.query(cypher, params);
+      return this.mapResult(result);
+    } catch (error) {
+      throw classifyDriverError(error, 'kuzu');
+    }
   }
 
   async runInTransaction<T>(work: (txc: TransactionContext) => Promise<T>): Promise<T> {
     if (this.inTransaction) {
-      throw new Error('Nested transactions not supported');
+      raiseGraphError('Nested transactions not supported', {
+        code: 'unsupported_option',
+        statusCode: 400,
+        retry: { retryable: false },
+        attributes: { 'db.system': 'kuzu' },
+      });
     }
     this.inTransaction = true;
     this.transactionQueries = [];
+    let workFailed = false;
     try {
-      const result = await work(this.createTransactionContext());
+      let result: T;
+      try {
+        result = await work(this.createTransactionContext());
+      } catch (error) {
+        workFailed = true;
+        throw error;
+      }
       await this.commitTransaction();
       return result;
     } catch (error) {
       await this.rollbackTransaction();
-      throw error;
+      throw workFailed ? error : classifyDriverError(error, 'kuzu');
     } finally {
       this.inTransaction = false;
     }
@@ -155,9 +186,13 @@ export class KuzuDriverAdapter implements DriverAdapter {
       run: async (query: string, params?: Record<string, unknown>): Promise<QueryResult> => {
         this.transactionQueries.push({ cypher: query, params });
         // Execute immediately for simplicity
-        if (!this.conn) throw new Error('Not connected to Kuzu');
-        const result = await this.conn.query(query, params);
-        return this.mapResult(result);
+        if (!this.conn) notConnected();
+        try {
+          const result = await this.conn.query(query, params);
+          return this.mapResult(result);
+        } catch (error) {
+          throw classifyDriverError(error, 'kuzu');
+        }
       },
     };
   }

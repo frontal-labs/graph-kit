@@ -9,6 +9,7 @@ import type {
   QueryResult,
   TransactionContext,
 } from '@graph-om/sdk';
+import { classifyDriverError, raiseGraphError } from '@graph-om/sdk/errors';
 import { createClient, type RedisClientType } from 'redis';
 
 export class FalkorDBDriverAdapter implements DriverAdapter {
@@ -44,11 +45,23 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
 
   async connect(): Promise<void> {
     if (!this.connected) {
-      await this.client.connect();
-      this.connected = true;
+      try {
+        await this.client.connect();
+        this.connected = true;
 
-      // Test connection
-      await this.client.ping();
+        // Test connection
+        await this.client.ping();
+      } catch (error) {
+        raiseGraphError(error instanceof Error ? error.message : String(error), {
+          code: 'connection_failed',
+          statusCode: 503,
+          retry: { retryable: true },
+          cause: error,
+          fix: 'Check the FalkorDB host, port, credentials, and that the server is reachable.',
+          metadata: { host: this.config.host, port: this.config.port },
+          attributes: { 'db.system': 'falkordb' },
+        });
+      }
     }
   }
 
@@ -84,7 +97,7 @@ export class FalkorDBDriverAdapter implements DriverAdapter {
         ]);
         return this.mapResult(result);
       } catch {
-        throw error;
+        throw classifyDriverError(error, 'falkordb');
       }
     }
   }

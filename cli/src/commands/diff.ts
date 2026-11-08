@@ -14,6 +14,7 @@ import {
   type PropertyType,
   type RelationConfig,
 } from '@graph-om/sdk';
+import { raiseGraphError } from '@graph-om/sdk/errors';
 import {
   diffSchemas,
   type NodeDiff,
@@ -22,6 +23,7 @@ import {
   type SchemaDiff,
 } from '@graph-om/sdk/migration';
 import { parseSchemaFile } from '@graph-om/sdk/schema';
+
 import { Command } from 'commander';
 import { loadProjectConfig } from './generate.js';
 
@@ -194,7 +196,11 @@ function inferType(value: unknown): PropertyType {
 function assertGitRef(ref: string): void {
   // Refuse anything git could read as an option or a path escape
   if (ref.startsWith('-') || !/^[A-Za-z0-9._/-]+$/.test(ref)) {
-    throw new Error(`Invalid git ref: ${ref}`);
+    raiseGraphError(`Invalid git ref: ${ref}`, {
+      code: 'invalid_argument',
+      statusCode: 400,
+      retry: { retryable: false },
+    });
   }
 }
 
