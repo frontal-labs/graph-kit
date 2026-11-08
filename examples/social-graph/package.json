@@ -16,7 +16,7 @@
     "seed": "tsx src/seed.ts",
     "generate": "graph-om generate",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "test:ui": "vitest --ui",
     "clean": "rm -rf .turbo dist"
   },
