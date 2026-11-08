@@ -9,7 +9,11 @@ const fake = vi.hoisted(() => {
   const state = {
     calls: [] as Call[],
     instances: [] as Array<{ options: Record<string, unknown>; quit: () => Promise<void> }>,
-    queryReply: [['n.name'], ['Ada']] as unknown,
+    queryReply: [
+      [[2, 'n.name']],
+      [[[2, 'Ada']]],
+      ['Query internal execution time: 0.1 ms'],
+    ] as unknown,
     connectError: null as Error | null,
     callError: null as Error | null,
   };
@@ -43,7 +47,7 @@ describe('FalkorDBDriverAdapter', () => {
   beforeEach(() => {
     state.calls.length = 0;
     state.instances.length = 0;
-    state.queryReply = [['n.name'], ['Ada']];
+    state.queryReply = [[[2, 'n.name']], [[[2, 'Ada']]], ['Query internal execution time: 0.1 ms']];
     state.connectError = null;
     state.callError = null;
     adapter = new FalkorDBDriverAdapter({
@@ -70,8 +74,8 @@ describe('FalkorDBDriverAdapter', () => {
   it('connects to the host and port in the URI and selects the graph', async () => {
     await adapter.connect();
 
-    const options = state.instances[0]?.options as { socket: { host: string; port: number } };
-    expect(options.socket).toMatchObject({ host: 'localhost', port: 6379, tls: false });
+    // ioredis reads host and port at the top level
+    expect(state.instances[0]?.options).toMatchObject({ host: 'localhost', port: 6379 });
   });
 
   it('turns a failed connect into connection_failed, keeps the message, URI and cause', async () => {
@@ -96,10 +100,22 @@ describe('FalkorDBDriverAdapter', () => {
 
     expect(lastCommands('GRAPH.QUERY').at(-1)?.args).toEqual([
       'social',
-      'MATCH (n {id: $id}) RETURN n.name',
-      'id',
-      'a',
+      'CYPHER `id`="a" MATCH (n {id: $id}) RETURN n.name',
     ]);
+  });
+
+  it('encodes parameter values as Cypher literals and escapes quotes', async () => {
+    await adapter.connect();
+    await adapter.runQuery('RETURN $a, $b, $c, $d', {
+      a: 'say "hi"',
+      b: [1, true, null],
+      c: 2.5,
+      d: { k: 'v' },
+    });
+
+    expect(lastCommands('GRAPH.QUERY').at(-1)?.args[1]).toBe(
+      'CYPHER `a`="say \\"hi\\"" `b`=[1,true,null] `c`=2.5 `d`={`k`: "v"} RETURN $a, $b, $c, $d',
+    );
   });
 
   it('maps the reply header and rows into records', async () => {
@@ -109,6 +125,53 @@ describe('FalkorDBDriverAdapter', () => {
     expect(result.keys).toEqual(['n.name']);
     expect(result.records).toHaveLength(1);
     expect(result.records[0]?.get('n.name')).toBe('Ada');
+  });
+
+  it('decodes typed cells: integers, nulls, booleans, lists and maps', async () => {
+    state.queryReply = [
+      [
+        [3, 'count'],
+        [1, 'missing'],
+        [4, 'active'],
+        [6, 'tags'],
+        [10, 'meta'],
+      ],
+      [
+        [
+          [3, '42'],
+          [1, null],
+          [4, 'true'],
+          [
+            6,
+            [
+              [2, 'a'],
+              [2, 'b'],
+            ],
+          ],
+          [10, ['k', [2, 'v']]],
+        ],
+      ],
+      ['stats'],
+    ];
+    await adapter.connect();
+    const result = await adapter.runQuery('RETURN 1');
+
+    expect(result.keys).toEqual(['count', 'missing', 'active', 'tags', 'meta']);
+    expect(result.records[0]?.toObject()).toEqual({
+      count: 42,
+      missing: null,
+      active: true,
+      tags: ['a', 'b'],
+      meta: { k: 'v' },
+    });
+  });
+
+  it('returns no records for a write without RETURN', async () => {
+    state.queryReply = ['Nodes created: 1'];
+    await adapter.connect();
+    const result = await adapter.runQuery('CREATE (n:User {id: $id})', { id: 'x' });
+
+    expect(result.records).toEqual([]);
   });
 
   it('refuses queries before connect with driver_not_connected', async () => {

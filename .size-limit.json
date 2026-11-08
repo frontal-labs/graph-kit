@@ -102,7 +102,7 @@
     "path": "packages/sdk/dist/driver/falkordb.mjs",
     "gzip": true,
     "brotli": false,
-    "limit": "6550 B"
+    "limit": "7350 B"
   },
   {
     "name": "@graph-om/sdk/migration (import)",
