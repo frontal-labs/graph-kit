@@ -1,0 +1,2 @@
+# Launchers run on macOS, Linux and Windows: keep LF so the shebang works everywhere
+bin/** text eol=lf

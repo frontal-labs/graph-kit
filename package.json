@@ -63,5 +63,8 @@
     "patchedDependencies": {
       "deepmerge@4.3.1": "patches/deepmerge@4.3.1.patch"
     }
+  },
+  "bin": {
+    "graph-om": "./bin/index.js"
   }
 }

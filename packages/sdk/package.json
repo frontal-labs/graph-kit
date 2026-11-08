@@ -145,7 +145,7 @@
   },
   "scripts": {
     "clean": "rm -rf dist .turbo coverage",
-    "build": "tsup && tsc --declaration --emitDeclarationOnly --outDir dist",
+    "build": "tsup && tsc --declaration --emitDeclarationOnly --outDir dist --composite false --incremental false",
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:ci": "vitest run --reporter=verbose",
