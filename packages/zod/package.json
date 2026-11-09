@@ -21,8 +21,7 @@
   ],
   "sideEffects": false,
   "files": [
-    "dist",
-    "LICENSE.md"
+    "dist"
   ],
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -37,7 +36,7 @@
   },
   "scripts": {
     "clean": "rm -rf dist .turbo coverage",
-    "build": "tsup",
+    "build": "tsup && tsc --declaration --emitDeclarationOnly --outDir dist --composite false --incremental false",
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:ci": "vitest run --reporter=verbose",
