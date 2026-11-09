@@ -1,4 +1,4 @@
-// @graph-om/mcp/src/resources/index.ts
+// @graph-kit/mcp/src/resources/index.ts
 // Resources domain barrel
 
 export type { ResourceDefinition } from './resource-handler';

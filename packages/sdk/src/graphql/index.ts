@@ -1,5 +1,5 @@
-// @graph-om/sdk/src/graphql/index.ts
-// GraphQL layer for Graph-OM - generates GraphQL schema from Graph-OM schema
+// @graph-kit/sdk/src/graphql/index.ts
+// GraphQL layer for Graph-Kit - generates GraphQL schema from Graph-Kit schema
 
 import { errorResponse, raiseGraphError, toPublic } from '../errors';
 import type { GraphSchemaRegistry, NodeConfig, PropertyConfig } from '../types';

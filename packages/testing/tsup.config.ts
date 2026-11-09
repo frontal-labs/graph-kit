@@ -8,8 +8,8 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
-  external: ['@graph-om/sdk'],
+  external: ['@graph-kit/sdk'],
   banner: {
-    js: '// @graph-om/testing - Testing utilities for Graph-OM',
+    js: '// @graph-kit/testing - Testing utilities for Graph-Kit',
   },
 });

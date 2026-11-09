@@ -1,7 +1,7 @@
-// @graph-om/zod/src/validation/validate.ts
+// @graph-kit/zod/src/validation/validate.ts
 // Validation functions for create and update operations
 
-import type { CreateInput, NodeConfig, PropertyConfig, UpdateInput } from '@graph-om/sdk';
+import type { CreateInput, NodeConfig, PropertyConfig, UpdateInput } from '@graph-kit/sdk';
 import type { z } from 'zod';
 import { toCreateSchema, toUpdateSchema } from '../schema/factory';
 

@@ -1,4 +1,4 @@
-// @graph-om/sdk/src/driver/neo4j.ts
+// @graph-kit/sdk/src/driver/neo4j.ts
 // Neo4j driver adapter - wraps neo4j-driver with connection management
 
 import neo4j, {

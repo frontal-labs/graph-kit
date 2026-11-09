@@ -1,4 +1,4 @@
-// @graph-om/sdk/src/query/index.ts
+// @graph-kit/sdk/src/query/index.ts
 // Cypher query compiler - translates high-level queries to optimized Cypher
 
 import { raiseGraphError } from '../errors';

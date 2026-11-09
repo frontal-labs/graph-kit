@@ -1,12 +1,12 @@
 {
-  "name": "graph-om",
+  "name": "graph-kit",
   "version": "1.0.0",
   "private": true,
-  "description": "Graph-OM - Prisma-like DX for graph databases (monorepo)",
+  "description": "Graph-Kit - Prisma-like DX for graph databases (monorepo)",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/frontal-labs/graph-om.git"
+    "url": "https://github.com/frontal-labs/graph-kit.git"
   },
   "scripts": {
     "prepare": "husky",
@@ -19,8 +19,8 @@
     "test:coverage": "turbo run test:coverage",
     "test:root": "vitest run",
     "test:root:ci": "vitest run --reporter=verbose",
-    "benchmark": "pnpm --filter @graph-om/sdk run benchmark",
-    "benchmark:ci": "pnpm --filter @graph-om/sdk run benchmark:ci",
+    "benchmark": "pnpm --filter @graph-kit/sdk run benchmark",
+    "benchmark:ci": "pnpm --filter @graph-kit/sdk run benchmark:ci",
     "lint": "ultracite check",
     "typecheck": "turbo run typecheck",
     "format": "ultracite fix",
@@ -65,6 +65,6 @@
     }
   },
   "bin": {
-    "graph-om": "./bin/index.js"
+    "graph-kit": "./bin/index.js"
   }
 }

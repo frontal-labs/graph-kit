@@ -55,14 +55,14 @@ describe('loadConfig', () => {
     expect(config).toBeNull();
   });
 
-  it('loads graph-om.config.json', async () => {
+  it('loads graph-kit.config.json', async () => {
     const fs = await import('node:fs');
     const os = await import('node:os');
     const path = await import('node:path');
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'graph-om-config-'));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'graph-kit-config-'));
     try {
       fs.writeFileSync(
-        path.join(dir, 'graph-om.config.json'),
+        path.join(dir, 'graph-kit.config.json'),
         JSON.stringify({ schema: './my-schema.ts', debug: true }),
       );
       const config = await loadConfig(dir);

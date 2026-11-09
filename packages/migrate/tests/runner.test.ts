@@ -1,4 +1,4 @@
-import { createMockDriver } from '@graph-om/sdk/testing';
+import { createMockDriver } from '@graph-kit/sdk/testing';
 import { describe, expect, it } from 'vitest';
 import { type Migration, MigrationRunner } from '../src/index.js';
 

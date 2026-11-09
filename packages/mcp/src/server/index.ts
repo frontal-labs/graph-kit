@@ -1,4 +1,4 @@
-// @graph-om/mcp/src/server/index.ts
+// @graph-kit/mcp/src/server/index.ts
 // Server domain barrel
 
-export { createMCPServer, GraphOMMCPServer } from './mcp-server';
+export { createMCPServer, GraphKitMCPServer } from './mcp-server';

@@ -8,5 +8,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src", "migrations", "graph-om.config.ts"]
+  "include": ["src", "migrations", "graph.config.ts"]
 }

@@ -1,6 +1,6 @@
 # API Reference
 
-## @graph-om/sdk
+## @graph-kit/sdk
 
 ### Schema DSL
 
@@ -125,14 +125,14 @@ Get default config shape.
 
 Validated environment variables (see ENVIRONMENT_VARIABLES.md).
 
-## @graph-om/sdk/driver/neo4j
+## @graph-kit/sdk/driver/neo4j
 
 ### `createNeo4jDriver(config)`
 
 Create a Neo4j driver adapter.
 
 ```ts
-import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
+import { createNeo4jDriver } from '@graph-kit/sdk/driver/neo4j';
 
 const driver = createNeo4jDriver({
   uri: env.NEO4J_URI,
@@ -146,6 +146,6 @@ await driver.connect();
 await driver.disconnect();
 ```
 
-## @graph-om/zod
+## @graph-kit/zod
 
-Zod validation integration for Graph-OM schemas. Generates zod schemas alongside TypeScript types when `output.zod: true` in `graph-om.config.ts`.
+Zod validation integration for Graph-Kit schemas. Generates zod schemas alongside TypeScript types when `output.zod: true` in `graph-kit.config.ts`.

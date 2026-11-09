@@ -1,4 +1,4 @@
-// @graph-om/sdk/tests/driver-memgraph.test.ts
+// @graph-kit/sdk/tests/driver-memgraph.test.ts
 // The Memgraph adapter speaks Bolt through the Neo4j adapter, so these tests replace that
 // adapter with a stub and check what Memgraph passes through and how it translates settings.
 import { beforeEach, describe, expect, it, vi } from 'vitest';

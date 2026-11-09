@@ -1,0 +1,37 @@
+// schema.ts - Transactions example schema
+import { date, node, number, schema as sch, string } from '@graph-kit/sdk';
+
+export const User = node('User')
+  .add('id', string({ primary: true }))
+  .add('name', string())
+  .add('email', string({ unique: true }))
+  .add('age', number({ nullable: true }))
+  .add('createdAt', date({ default: () => new Date() }))
+  .index(['email'], true)
+  .build();
+
+export const Post = node('Post')
+  .add('id', string({ primary: true }))
+  .add('title', string())
+  .add('content', string({ nullable: true }))
+  .add('published', { type: 'boolean', default: false })
+  .add('createdAt', date({ default: () => new Date() }))
+  .build();
+
+export const graph = sch().add('User', User).add('Post', Post).build();
+
+export type UserRow = {
+  id: string;
+  name: string;
+  email: string;
+  age: number | null;
+  createdAt: Date;
+};
+
+export type PostRow = {
+  id: string;
+  title: string;
+  content: string | null;
+  published: boolean;
+  createdAt: Date;
+};

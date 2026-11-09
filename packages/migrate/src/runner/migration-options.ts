@@ -1,7 +1,7 @@
-// @graph-om/migrate/src/runner/migration-options.ts
+// @graph-kit/migrate/src/runner/migration-options.ts
 // Migration runner options and status types
 
-import type { DriverAdapter, GraphSchemaRegistry } from '@graph-om/sdk';
+import type { DriverAdapter, GraphSchemaRegistry } from '@graph-kit/sdk';
 
 export interface MigrationOptions {
   migrationsDir?: string;

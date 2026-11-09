@@ -2,8 +2,8 @@
 // Run: pnpm start:errors-handling
 // Parts 1 and 2 need no database: the client rejects unknown labels before it sends any query.
 
-import { GraphClient, getRootCause, hasCode, isFrontalError } from '@graph-om/sdk';
-import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
+import { GraphClient, getRootCause, hasCode, isFrontalError } from '@graph-kit/sdk';
+import { createNeo4jDriver } from '@graph-kit/sdk/driver/neo4j';
 import { graph } from './schema.js';
 
 const driver = createNeo4jDriver({

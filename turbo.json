@@ -57,6 +57,6 @@
     "NEO4J_USER",
     "NEO4J_PASSWORD",
     "NEO4J_DATABASE",
-    "GRAPH_OM_DEBUG"
+    "GRAPH_KIT_DEBUG"
   ]
 }

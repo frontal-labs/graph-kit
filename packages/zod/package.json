@@ -1,23 +1,23 @@
 {
-  "name": "@graph-om/zod",
+  "name": "@graph-kit/zod",
   "version": "0.0.1",
-  "description": "Zod validation integration for Graph-OM",
+  "description": "Zod validation integration for Graph-Kit",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/frontal-labs/graph-om.git",
+    "url": "https://github.com/frontal-labs/graph-kit.git",
     "directory": "packages/zod"
   },
-  "homepage": "https://github.com/frontal-labs/graph-om/tree/master/packages/zod#readme",
+  "homepage": "https://github.com/frontal-labs/graph-kit/tree/master/packages/zod#readme",
   "bugs": {
-    "url": "https://github.com/frontal-labs/graph-om/issues"
+    "url": "https://github.com/frontal-labs/graph-kit/issues"
   },
   "keywords": [
     "zod",
     "validation",
     "ogm",
     "neo4j",
-    "graph-om"
+    "graph-kit"
   ],
   "sideEffects": false,
   "files": [
@@ -47,10 +47,10 @@
     "zod": "^4.6.7"
   },
   "peerDependencies": {
-    "@graph-om/sdk": "workspace:^"
+    "@graph-kit/sdk": "workspace:^"
   },
   "devDependencies": {
-    "@graph-om/sdk": "workspace:*",
+    "@graph-kit/sdk": "workspace:*",
     "@types/node": "^20.10.0",
     "tsup": "^8.0.0",
     "typescript": "^5.9.3",

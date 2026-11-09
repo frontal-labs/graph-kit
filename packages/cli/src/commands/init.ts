@@ -1,4 +1,4 @@
-// @graph-om/cli/src/commands/init.ts
+// @graph-kit/cli/src/commands/init.ts
 import fs from 'node:fs';
 import path from 'node:path';
 import { cliVersion } from '../version.js';
@@ -23,16 +23,16 @@ export async function initCommand(directory: string, _options: InitOptions): Pro
     private: true,
     type: 'module',
     scripts: {
-      generate: 'graph-om generate',
-      build: 'graph-om generate && tsc --noEmit',
+      generate: 'graph-kit generate',
+      build: 'graph-kit generate && tsc --noEmit',
       start: 'tsx src/index.ts',
       typecheck: 'tsc --noEmit',
     },
     dependencies: {
-      '@graph-om/sdk': `^${cliVersion()}`,
+      '@graph-kit/sdk': `^${cliVersion()}`,
     },
     devDependencies: {
-      '@graph-om/cli': `^${cliVersion()}`,
+      '@graph-kit/cli': `^${cliVersion()}`,
       typescript: '^5.3.0',
       tsx: '^4.0.0',
       '@types/node': '^20.0.0',
@@ -61,8 +61,8 @@ export async function initCommand(directory: string, _options: InitOptions): Pro
 
   fs.mkdirSync(path.join(targetDir, 'src'), { recursive: true });
 
-  const schemaContent = `// graph-om/schema.ts - Define your graph schema
-import { node, defineRel, schema as sch, string, number, date } from '@graph-om/sdk';
+  const schemaContent = `// graph-kit/schema.ts - Define your graph schema
+import { node, defineRel, schema as sch, string, number, date } from '@graph-kit/sdk';
 
 export const User = node('User')
   .add('id', string({ primary: true }))
@@ -79,8 +79,8 @@ export const graph = sch()
   fs.writeFileSync(path.join(targetDir, 'src', 'schema.ts'), schemaContent);
 
   const mainContent = `// src/index.ts
-import { GraphClient, env } from '@graph-om/sdk';
-import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
+import { GraphClient, env } from '@graph-kit/sdk';
+import { createNeo4jDriver } from '@graph-kit/sdk/driver/neo4j';
 import { graph } from './schema.js';
 
 async function main() {
@@ -108,8 +108,8 @@ main().catch((error) => {
 
   fs.writeFileSync(path.join(targetDir, 'src', 'index.ts'), mainContent);
 
-  // Generate graph-om.config.ts — the single source of truth for Graph-OM
-  const graphOmConfigContent = `import { defineConfig, env } from '@graph-om/sdk';
+  // Generate graph.config.ts — the single source of truth for Graph-Kit
+  const graphOmConfigContent = `import { defineConfig, env } from '@graph-kit/sdk';
 
 export default defineConfig({
   schema: './src/schema.ts',
@@ -127,7 +127,7 @@ export default defineConfig({
 });
 `;
 
-  fs.writeFileSync(path.join(targetDir, 'graph-om.config.ts'), graphOmConfigContent);
+  fs.writeFileSync(path.join(targetDir, 'graph.config.ts'), graphOmConfigContent);
 
   const envContent = `NEO4J_URI=bolt://localhost:7687
 NEO4J_USER=neo4j
@@ -135,12 +135,12 @@ NEO4J_PASSWORD=password
 `;
   fs.writeFileSync(path.join(targetDir, '.env.example'), envContent);
 
-  console.log(`\n✓ Initialized Graph-OM project in "${targetDir}"`);
+  console.log(`\n✓ Initialized Graph-Kit project in "${targetDir}"`);
   console.log('\nNext steps:');
   console.log(`  1. cd ${directory}`);
   console.log('  2. Install dependencies (pnpm install / npm install / yarn)');
   console.log('  3. Copy .env.example to .env and set your Neo4j connection');
   console.log('  4. Edit src/schema.ts to define your graph');
-  console.log('  5. npx graph-om generate');
+  console.log('  5. npx graph-kit generate');
   console.log('  6. npx tsx src/index.ts\n');
 }

@@ -1,8 +1,8 @@
-// @graph-om/mcp/src/server/mcp-server.ts
-// Graph-OM MCP server class and factory
+// @graph-kit/mcp/src/server/mcp-server.ts
+// Graph-Kit MCP server class and factory
 
-import type { AnyDriverConfig, DriverAdapter } from '@graph-om/sdk';
-import { createDriver } from '@graph-om/sdk';
+import type { AnyDriverConfig, DriverAdapter } from '@graph-kit/sdk';
+import { createDriver } from '@graph-kit/sdk';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -15,7 +15,7 @@ import type { MCPConfig } from '../config';
 import { RESOURCE_DEFINITIONS, readResource } from '../resources/index';
 import { callTool, TOOL_DEFINITIONS, toToolError } from '../tools/index';
 
-export class GraphOMMCPServer {
+export class GraphKitMCPServer {
   private server: Server;
   private driver: DriverAdapter;
 
@@ -27,7 +27,7 @@ export class GraphOMMCPServer {
 
     this.server = new Server(
       {
-        name: config.name ?? 'graph-om',
+        name: config.name ?? 'graph-kit',
         version: config.version ?? '1.0.0',
       },
       {
@@ -71,7 +71,7 @@ export class GraphOMMCPServer {
     await this.driver.connect();
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error('Graph-OM MCP Server running on stdio');
+    console.error('Graph-Kit MCP Server running on stdio');
   }
 
   async stop(): Promise<void> {
@@ -80,7 +80,7 @@ export class GraphOMMCPServer {
   }
 }
 
-export async function createMCPServer(config: MCPConfig): Promise<GraphOMMCPServer> {
-  const server = new GraphOMMCPServer(config);
+export async function createMCPServer(config: MCPConfig): Promise<GraphKitMCPServer> {
+  const server = new GraphKitMCPServer(config);
   return server;
 }

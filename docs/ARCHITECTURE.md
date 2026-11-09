@@ -1,6 +1,6 @@
 # Architecture
 
-Graph-OM follows a layered architecture inspired by Prisma and Drizzle.
+Graph-Kit follows a layered architecture inspired by Prisma and Drizzle.
 
 ## Layers
 
@@ -15,7 +15,7 @@ schema() → .add() → .rel() → .build() → GraphSchemaRegistry
 
 ### 2. Cypher Compiler (`packages/sdk/src/query`)
 
-Compiles Graph-OM operations (find, create, update, delete, include) into Cypher queries and parameters. Type-safe via generics over `NodeConfig`.
+Compiles Graph-Kit operations (find, create, update, delete, include) into Cypher queries and parameters. Type-safe via generics over `NodeConfig`.
 
 ### 3. Client (`packages/sdk/src/client`)
 
@@ -33,18 +33,18 @@ All adapters abstract connection management and query execution behind a common 
 
 ### 5. CLI (`packages/cli/`)
 
-`@graph-om/cli` provides `graph-om init` (scaffolding) and `graph-om generate` (code generation from schema).
+`@graph-kit/cli` provides `graph-kit init` (scaffolding) and `graph-kit generate` (code generation from schema).
 
 ### 6. Zod Integration (`packages/zod`)
 
-Generates zod validation schemas from Graph-OM node configs when `output.zod: true`.
+Generates zod validation schemas from Graph-Kit node configs when `output.zod: true`.
 
 ## Data Flow
 
 ```
 User Schema (schema.ts)
     ↓
-graph-om generate
+graph-kit generate
     ↓
 Generated Types + Client (src/__generated__/)
     ↓
@@ -68,11 +68,11 @@ Driver Adapter (query execution)
 ## Project Structure
 
 ```
-graph-om/
-├── packages/cli/           # @graph-om/cli — scaffolding + codegen
-├── packages/sdk/          # @graph-om/sdk — schema, compiler, client, config
-│   ├── sdk/driver/        # @graph-om/sdk/driver/* — Neo4j, Memgraph, Kuzu, FalkorDB adapters (inside packages/sdk)
-├── packages/zod/           # @graph-om/zod — zod validation
+graph-kit/
+├── packages/cli/           # @graph-kit/cli — scaffolding + codegen
+├── packages/sdk/          # @graph-kit/sdk — schema, compiler, client, config
+│   ├── sdk/driver/        # @graph-kit/sdk/driver/* — Neo4j, Memgraph, Kuzu, FalkorDB adapters (inside packages/sdk)
+├── packages/zod/           # @graph-kit/zod — zod validation
 ├── examples/social-graph/  # End-to-end demo
 └── docs/                   # Documentation
 ```

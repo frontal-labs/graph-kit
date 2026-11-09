@@ -1,5 +1,5 @@
-// @graph-om/sdk/src/observability/index.ts
-// Query logging, profiling, and observability for Graph-OM
+// @graph-kit/sdk/src/observability/index.ts
+// Query logging, profiling, and observability for Graph-Kit
 
 import { errorCode } from '../errors';
 import type { DriverAdapter, QueryResult, TransactionContext } from '../types';

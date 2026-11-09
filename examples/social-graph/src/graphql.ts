@@ -1,12 +1,12 @@
 // graphql.ts - Generate GraphQL SDL and resolvers from the schema
 // Run: pnpm start:graphql
 //
-// @graph-om/sdk generates the SDL and the resolver map. It does not start a server: plug the
+// @graph-kit/sdk generates the SDL and the resolver map. It does not start a server: plug the
 // resolvers into your GraphQL server of choice (Apollo, Yoga, graphql-js).
 
-import { GraphClient } from '@graph-om/sdk';
-import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
-import { generateGraphQLSchema, generateResolvers } from '@graph-om/sdk/graphql';
+import { GraphClient } from '@graph-kit/sdk';
+import { createNeo4jDriver } from '@graph-kit/sdk/driver/neo4j';
+import { generateGraphQLSchema, generateResolvers } from '@graph-kit/sdk/graphql';
 import { graph } from './schema.js';
 
 const driver = createNeo4jDriver({

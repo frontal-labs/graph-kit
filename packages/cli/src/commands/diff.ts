@@ -1,4 +1,4 @@
-// @graph-om/cli/src/commands/diff.ts
+// @graph-kit/cli/src/commands/diff.ts
 
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -12,17 +12,17 @@ import {
   type PropertyConfig,
   type PropertyType,
   type RelationConfig,
-} from '@graph-om/sdk';
-import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
-import { raiseGraphError } from '@graph-om/sdk/errors';
+} from '@graph-kit/sdk';
+import { createNeo4jDriver } from '@graph-kit/sdk/driver/neo4j';
+import { raiseGraphError } from '@graph-kit/sdk/errors';
 import {
   diffSchemas,
   type NodeDiff,
   type PropertyDiff,
   type RelationDiff,
   type SchemaDiff,
-} from '@graph-om/sdk/migration';
-import { parseSchemaFile } from '@graph-om/sdk/schema';
+} from '@graph-kit/sdk/migration';
+import { parseSchemaFile } from '@graph-kit/sdk/schema';
 
 import { Command } from 'commander';
 import { loadProjectConfig } from './generate.js';

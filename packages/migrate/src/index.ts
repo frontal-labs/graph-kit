@@ -1,5 +1,5 @@
-// @graph-om/migrate/src/index.ts
-// Graph-OM migration system - schema versioning and database migrations
+// @graph-kit/migrate/src/index.ts
+// Graph-Kit migration system - schema versioning and database migrations
 // Barrel export - manually selects and re-exports public API
 
 // Model domain

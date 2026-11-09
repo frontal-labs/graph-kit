@@ -1,10 +1,10 @@
-// @graph-om/cli/src/commands/seed.ts
+// @graph-kit/cli/src/commands/seed.ts
 import fs from 'node:fs';
 import path from 'node:path';
-import { env } from '@graph-om/sdk';
-import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
-import { parseSchemaFile } from '@graph-om/sdk/schema';
-import { createSeedManager } from '@graph-om/sdk/seed';
+import { env } from '@graph-kit/sdk';
+import { createNeo4jDriver } from '@graph-kit/sdk/driver/neo4j';
+import { parseSchemaFile } from '@graph-kit/sdk/schema';
+import { createSeedManager } from '@graph-kit/sdk/seed';
 import { Command } from 'commander';
 import { loadProjectConfig } from './generate.js';
 
@@ -138,10 +138,10 @@ async function createSeedFile(name: string, template: string): Promise<void> {
     content = `// Seed: ${name}
 // Relational seed with factories
 
-import { createSeedManager, Fixtures, createUserFactory, createPostFactory } from '@graph-om/sdk/seed';
-import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
-import { env } from '@graph-om/sdk';
-import { parseSchemaFile } from '@graph-om/sdk/schema';
+import { createSeedManager, Fixtures, createUserFactory, createPostFactory } from '@graph-kit/sdk/seed';
+import { createNeo4jDriver } from '@graph-kit/sdk/driver/neo4j';
+import { env } from '@graph-kit/sdk';
+import { parseSchemaFile } from '@graph-kit/sdk/schema';
 
 const schemaPath = './src/schema.ts';
 const result = parseSchemaFile(schemaPath);

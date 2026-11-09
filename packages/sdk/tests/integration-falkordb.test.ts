@@ -1,4 +1,4 @@
-// @graph-om/sdk/tests/integration-falkordb.test.ts
+// @graph-kit/sdk/tests/integration-falkordb.test.ts
 // Runs against a live FalkorDB. Set FALKORDB_URI (for example redis://127.0.0.1:6380).
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createFalkorDBDriver } from '../src/driver/falkordb';

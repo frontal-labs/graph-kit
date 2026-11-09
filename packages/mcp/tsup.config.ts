@@ -8,8 +8,8 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
-  external: ['@modelcontextprotocol/sdk', '@graph-om/sdk'],
+  external: ['@modelcontextprotocol/sdk', '@graph-kit/sdk'],
   banner: {
-    js: '// @graph-om/mcp - Graph-OM MCP (Model Context Protocol) server',
+    js: '// @graph-kit/mcp - Graph-Kit MCP (Model Context Protocol) server',
   },
 });

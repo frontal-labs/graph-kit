@@ -1,5 +1,5 @@
-// @graph-om/sdk/src/benchmark/index.ts
-// Benchmark suite for Graph-OM - performance testing and regression detection
+// @graph-kit/sdk/src/benchmark/index.ts
+// Benchmark suite for Graph-Kit - performance testing and regression detection
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -287,7 +287,7 @@ export function createBenchmarkRunner(config?: BaselineConfig): BenchmarkRunner 
   return new BenchmarkRunner(config);
 }
 
-// Pre-defined benchmarks for Graph-OM
+// Pre-defined benchmarks for Graph-Kit
 export const graphBenchmarks = {
   async createNode(driver: DriverAdapter, label: string, count: number): Promise<void> {
     // Index the id lookups used by every later benchmark step; without it each MATCH scans the label

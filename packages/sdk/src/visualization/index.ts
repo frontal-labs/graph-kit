@@ -1,5 +1,5 @@
-// @graph-om/sdk/src/visualization/index.ts
-// Schema visualization and ER diagram generation for Graph-OM
+// @graph-kit/sdk/src/visualization/index.ts
+// Schema visualization and ER diagram generation for Graph-Kit
 
 import { raiseGraphError } from '../errors';
 import type { GraphSchemaRegistry, NodeConfig, PropertyConfig, RelationConfig } from '../types';

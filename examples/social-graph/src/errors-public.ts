@@ -2,9 +2,9 @@
 // Run: pnpm start:errors-public
 // No database needed: this builds errors by hand, the way the SDK does internally.
 
-import { GraphError } from '@graph-om/sdk';
-import { errorResponse, formatError, toPublic } from '@graph-om/sdk/errors';
-import { toGraphQLError } from '@graph-om/sdk/graphql';
+import { GraphError } from '@graph-kit/sdk';
+import { errorResponse, formatError, toPublic } from '@graph-kit/sdk/errors';
+import { toGraphQLError } from '@graph-kit/sdk/graphql';
 
 // An internal failure, with details that must never reach a client
 const internal = new GraphError('Failed to update User: record not found', {
@@ -28,7 +28,7 @@ console.log(
   JSON.stringify((graphQLError as Error & { extensions: unknown }).extensions),
 );
 
-// 3. Errors that are not graph-om errors get a generic response, with no internal text
+// 3. Errors that are not graph-kit errors get a generic response, with no internal text
 const unexpected = new Error('socket hang up at 10.0.0.4:7687');
 const generic = errorResponse(toPublic(unexpected));
 console.log('3. unexpected error -> HTTP', generic.status, generic.body);

@@ -1,4 +1,4 @@
-// @graph-om/sdk/tests/driver-kuzu.test.ts
+// @graph-kit/sdk/tests/driver-kuzu.test.ts
 // Kuzu is an embedded database loaded at runtime. These tests replace the `kuzu` module with an
 // in-memory fake that records every statement, so the adapter's own logic is what gets tested.
 import { beforeEach, describe, expect, it, vi } from 'vitest';

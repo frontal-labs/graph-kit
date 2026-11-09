@@ -1,8 +1,8 @@
-// @graph-om/testing/src/index.ts
-// Testing utilities for Graph-OM - mock driver, test helpers, fixtures
+// @graph-kit/testing/src/index.ts
+// Testing utilities for Graph-Kit - mock driver, test helpers, fixtures
 // Barrel export - manually selects and re-exports public API
 
-// Type re-exports from @graph-om/sdk
+// Type re-exports from @graph-kit/sdk
 export type {
   DriverAdapter,
   DriverCapabilities,
@@ -15,7 +15,7 @@ export type {
   RelationConfig,
   TransactionContext,
   WhereCondition,
-} from '@graph-om/sdk';
+} from '@graph-kit/sdk';
 // Driver domain
 export { createMockDriver, MockDriverAdapter } from './driver/index';
 

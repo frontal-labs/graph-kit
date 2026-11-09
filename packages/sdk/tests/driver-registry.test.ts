@@ -1,4 +1,4 @@
-// @graph-om/sdk/tests/driver-registry.test.ts
+// @graph-kit/sdk/tests/driver-registry.test.ts
 import { describe, expect, it } from 'vitest';
 import { FalkorDBDriverAdapter } from '../src/driver/falkordb';
 import { createDriver, listDrivers } from '../src/driver/index';

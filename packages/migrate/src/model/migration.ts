@@ -1,7 +1,7 @@
-// @graph-om/migrate/src/model/migration.ts
+// @graph-kit/migrate/src/model/migration.ts
 // Migration model interfaces
 
-import type { GraphSchemaRegistry, QueryCompiler } from '@graph-om/sdk';
+import type { GraphSchemaRegistry, QueryCompiler } from '@graph-kit/sdk';
 
 export interface Migration {
   version: string;

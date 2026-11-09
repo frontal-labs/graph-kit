@@ -7,9 +7,9 @@ labels: ['triage']
 blank_issues_enabled: false
 
 contact_links:
-  - name: Graph-OM Discord
+  - name: Graph-Kit Discord
     url: https://discord.gg/metal
     about: Join the community for real-time help
-  - name: Graph-OM Documentation
-    url: https://github.com/frontal-labs/graph-om/tree/master/docs
+  - name: Graph-Kit Documentation
+    url: https://github.com/frontal-labs/graph-kit/tree/master/docs
     about: Read the full documentation

@@ -1,13 +1,13 @@
 # Configuration
 
-Graph-OM configuration is centered around `defineConfig` and environment variables loaded via `env`.
+Graph-Kit configuration is centered around `defineConfig` and environment variables loaded via `env`.
 
 ## defineConfig
 
-`defineConfig` is an identity function that provides type-safety for your Graph-OM project configuration. It does not perform validation at runtime — validation happens through the `env` object.
+`defineConfig` is an identity function that provides type-safety for your Graph-Kit project configuration. It does not perform validation at runtime — validation happens through the `env` object.
 
 ```ts
-import { defineConfig, env } from '@graph-om/sdk';
+import { defineConfig, env } from '@graph-kit/sdk';
 
 export default defineConfig({
   schema: './src/schema.ts',
@@ -24,7 +24,7 @@ export default defineConfig({
     maxConnectionLifetime: undefined,
     maxTransactionRetryTime: undefined,
   },
-  debug: env.GRAPH_OM_DEBUG,
+  debug: env.GRAPH_KIT_DEBUG,
   exclude: [],
 });
 ```
@@ -63,14 +63,14 @@ export default defineConfig({
 All environment variables are parsed and validated by `@t3-oss/env-core` + zod. See `packages/sdk/src/config/keys.ts` for the full schema.
 
 ```ts
-import { env } from '@graph-om/sdk';
+import { env } from '@graph-kit/sdk';
 
 // All values are typed and have defaults where applicable
 env.NEO4J_URI;        // string
 env.NEO4J_USER;       // string
 env.NEO4J_PASSWORD;   // string
 env.NEO4J_DATABASE;   // string | undefined
-env.GRAPH_OM_DEBUG;   // boolean
+env.GRAPH_KIT_DEBUG;   // boolean
 ```
 
 Create a `.env` file in your project root:
@@ -80,17 +80,17 @@ NEO4J_URI=bolt://localhost:7687
 NEO4J_USER=neo4j
 NEO4J_PASSWORD=password
 NEO4J_DATABASE=neo4j
-GRAPH_OM_DEBUG=false
+GRAPH_KIT_DEBUG=false
 ```
 
-Copy `.env.example` to `.env` after running `graph-om init`.
+Copy `.env.example` to `.env` after running `graph-kit init`.
 
 ## resolveConfig
 
 `resolveConfig` takes a `GraphConfig` and returns a fully-resolved config with defaults applied:
 
 ```ts
-import { resolveConfig } from '@graph-om/sdk';
+import { resolveConfig } from '@graph-kit/sdk';
 
 const config = resolveConfig({
   schema: './src/schema.ts',
@@ -110,13 +110,13 @@ const config = resolveConfig({
 
 `loadConfig` attempts to load a config file from the project root. Supported formats:
 
-- `graph-om.config.ts`
-- `graph-om.config.mjs`
-- `graph-om.config.js`
-- `graph-om.config.json`
+- `graph-kit.config.ts`
+- `graph-kit.config.mjs`
+- `graph-kit.config.js`
+- `graph-kit.config.json`
 
 ```ts
-import { loadConfig } from '@graph-om/sdk';
+import { loadConfig } from '@graph-kit/sdk';
 
 const config = await loadConfig(); // or loadConfig('/path/to/project')
 ```

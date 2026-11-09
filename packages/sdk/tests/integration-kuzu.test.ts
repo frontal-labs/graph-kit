@@ -1,4 +1,4 @@
-// @graph-om/sdk/tests/integration-kuzu.test.ts
+// @graph-kit/sdk/tests/integration-kuzu.test.ts
 // Runs against the real `kuzu` package on a throwaway database. Kuzu is embedded, so no server.
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -7,7 +7,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createKuzuDriverAsync } from '../src/driver/index';
 
 describe('Kuzu integration', () => {
-  const dir = mkdtempSync(path.join(tmpdir(), 'graph-om-kuzu-'));
+  const dir = mkdtempSync(path.join(tmpdir(), 'graph-kit-kuzu-'));
   const databasePath = path.join(dir, 'graph.kuzu');
   let driver: Awaited<ReturnType<typeof createKuzuDriverAsync>>;
 

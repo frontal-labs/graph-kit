@@ -1,5 +1,5 @@
-// @graph-om/sdk/src/migration/index.ts
-// Migration system for Graph-OM - schema versioning and database migrations
+// @graph-kit/sdk/src/migration/index.ts
+// Migration system for Graph-Kit - schema versioning and database migrations
 
 import { raiseGraphError } from '../errors';
 import { QueryCompiler } from '../query';
@@ -52,7 +52,7 @@ export class MigrationRunner {
     this.driver = options.driver;
     this.compiler = new QueryCompiler();
     this.migrationsDir = options.migrationsDir ?? './migrations';
-    this.tableName = options.tableName ?? '_graph_om_migrations';
+    this.tableName = options.tableName ?? '_graph_kit_migrations';
     this.schema = options.schema;
   }
 
@@ -229,8 +229,8 @@ export function createMigrationTemplate(options: CreateMigrationOptions): string
 // Version: ${version}
 // Created: ${new Date().toISOString()}
 
-import { QueryCompiler } from '@graph-om/sdk/query';
-import type { Migration } from '@graph-om/sdk/migration';
+import { QueryCompiler } from '@graph-kit/sdk/query';
+import type { Migration } from '@graph-kit/sdk/migration';
 
 export const migration: Migration = {
   version: '${version}',

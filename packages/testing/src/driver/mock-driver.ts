@@ -1,4 +1,4 @@
-// @graph-om/testing/src/driver/mock-driver.ts
+// @graph-kit/testing/src/driver/mock-driver.ts
 // Mock DriverAdapter implementation for testing without a live database
 
 import type {
@@ -7,7 +7,7 @@ import type {
   QueryRecord,
   QueryResult,
   TransactionContext,
-} from '@graph-om/sdk';
+} from '@graph-kit/sdk';
 
 export class MockDriverAdapter implements DriverAdapter {
   private data: Map<string, Map<string, Record<string, unknown>>> = new Map();

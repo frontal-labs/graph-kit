@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@graph-om/sdk/*": ["./src/*"]
+      "@graph-kit/sdk/*": ["./src/*"]
     },
     "outDir": "./dist",
     "rootDir": "./src",

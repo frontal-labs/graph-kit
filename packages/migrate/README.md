@@ -1,19 +1,19 @@
-# @graph-om/migrate
+# @graph-kit/migrate
 
-Graph-OM migration system — schema versioning and database migrations for graph databases. Provides a `MigrationRunner` that applies and rolls back Cypher migrations, tracks applied migrations as `Migration` nodes in the graph, and can generate migrations from schema diffs.
+Graph-Kit migration system — schema versioning and database migrations for graph databases. Provides a `MigrationRunner` that applies and rolls back Cypher migrations, tracks applied migrations as `Migration` nodes in the graph, and can generate migrations from schema diffs.
 
 ## Installation
 
 ```bash
-pnpm add @graph-om/migrate @graph-om/sdk
+pnpm add @graph-kit/migrate @graph-kit/sdk
 ```
 
 ## Quick start
 
 ```ts
-import { MigrationRunner, generateVersion } from '@graph-om/migrate';
-import { QueryCompiler } from '@graph-om/sdk';
-import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
+import { MigrationRunner, generateVersion } from '@graph-kit/migrate';
+import { QueryCompiler } from '@graph-kit/sdk';
+import { createNeo4jDriver } from '@graph-kit/sdk/driver/neo4j';
 
 const driver = createNeo4jDriver({ uri, username, password });
 await driver.connect();
@@ -21,7 +21,7 @@ await driver.connect();
 const runner = new MigrationRunner({
   driver,
   migrationsDir: './migrations',
-  tableName: '_graph_om_migrations',
+  tableName: '_graph_kit_migrations',
 });
 
 await runner.initialize();
@@ -79,10 +79,10 @@ export class MigrationRunner {
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `driver` | `DriverAdapter` | yes | Graph-OM driver adapter |
+| `driver` | `DriverAdapter` | yes | Graph-Kit driver adapter |
 | `schema` | `GraphSchemaRegistry` | no | Optional schema registry for diffing |
 | `migrationsDir` | string | `'./migrations'` | Directory containing migration files |
-| `tableName` | string | `'_graph_om_migrations'` | Migrations tracking node/table name |
+| `tableName` | string | `'_graph_kit_migrations'` | Migrations tracking node/table name |
 
 ### `Migration`
 

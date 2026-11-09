@@ -18,20 +18,20 @@
     "start:errors-constraints": "tsx src/errors-constraints.ts",
     "start:errors-public": "tsx src/errors-public.ts",
     "seed": "tsx src/seed.ts",
-    "generate": "graph-om generate",
+    "generate": "graph-kit generate",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "test:ui": "vitest --ui",
     "clean": "rm -rf .turbo dist"
   },
   "dependencies": {
-    "@graph-om/sdk": "workspace:*",
-    "@graph-om/zod": "workspace:*",
+    "@graph-kit/sdk": "workspace:*",
+    "@graph-kit/zod": "workspace:*",
     "zod": "^4.6.7"
   },
   "devDependencies": {
     "@apollo/server": "^5.5.1",
-    "@graph-om/cli": "workspace:*",
+    "@graph-kit/cli": "workspace:*",
     "@types/node": "^20.0.0",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",

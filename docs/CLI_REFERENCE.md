@@ -1,10 +1,10 @@
 # CLI Reference
 
-The Graph-OM CLI (`@graph-om/cli`) provides `graph-om init` and `graph-om generate` commands.
+The Graph-Kit CLI (`@graph-kit/cli`) provides `graph-kit init` and `graph-kit generate` commands.
 
 ## Installation
 
-The CLI is installed as part of the Graph-OM monorepo:
+The CLI is installed as part of the Graph-Kit monorepo:
 
 ```bash
 pnpm install
@@ -13,15 +13,15 @@ pnpm install
 Or for a standalone project:
 
 ```bash
-pnpm add @graph-om/cli
+pnpm add @graph-kit/cli
 ```
 
-## `graph-om init <directory>`
+## `graph-kit init <directory>`
 
-Scaffolds a new Graph-OM project.
+Scaffolds a new Graph-Kit project.
 
 ```
-graph-om init <directory> [--database <type>]
+graph-kit init <directory> [--database <type>]
 ```
 
 | Argument | Description | Default |
@@ -34,11 +34,11 @@ graph-om init <directory> [--database <type>]
 
 **Generated files:**
 
-- `package.json` — Project manifest with Graph-OM dependencies
+- `package.json` — Project manifest with Graph-Kit dependencies
 - `tsconfig.json` — TypeScript configuration
 - `src/schema.ts` — Graph schema definition
 - `src/index.ts` — Application entrypoint
-- `graph-om.config.ts` — Graph-OM configuration
+- `graph-kit.config.ts` — Graph-Kit configuration
 - `.env.example` — Environment variable template
 
 **Next steps after init:**
@@ -51,12 +51,12 @@ cp .env.example .env
 npx tsx src/index.ts
 ```
 
-## `graph-om generate`
+## `graph-kit generate`
 
 Generates types and client code from your schema.
 
 ```
-graph-om generate [--watch]
+graph-kit generate [--watch]
 ```
 
 | Option | Description |
@@ -98,7 +98,7 @@ export async function createClient(config?: ClientConfig): Promise<GraphClient> 
 ## Programmatic API
 
 ```ts
-import { createProgram } from '@graph-om/cli';
+import { createProgram } from '@graph-kit/cli';
 
 const program = createProgram();
 program.parse();

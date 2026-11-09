@@ -6,8 +6,8 @@
 // against a real database (see includes.ts and pagination.ts).
 
 import assert from 'node:assert/strict';
-import { GraphClient } from '@graph-om/sdk';
-import { createMockDriver, createTestFixtures, generateRandomEmail } from '@graph-om/sdk/testing';
+import { GraphClient } from '@graph-kit/sdk';
+import { createMockDriver, createTestFixtures, generateRandomEmail } from '@graph-kit/sdk/testing';
 import { graph } from './schema.js';
 
 type UserRow = { id: string; name: string; email: string; age: number | null };

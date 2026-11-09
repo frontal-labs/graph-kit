@@ -1,5 +1,5 @@
-// @graph-om/sdk/src/seed/index.ts
-// Seed/Fixture system for Graph-OM - database seeding and test data generation
+// @graph-kit/sdk/src/seed/index.ts
+// Seed/Fixture system for Graph-Kit - database seeding and test data generation
 
 import { raiseGraphError } from '../errors';
 import type { AnyNodeConfig, DriverAdapter, GraphSchemaRegistry } from '../types';

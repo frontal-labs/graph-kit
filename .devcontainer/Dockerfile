@@ -19,6 +19,6 @@ RUN npm install -g corepack@latest pnpm@9
 
 USER node
 
-WORKDIR /workspaces/graph-om
+WORKDIR /workspaces/graph-kit
 
 CMD ["sleep", "infinity"]

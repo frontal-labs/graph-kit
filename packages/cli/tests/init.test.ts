@@ -1,4 +1,4 @@
-// @graph-om/cli/tests/init.test.ts
+// @graph-kit/cli/tests/init.test.ts
 
 import fs from 'node:fs';
 import os from 'node:os';
@@ -10,7 +10,7 @@ let tmpDir: string;
 let projectDir: string;
 
 beforeAll(async () => {
-  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graph-om-init-test-'));
+  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graph-kit-init-test-'));
   projectDir = path.join(tmpDir, 'my-app');
   const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {
     throw new Error('process.exit');
@@ -31,19 +31,19 @@ describe('initCommand', () => {
   it('scaffolds the expected files', () => {
     expect(fs.existsSync(path.join(projectDir, 'package.json'))).toBe(true);
     expect(fs.existsSync(path.join(projectDir, 'tsconfig.json'))).toBe(true);
-    expect(fs.existsSync(path.join(projectDir, 'graph-om.config.ts'))).toBe(true);
+    expect(fs.existsSync(path.join(projectDir, 'graph-kit.config.ts'))).toBe(true);
     expect(fs.existsSync(path.join(projectDir, '.env.example'))).toBe(true);
     expect(fs.existsSync(path.join(projectDir, 'src', 'schema.ts'))).toBe(true);
     expect(fs.existsSync(path.join(projectDir, 'src', 'index.ts'))).toBe(true);
   });
 
-  it('writes a package.json with graph-om dependencies and scripts', () => {
+  it('writes a package.json with graph-kit dependencies and scripts', () => {
     const pkg = JSON.parse(fs.readFileSync(path.join(projectDir, 'package.json'), 'utf-8'));
     expect(pkg.name).toBe('my-app');
-    expect(pkg.dependencies['@graph-om/sdk']).toBeDefined();
-    expect(pkg.dependencies['@graph-om/sdk']).toBeDefined();
-    expect(pkg.devDependencies['@graph-om/cli']).toBeDefined();
-    expect(pkg.scripts.generate).toBe('graph-om generate');
+    expect(pkg.dependencies['@graph-kit/sdk']).toBeDefined();
+    expect(pkg.dependencies['@graph-kit/sdk']).toBeDefined();
+    expect(pkg.devDependencies['@graph-kit/cli']).toBeDefined();
+    expect(pkg.scripts.generate).toBe('graph-kit generate');
   });
 
   it('does not call the nonexistent GraphClient.connect', () => {

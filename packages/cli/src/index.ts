@@ -1,7 +1,7 @@
-// @graph-om/cli/src/index.ts
+// @graph-kit/cli/src/index.ts
 // CLI entry point
 
-import { formatError } from '@graph-om/sdk/errors';
+import { formatError } from '@graph-kit/sdk/errors';
 import { Command } from 'commander';
 import { createDiffCommand } from './commands/diff.js';
 import { generateCommand } from './commands/generate.js';
@@ -17,13 +17,13 @@ export function createProgram(): Command {
   const program = new Command();
 
   program
-    .name('graph-om')
-    .description('Graph-OM - Prisma-like DX for graph databases')
+    .name('graph-kit')
+    .description('Graph-Kit - Prisma-like DX for graph databases')
     .version(cliVersion());
 
   program
     .command('init')
-    .description('Initialize a new Graph-OM project')
+    .description('Initialize a new Graph-Kit project')
     .argument('[directory]', 'Project directory', '.')
     .option('--database <type>', 'Database type (neo4j)', 'neo4j')
     .action(initCommand);
@@ -45,7 +45,7 @@ export function createProgram(): Command {
 function isExecutedDirectly(): boolean {
   const entry = process.argv[1];
   if (!entry) return false;
-  return /[\\/]graph-om$/.test(entry) || /[\\/]index\.(mjs|cjs|js)$/.test(entry);
+  return /[\\/]graph-kit$/.test(entry) || /[\\/]index\.(mjs|cjs|js)$/.test(entry);
 }
 
 if (isExecutedDirectly()) {

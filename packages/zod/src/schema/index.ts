@@ -1,4 +1,4 @@
-// @graph-om/zod/src/schema/index.ts
+// @graph-kit/zod/src/schema/index.ts
 // Schema generation domain barrel
 
 export { toCreateSchema, toUpdateSchema, toZodSchema } from './factory';

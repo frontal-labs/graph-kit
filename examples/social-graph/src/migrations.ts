@@ -1,11 +1,11 @@
 // migrations.ts - Applying, checking, and rolling back migrations
 // Run: pnpm start:migrations
 //
-// The migration modules are imported explicitly. `loadMigrations()` in @graph-om/sdk does not
+// The migration modules are imported explicitly. `loadMigrations()` in @graph-kit/sdk does not
 // import files yet, so the list is built here from the files in ../migrations.
 
-import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
-import { createMigrationRunner, type Migration } from '@graph-om/sdk/migration';
+import { createNeo4jDriver } from '@graph-kit/sdk/driver/neo4j';
+import { createMigrationRunner, type Migration } from '@graph-kit/sdk/migration';
 import { migration as initialSchema } from '../migrations/20240115143000_initial_schema.js';
 import { migration as addUserBio } from '../migrations/20240116100000_add_user_bio.js';
 import { migration as addPostViewcountTags } from '../migrations/20240117120000_add_post_viewcount_tags.js';

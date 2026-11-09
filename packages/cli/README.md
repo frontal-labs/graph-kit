@@ -1,19 +1,19 @@
-# @graph-om/cli
+# @graph-kit/cli
 
-CLI for Graph-OM.
+CLI for Graph-Kit.
 
 ```bash
-npx graph-om init [directory]   # scaffold a new project
-npx graph-om generate           # generate types/client (and zod) from schema
-npx graph-om generate --watch   # regenerate on schema changes
+npx graph-kit init [directory]   # scaffold a new project
+npx graph-kit generate           # generate types/client (and zod) from schema
+npx graph-kit generate --watch   # regenerate on schema changes
 ```
 
-Reads `graph-om.config.ts` (or `graph-om.config.json`) for the schema path, output directory, zod flag, and excluded labels.
+Reads `graph-kit.config.ts` (or `graph-kit.config.json`) for the schema path, output directory, zod flag, and excluded labels.
 
 Generated files land in `src/__generated__` by default:
 
 - `types.ts` — node interfaces, `Where`, `CreateInput`, `UpdateInput` types
-- `client.ts` — `createClient()` factory wiring `@graph-om/sdk/driver/neo4j` to `GraphClient`
+- `client.ts` — `createClient()` factory wiring `@graph-kit/sdk/driver/neo4j` to `GraphClient`
 - `zod.ts` — Zod schemas (when `output.zod: true`)
 
 ## License

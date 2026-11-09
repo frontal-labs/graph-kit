@@ -1,5 +1,5 @@
-// @graph-om/sdk/src/errors/index.ts
-// Typed graph-om errors. Built on @frontal-labs/error (bundled into the SDK).
+// @graph-kit/sdk/src/errors/index.ts
+// Typed graph-kit errors. Built on @frontal-labs/error (bundled into the SDK).
 //
 // Codes are stable identifiers callers can branch on with `hasCode`.
 // Messages are developer-facing; surfaces that face clients (MCP, GraphQL)
@@ -46,11 +46,11 @@ export interface GraphErrorOptions extends CreateErrorOptions<GraphErrorCode> {
   readonly retry?: RetryPolicy;
 }
 
-const DOCS_URL = 'https://github.com/frontal-labs/graph-om/blob/main/docs/errors.md';
+const DOCS_URL = 'https://github.com/frontal-labs/graph-kit/blob/main/docs/errors.md';
 
 /**
- * A graph-om error. Sets its own `scope` and a docs `link` derived from `code`.
- * `retry` is graph-om's own field, set by the thrower; `@frontal-labs/error@0.7.0`
+ * A graph-kit error. Sets its own `scope` and a docs `link` derived from `code`.
+ * `retry` is graph-kit's own field, set by the thrower; `@frontal-labs/error@0.7.0`
  * has no retry option of its own.
  */
 export class GraphError extends FrontalError<GraphErrorCode> {
@@ -60,14 +60,14 @@ export class GraphError extends FrontalError<GraphErrorCode> {
     const { retry, ...rest } = options;
     super(message, {
       ...rest,
-      scope: 'graph-om',
+      scope: 'graph-kit',
       link: rest.link ?? (rest.code ? `${DOCS_URL}#${rest.code}` : undefined),
     });
     this.retry = retry ?? { retryable: false };
   }
 }
 
-/** Create and throw a graph-om error. Declared `never` so callers keep type narrowing. */
+/** Create and throw a graph-kit error. Declared `never` so callers keep type narrowing. */
 export function raiseGraphError(message: string, options: GraphErrorOptions): never {
   throw new GraphError(message, options);
 }
@@ -75,7 +75,7 @@ export function raiseGraphError(message: string, options: GraphErrorOptions): ne
 export { FrontalError, getRootCause, isFrontalError };
 
 /**
- * True when `error` is a graph-om error with one of `codes`. Narrows to `GraphError`,
+ * True when `error` is a graph-kit error with one of `codes`. Narrows to `GraphError`,
  * so `statusCode`, `retry` and `metadata` stay typed after the check.
  */
 export function hasCode(
@@ -112,7 +112,7 @@ export function connectionFailure(
 }
 
 /**
- * Adapter boundary helper: errors that are already graph-om errors pass through
+ * Adapter boundary helper: errors that are already graph-kit errors pass through
  * unchanged, and everything else is classified as a driver failure.
  */
 export function classifyDriverError(error: unknown, driver: string): unknown {
@@ -120,7 +120,7 @@ export function classifyDriverError(error: unknown, driver: string): unknown {
 }
 
 /**
- * Convert a native driver error into a typed graph-om error.
+ * Convert a native driver error into a typed graph-kit error.
  * The original error is kept as `cause`, and the driver's own code goes in
  * `metadata.driverCode`. Driver messages are kept as-is; Cypher text and
  * parameters are never copied into the error.
@@ -157,7 +157,7 @@ export function mapDriverError(error: unknown, context: { driver: string }): Gra
 }
 
 /**
- * True when a graph-om error says it is safe to retry. Tag-based, so it works across
+ * True when a graph-kit error says it is safe to retry. Tag-based, so it works across
  * package entry points, where `instanceof GraphError` can be false.
  */
 export function isRetryable(error: unknown): boolean {
@@ -181,7 +181,7 @@ export function driverErrorBoundary(driver: string) {
   };
 }
 
-/** The stable graph-om code of an error, or undefined for anything else. Safe for metric labels. */
+/** The stable graph-kit code of an error, or undefined for anything else. Safe for metric labels. */
 export function errorCode(error: unknown): GraphErrorCode | undefined {
   return isFrontalError(error) ? (error.code as GraphErrorCode | undefined) : undefined;
 }
@@ -215,7 +215,7 @@ export function toPublic(error: unknown): FrontalError<GraphErrorCode> {
   const statusCode = status !== undefined && status >= 400 && status <= 599 ? status : 500;
   const message = (code && PUBLIC_MESSAGES[code]) || FALLBACK_PUBLIC_MESSAGE;
   return new FrontalError<GraphErrorCode>(message, {
-    scope: 'graph-om',
+    scope: 'graph-kit',
     code,
     statusCode,
     cause: error,

@@ -1,6 +1,6 @@
 # Third-party notices
 
-`@graph-om/sdk` bundles `@frontal-labs/error@0.7.0` (MIT License, Copyright (c) 2026 Frontal Labs, Inc.) into its ESM and CJS builds, so that the SDK works under CommonJS and on Node 22. The bundled code is unmodified.
+`@graph-kit/sdk` bundles `@frontal-labs/error@0.7.0` (MIT License, Copyright (c) 2026 Frontal Labs, Inc.) into its ESM and CJS builds, so that the SDK works under CommonJS and on Node 22. The bundled code is unmodified.
 
 The full license text follows.
 

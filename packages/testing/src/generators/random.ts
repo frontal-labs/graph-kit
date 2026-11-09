@@ -1,4 +1,4 @@
-// @graph-om/testing/src/generators/random.ts
+// @graph-kit/testing/src/generators/random.ts
 // Random data generators for test data
 
 export function generateRandomString(length = 10): string {

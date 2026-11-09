@@ -1,7 +1,7 @@
-// @graph-om/migrate/src/template/migration-template.ts
+// @graph-kit/migrate/src/template/migration-template.ts
 // Migration file template generation
 
-import type { GraphSchemaRegistry } from '@graph-om/sdk';
+import type { GraphSchemaRegistry } from '@graph-kit/sdk';
 import { generateVersion } from '../version/version';
 
 export interface CreateMigrationTemplateOptions {
@@ -15,8 +15,8 @@ export function createMigrationTemplate(options: CreateMigrationTemplateOptions)
 // Version: ${generateVersion()}
 // Created: ${new Date().toISOString()}
 
-import { QueryCompiler } from '@graph-om/sdk';
-import type { Migration } from '@graph-om/migrate';
+import { QueryCompiler } from '@graph-kit/sdk';
+import type { Migration } from '@graph-kit/migrate';
 
 export const migration: Migration = {
   version: '${generateVersion()}',

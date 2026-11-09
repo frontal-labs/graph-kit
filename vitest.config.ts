@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   resolve: {
     alias: {
-      '@graph-om/sdk': path.resolve(__dirname, 'packages/sdk/src/index.ts'),
+      '@graph-kit/sdk': path.resolve(__dirname, 'packages/sdk/src/index.ts'),
     },
   },
   test: {

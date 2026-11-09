@@ -1,7 +1,7 @@
-// @graph-om/mcp/src/config.ts
+// @graph-kit/mcp/src/config.ts
 // MCP server configuration
 
-import type { AnyDriverConfig, DriverAdapter } from '@graph-om/sdk';
+import type { AnyDriverConfig, DriverAdapter } from '@graph-kit/sdk';
 
 export interface MCPConfig {
   driver: DriverAdapter | AnyDriverConfig;

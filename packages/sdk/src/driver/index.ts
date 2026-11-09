@@ -1,4 +1,4 @@
-// @graph-om/sdk/src/driver/index.ts
+// @graph-kit/sdk/src/driver/index.ts
 // Driver adapter abstraction for multi-database support (types only - implementations in separate packages)
 
 import { raiseGraphError } from '../errors';

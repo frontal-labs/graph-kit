@@ -1,7 +1,7 @@
-// @graph-om/mcp/src/resources/resource-handler.ts
+// @graph-kit/mcp/src/resources/resource-handler.ts
 // MCP resource definitions and read-resource dispatch logic
 
-import { raiseGraphError } from '@graph-om/sdk/errors';
+import { raiseGraphError } from '@graph-kit/sdk/errors';
 
 export interface ResourceDefinition {
   uri: string;

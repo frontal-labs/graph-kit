@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Only the latest published version of each `@graph-om/*` package receives security fixes.
+Only the latest published version of each `@graph-kit/*` package receives security fixes.
 
 ## Reporting a vulnerability
 

@@ -1,4 +1,4 @@
-import { defineConfig } from '@graph-om/sdk';
+import { defineConfig } from '@graph-kit/sdk';
 
 export default defineConfig({
   schema: './src/schema.ts',
