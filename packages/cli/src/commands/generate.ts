@@ -252,12 +252,12 @@ export function loadProjectConfig(projectRoot: string): LoadedProjectConfig {
   let zod = false;
   let exclude: string[] = [];
 
-  // Preferred config filename first, then the legacy graph-kit.config.* names.
+  // Preferred config filename first, then legacy fallbacks.
   const configCandidates = [
-    path.join(projectRoot, 'graph.config.ts'),
-    path.join(projectRoot, 'graph.config.json'),
     path.join(projectRoot, 'graph-kit.config.ts'),
     path.join(projectRoot, 'graph-kit.config.json'),
+    path.join(projectRoot, 'graph.config.ts'),
+    path.join(projectRoot, 'graph.config.json'),
   ];
 
   const configJsonPath = configCandidates.find((p) => p.endsWith('.json') && fs.existsSync(p));
@@ -305,7 +305,7 @@ export function runGenerate(projectRoot: string): GenerateResult {
   if (!fs.existsSync(schemaPath)) {
     raiseGraphError(
       `Schema file not found at ${schemaPath}. ` +
-        `Check the "schema" field in graph.config.ts or run \`graph-kit init\`.`,
+        `Check the "schema" field in graph-kit.config.ts or run \`graph-kit init\`.`,
       { code: 'invalid_config', statusCode: 400 },
     );
   }
@@ -346,7 +346,7 @@ export async function generateCommand(options: GenerateOptions): Promise<void> {
 
   if (options.watch) {
     const { schemaPath } = loadProjectConfig(projectRoot);
-    const watchTargets = [schemaPath, path.join(projectRoot, 'metal.config.ts')].filter((p) =>
+    const watchTargets = [schemaPath, path.join(projectRoot, 'graph-kit.config.ts')].filter((p) =>
       fs.existsSync(p),
     );
     console.log('\n👀 Watching for changes... (Ctrl+C to stop)\n');

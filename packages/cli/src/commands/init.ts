@@ -108,8 +108,8 @@ main().catch((error) => {
 
   fs.writeFileSync(path.join(targetDir, 'src', 'index.ts'), mainContent);
 
-  // Generate graph.config.ts — the single source of truth for Graph-Kit
-  const graphOmConfigContent = `import { defineConfig, env } from '@graph-kit/sdk';
+  // Generate graph-kit.config.ts — the single source of truth for Graph-Kit
+  const graphKitConfigContent = `import { defineConfig, env } from '@graph-kit/sdk';
 
 export default defineConfig({
   schema: './src/schema.ts',
@@ -127,7 +127,7 @@ export default defineConfig({
 });
 `;
 
-  fs.writeFileSync(path.join(targetDir, 'graph.config.ts'), graphOmConfigContent);
+  fs.writeFileSync(path.join(targetDir, 'graph-kit.config.ts'), graphKitConfigContent);
 
   const envContent = `NEO4J_URI=bolt://localhost:7687
 NEO4J_USER=neo4j
