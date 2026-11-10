@@ -1,11 +1,11 @@
-# @graph-om/mcp
+# @graph-kit/mcp
 
-Graph-OM MCP (Model Context Protocol) server. Exposes graph database operations (run Cypher queries, inspect schema, list nodes and relationships) through the [Model Context Protocol](https://modelcontextprotocol.io/) so AI assistants and MCP clients can interact with your Graph-OM-backed graph database.
+Graph-Kit MCP (Model Context Protocol) server. Exposes graph database operations (run Cypher queries, inspect schema, list nodes and relationships) through the [Model Context Protocol](https://modelcontextprotocol.io/) so AI assistants and MCP clients can interact with your Graph-Kit-backed graph database.
 
 ## Installation
 
 ```bash
-pnpm add @graph-om/mcp @graph-om/sdk
+pnpm add @graph-kit/mcp @graph-kit/sdk
 ```
 
 `@modelcontextprotocol/sdk` is a direct dependency and is installed automatically.
@@ -13,8 +13,8 @@ pnpm add @graph-om/mcp @graph-om/sdk
 ## Quick start
 
 ```ts
-import { createMCPServer } from '@graph-om/mcp';
-import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
+import { createMCPServer } from '@graph-kit/mcp';
+import { createNeo4jDriver } from '@graph-kit/sdk/driver/neo4j';
 
 const driver = createNeo4jDriver({
   uri: 'bolt://localhost:7687',
@@ -26,7 +26,7 @@ await driver.connect();
 
 const server = await createMCPServer({
   driver,
-  name: 'graph-om',
+  name: 'graph-kit',
   version: '1.0.0',
 });
 
@@ -50,7 +50,7 @@ const server = await createMCPServer({
 
 ## API
 
-### `GraphOMMCPServer`
+### `GraphKitMCPServer`
 
 Class wrapping an MCP `Server` over stdio. Methods:
 
@@ -61,18 +61,18 @@ Class wrapping an MCP `Server` over stdio. Methods:
 
 ### `createMCPServer(config)`
 
-Factory that constructs and configures a `GraphOMMCPServer` with tool, resource, and call handlers.
+Factory that constructs and configures a `GraphKitMCPServer` with tool, resource, and call handlers.
 
 ```ts
-export async function createMCPServer(config: MCPConfig): Promise<GraphOMMCPServer>;
+export async function createMCPServer(config: MCPConfig): Promise<GraphKitMCPServer>;
 ```
 
 ### `MCPConfig`
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `driver` | `DriverAdapter \| DriverConfig` | Graph-OM driver adapter or config object |
-| `name` | string | Server name (default: `'graph-om'`) |
+| `driver` | `DriverAdapter \| DriverConfig` | Graph-Kit driver adapter or config object |
+| `name` | string | Server name (default: `'graph-kit'`) |
 | `version` | string | Server version (default: `'1.0.0'`) |
 
 ## MCP capabilities

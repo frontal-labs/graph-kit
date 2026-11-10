@@ -1,4 +1,4 @@
-# GraphOM
+# GraphKit
 
 ![Frontal Banner](./banner.jpg)
 
@@ -15,7 +15,7 @@ A schema-first TypeScript library for modelling, querying, and traversing graph 
        │                                   └──────────────────┘
        ▼                                            │
 ┌────────────────┐     ┌───────────────┐            ▼
-│ @graph-om/sdk │────▶│ DriverAdapter │◀─── GraphClient(driver, nodes)
+│ @graph-kit/sdk │────▶│ DriverAdapter │◀─── GraphClient(driver, nodes)
 │ QueryCompiler  │     └───────────────┘
 └────────────────┘            ▲
 ```
@@ -24,15 +24,15 @@ A schema-first TypeScript library for modelling, querying, and traversing graph 
 
 | Package | Description |
 | --- | --- |
-| [`@graph-om/sdk`](./packages/sdk) | Schema DSL, Cypher query compiler, typed client, config system |
-| [`@graph-om/cli`](./packages/cli) | `graph init` and `graph generate` codegen |
-| [`@graph-om/zod`](./packages/zod) | Zod schema generation and validation from node configs |
+| [`@graph-kit/sdk`](./packages/sdk) | Schema DSL, Cypher query compiler, typed client, config system |
+| [`@graph-kit/cli`](./packages/cli) | `graph init` and `graph generate` codegen |
+| [`@graph-kit/zod`](./packages/zod) | Zod schema generation and validation from node configs |
 
 ## Quick start
 
 ```bash
 # scaffold a project
-npx @graph-om/cli init my-graph
+npx @graph-kit/cli init my-graph
 cd my-graph
 pnpm install          # or npm / yarn
 cp .env.example .env  # set NEO4J_URI / NEO4J_USER / NEO4J_PASSWORD
@@ -44,7 +44,7 @@ npx tsx src/index.ts
 
 ```ts
 // src/schema.ts
-import { node, relation, schema as sch, string, boolean, date } from '@graph-om/sdk';
+import { node, relation, schema as sch, string, boolean, date } from '@graph-kit/sdk';
 
 export const User = node('User')
   .add('id', string({ primary: true }))
@@ -66,8 +66,8 @@ export const graph = sch().add('User', User).add('Post', Post).build();
 ### Query the graph
 
 ```ts
-import { GraphClient } from '@graph-om/sdk';
-import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
+import { GraphClient } from '@graph-kit/sdk';
+import { createNeo4jDriver } from '@graph-kit/sdk/driver/neo4j';
 import { graph } from './schema.js';
 
 const driver = createNeo4jDriver({
@@ -109,7 +109,7 @@ await client.transaction(async (tx) => {
 ### Validate with Zod
 
 ```ts
-import { toCreateSchema, validateCreate } from '@graph-om/zod';
+import { toCreateSchema, validateCreate } from '@graph-kit/zod';
 import { User } from './schema.js';
 
 const result = validateCreate(User, { id: '1', name: 'Alice' });
@@ -118,10 +118,10 @@ if (!result.success) console.error(result.error.flatten());
 
 ## Handling errors
 
-Every failure graph-om throws is a typed `GraphError` with a stable `code`, so you can branch on it rather than on the message:
+Every failure graph-kit throws is a typed `GraphError` with a stable `code`, so you can branch on it rather than on the message:
 
 ```ts
-import { hasCode } from '@graph-om/sdk/errors';
+import { hasCode } from '@graph-kit/sdk/errors';
 
 try {
   await client.update('Person', { where: { id }, data });
@@ -133,14 +133,14 @@ try {
 }
 ```
 
-Driver errors keep the original error on `cause`. Before sending an error to a client, convert it with `toPublic`, so the client sees only the code and a fixed message. See [docs/errors.md](https://github.com/frontal-labs/graph-om/blob/main/docs/errors.md) for every code.
+Driver errors keep the original error on `cause`. Before sending an error to a client, convert it with `toPublic`, so the client sees only the code and a fixed message. See [docs/errors.md](https://github.com/frontal-labs/graph-kit/blob/main/docs/errors.md) for every code.
 
 ## Configuration
 
 `graph.config.ts` drives codegen:
 
 ```ts
-import { defineConfig } from '@graph-om/sdk';
+import { defineConfig } from '@graph-kit/sdk';
 
 export default defineConfig({
   schema: './src/schema.ts',

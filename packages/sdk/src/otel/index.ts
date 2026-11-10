@@ -1,5 +1,5 @@
-// @graph-om/sdk/src/otel/index.ts
-// OpenTelemetry integration for Graph-OM
+// @graph-kit/sdk/src/otel/index.ts
+// OpenTelemetry integration for Graph-Kit
 
 import { errorCode, isFrontalError } from '../errors';
 import type { MetricsCollector } from '../observability';
@@ -174,7 +174,7 @@ let globalTracer: Tracer = new NoopTracer();
 let globalMeter: Meter = new NoopMeter();
 let isInitialized = false;
 
-/** Tag a span with the graph-om error code and HTTP-style status, when the error has them. */
+/** Tag a span with the graph-kit error code and HTTP-style status, when the error has them. */
 function setErrorCode(span: Span, error: unknown): void {
   const code = errorCode(error);
   if (code === undefined) return;

@@ -1,4 +1,4 @@
-// @graph-om/mcp/src/tools/index.ts
+// @graph-kit/mcp/src/tools/index.ts
 // Tools domain barrel
 
 export { toToolError } from './tool-error';

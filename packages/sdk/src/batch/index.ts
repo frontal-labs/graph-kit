@@ -1,5 +1,5 @@
-// @graph-om/sdk/src/batch/index.ts
-// Batch operations and bulk import for Graph-OM
+// @graph-kit/sdk/src/batch/index.ts
+// Batch operations and bulk import for Graph-Kit
 
 import type { AnyNodeConfig, DriverAdapter, GraphSchemaRegistry, QueryResult } from '../types';
 

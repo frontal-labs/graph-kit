@@ -1,4 +1,4 @@
-// @graph-om/sdk/tests/integration.test.ts
+// @graph-kit/sdk/tests/integration.test.ts
 // Opt-in integration tests against a live Neo4j instance.
 // Run: docker compose up -d && NEO4J_URI=bolt://localhost:7687 NEO4J_USER=neo4j NEO4J_PASSWORD=password pnpm test
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';

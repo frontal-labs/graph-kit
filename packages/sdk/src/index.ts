@@ -1,5 +1,5 @@
-// @graph-om/sdk/src/index.ts
-// Graph-OM - Prisma-like DX for graph databases
+// @graph-kit/sdk/src/index.ts
+// Graph-Kit - Prisma-like DX for graph databases
 
 export {
   type AuthConfig,

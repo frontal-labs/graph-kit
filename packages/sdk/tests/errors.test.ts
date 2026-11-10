@@ -18,7 +18,7 @@ function driverError(code: string | undefined, message = 'driver said no'): Erro
   return error;
 }
 
-describe('graph-om errors', () => {
+describe('graph-kit errors', () => {
   it('creates scoped, tagged errors that still extend Error', () => {
     const error = new GraphError('boom', { code: 'query_failed', statusCode: 500 });
 
@@ -26,7 +26,7 @@ describe('graph-om errors', () => {
     expect(error).toBeInstanceOf(FrontalError);
     expect(error).toBeInstanceOf(Error);
     expect(isFrontalError(error)).toBe(true);
-    expect(error.scope).toBe('graph-om');
+    expect(error.scope).toBe('graph-kit');
     expect(error.message).toBe('boom');
   });
 
@@ -34,7 +34,7 @@ describe('graph-om errors', () => {
     expect(new GraphError('x', { code: 'query_failed' }).retry).toEqual({ retryable: false });
   });
 
-  it('keeps retry as graph-om metadata, not as a frontal option', () => {
+  it('keeps retry as graph-kit metadata, not as a frontal option', () => {
     const error = new GraphError('x', {
       code: 'connection_failed',
       retry: { retryable: true },
@@ -45,7 +45,7 @@ describe('graph-om errors', () => {
   it('links each code to its anchor in the errors doc', () => {
     const error = new GraphError('x', { code: 'record_not_found' });
     expect(error.link).toBe(
-      'https://github.com/frontal-labs/graph-om/blob/main/docs/errors.md#record_not_found',
+      'https://github.com/frontal-labs/graph-kit/blob/main/docs/errors.md#record_not_found',
     );
   });
 
@@ -177,7 +177,7 @@ describe('mapDriverError', () => {
 });
 
 describe('classifyDriverError', () => {
-  it('passes graph-om errors through unchanged', () => {
+  it('passes graph-kit errors through unchanged', () => {
     const original = new GraphError('x', { code: 'record_not_found' });
     expect(classifyDriverError(original, 'neo4j')).toBe(original);
   });

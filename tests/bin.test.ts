@@ -14,6 +14,6 @@ describe('root bin/index.js', () => {
 
   it('shows the CLI help', () => {
     const out = execFileSync(process.execPath, [launcher, '--help'], { encoding: 'utf8' });
-    expect(out).toContain('Usage: graph-om');
+    expect(out).toContain('Usage: graph-kit');
   }, 30_000);
 });

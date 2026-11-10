@@ -1,4 +1,4 @@
-// @graph-om/testing/src/fixtures/index.ts
+// @graph-kit/testing/src/fixtures/index.ts
 // Fixtures domain barrel
 
 export type { TestFixture } from './test-fixtures';

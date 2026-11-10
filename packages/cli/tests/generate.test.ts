@@ -1,4 +1,4 @@
-// @graph-om/cli/tests/generate.test.ts
+// @graph-kit/cli/tests/generate.test.ts
 
 import fs from 'node:fs';
 import os from 'node:os';
@@ -19,7 +19,7 @@ import {
   runGenerate,
 } from '../src/commands/generate';
 
-const SCHEMA_FIXTURE = `import { node, relation, schema as sch, string, boolean, date } from '@graph-om/sdk';
+const SCHEMA_FIXTURE = `import { node, relation, schema as sch, string, boolean, date } from '@graph-kit/sdk';
 
 export const User = node('User')
   .add('id', string({ primary: true }))
@@ -46,7 +46,7 @@ export const graph = sch()
 let tmpDir: string;
 
 beforeAll(() => {
-  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graph-om-cli-test-'));
+  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'graph-kit-cli-test-'));
 });
 
 afterAll(() => {
@@ -107,7 +107,7 @@ describe('loadSchema', () => {
     const schemaPath = path.join(tmpDir, 'schema-multi.ts');
     fs.writeFileSync(
       schemaPath,
-      `import { node, relation, string } from '@graph-om/sdk';
+      `import { node, relation, string } from '@graph-kit/sdk';
 export const A = node('A')
   .add('id', string({ primary: true }))
   .add('things', relation('HAS', 'OUT', 'B', { multiple: true }))
@@ -173,7 +173,7 @@ describe('content generators', () => {
 
   it('generateTypesContent is valid-looking TS with WhereOperator import', () => {
     const out = generateTypesContent([node]);
-    expect(out).toContain("import type { WhereOperator } from '@graph-om/sdk';");
+    expect(out).toContain("import type { WhereOperator } from '@graph-kit/sdk';");
     expect(out).toContain('export interface UserNode');
     expect(out).toContain('export type UserCreateInput');
   });
@@ -189,7 +189,7 @@ describe('content generators', () => {
 
   it('generateClientContent imports neo4j driver and builds node configs', () => {
     const out = generateClientContent([node]);
-    expect(out).toContain("import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';");
+    expect(out).toContain("import { createNeo4jDriver } from '@graph-kit/sdk/driver/neo4j';");
     expect(out).toContain('export async function createClient');
     expect(out).toContain("label: 'User'");
     expect(out).not.toContain('GraphClient.connect');
@@ -206,11 +206,11 @@ describe('loadProjectConfig', () => {
     expect(config.zod).toBe(false);
   });
 
-  it('parses graph-om.config.ts via regex', () => {
+  it('parses graph-kit.config.ts via regex', () => {
     const dir = path.join(tmpDir, 'ts-config');
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(
-      path.join(dir, 'graph-om.config.ts'),
+      path.join(dir, 'graph-kit.config.ts'),
       `export default {
   schema: './graph/schema.ts',
   output: { directory: './out', zod: true },
@@ -224,11 +224,11 @@ describe('loadProjectConfig', () => {
     expect(config.exclude).toEqual(['Internal']);
   });
 
-  it('parses graph-om.config.json', () => {
+  it('parses graph-kit.config.json', () => {
     const dir = path.join(tmpDir, 'json-config');
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(
-      path.join(dir, 'graph-om.config.json'),
+      path.join(dir, 'graph-kit.config.json'),
       JSON.stringify({
         schema: './s.ts',
         output: { directory: './gen', zod: true },
@@ -248,7 +248,7 @@ describe('runGenerate', () => {
     fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
     fs.writeFileSync(path.join(dir, 'src', 'schema.ts'), SCHEMA_FIXTURE);
     fs.writeFileSync(
-      path.join(dir, 'graph-om.config.ts'),
+      path.join(dir, 'graph-kit.config.ts'),
       `export default { schema: './src/schema.ts', output: { directory: './src/__generated__', zod: true } };`,
     );
 

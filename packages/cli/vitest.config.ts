@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   define: {
-    __GRAPH_OM_CLI_VERSION__: JSON.stringify('1.0.0'),
+    __GRAPH_KIT_CLI_VERSION__: JSON.stringify('1.0.0'),
   },
   test: {
     globals: true,
@@ -20,29 +20,29 @@ export default defineConfig({
   },
   resolve: {
     alias: [
-      // Exact matches only, so '@graph-om/sdk' does not swallow its subpaths
+      // Exact matches only, so '@graph-kit/sdk' does not swallow its subpaths
       {
-        find: /^@graph-om\/sdk$/,
+        find: /^@graph-kit\/sdk$/,
         replacement: path.resolve(__dirname, '../sdk/src/index.ts'),
       },
       {
-        find: /^@graph-om\/sdk\/driver\/(neo4j|memgraph|kuzu|falkordb)$/,
+        find: /^@graph-kit\/sdk\/driver\/(neo4j|memgraph|kuzu|falkordb)$/,
         replacement: path.resolve(__dirname, '../sdk/src/driver/$1.ts'),
       },
       {
-        find: /^@graph-om\/sdk\/(schema|client|query|config|driver|migration|seed|visualization|testing|graphql|batch|auth|observability|otel|benchmark)$/,
+        find: /^@graph-kit\/sdk\/(schema|client|query|config|driver|migration|seed|visualization|testing|graphql|batch|auth|observability|otel|benchmark)$/,
         replacement: path.resolve(__dirname, '../sdk/src/$1/index.ts'),
       },
       {
-        find: '@graph-om/zod',
+        find: '@graph-kit/zod',
         replacement: path.resolve(__dirname, '../zod/src/index.ts'),
       },
       {
-        find: '@graph-om/testing',
+        find: '@graph-kit/testing',
         replacement: path.resolve(__dirname, '../testing/src/index.ts'),
       },
       {
-        find: '@graph-om/migrate',
+        find: '@graph-kit/migrate',
         replacement: path.resolve(__dirname, '../migrate/src/index.ts'),
       },
     ],

@@ -1,7 +1,7 @@
-# GraphOM --- Agent Refactor & Implementation Master Plan
+# GraphKit --- Agent Refactor & Implementation Master Plan
 
 **Status:** Proposed execution brief\
-**Project:** Rename and evolve `metal` into **GraphOM** (`graph-om` for
+**Project:** Rename and evolve `metal` into **GraphKit** (`graph-kit` for
 repository/CLI naming where appropriate)\
 **Primary implementation target:** Existing Metal TypeScript/Neo4j
 repository\
@@ -15,11 +15,11 @@ exists.
 
 ## 0. Mission for the coding agents
 
-Transform the existing Metal project into **GraphOM**, a
+Transform the existing Metal project into **GraphKit**, a
 TypeScript-first graph development and verification platform, initially
 focused on Neo4j.
 
-GraphOM must help developers and coding agents:
+GraphKit must help developers and coding agents:
 
 1.  Understand an existing graph and its application contracts.
 2.  Model graph structure and business invariants.
@@ -33,7 +33,7 @@ GraphOM must help developers and coding agents:
 
 **Product positioning**
 
-> GraphOM --- The graph engineering and verification platform for
+> GraphKit --- The graph engineering and verification platform for
 > developers and AI coding agents.
 
 Suggested tagline: **Build with confidence. Evolve without fear.**
@@ -61,7 +61,7 @@ agent-facing verification.
     unknown database.
 -   Diagnostics are read-only by default. Migrations and repairs require
     explicit plans and approval.
--   AI agents may propose changes; GraphOM must validate them; a human
+-   AI agents may propose changes; GraphKit must validate them; a human
     or explicitly authorized pipeline approves risky execution.
 -   Distinguish static analysis from database-backed measurements. Never
     present estimates as actual Neo4j execution statistics.
@@ -90,7 +90,7 @@ declaration challenges in TypeScript ORM ecosystems. - Transaction
 timeout, rollback and failure-handling complexity.
 
 **Evidence limitation:** These are observations from adjacent graph and
-ORM ecosystems, not validated customer research for Metal/GraphOM. The
+ORM ecosystems, not validated customer research for Metal/GraphKit. The
 supplied research stated that Metal itself had no open GitHub issues and
 very limited visible adoption signals at the time of inspection. Treat
 the pain points as hypotheses to validate, not proven demand.
@@ -136,7 +136,7 @@ strategy discussion include:
     operations. Do not build a thin MCP wrapper that merely repeats
     database access.
 -   **Neo4j Agent Skills:** coding-agent guidance for Neo4j, Cypher,
-    modeling, indexing and profiling. GraphOM must provide
+    modeling, indexing and profiling. GraphKit must provide
     project-specific contracts, change analysis and verification beyond
     generic instructions.
 -   **Neo4j native tooling:** schema inspection, constraints, indexes,
@@ -148,7 +148,7 @@ releases, repositories and issue trackers before claiming that a
 capability is missing from a competitor. Distinguish verified facts from
 interpretation.
 
-**Strategic hypothesis:** GraphOM's potential advantage is making
+**Strategic hypothesis:** GraphKit's potential advantage is making
 AI-generated graph application changes verifiable, safe and consistent
 with both the declared contract and the live database.
 
@@ -156,9 +156,9 @@ with both the declared contract and the live database.
 
 ## 3. Target architecture
 
-### 3.1 Canonical GraphOM Schema IR
+### 3.1 Canonical GraphKit Schema IR
 
-Create or identify one canonical, versioned **GraphOM Schema
+Create or identify one canonical, versioned **GraphKit Schema
 Intermediate Representation (IR)**. It should be the shared source
 consumed by:
 
@@ -211,19 +211,19 @@ telemetry.
 
 The previous strategy proposed these eventual logical packages:
 
--   `@graphom/core`
--   `@graphom/compiler`
--   `@graphom/neo4j`
--   `@graphom/validation`
--   `@graphom/cli`
--   `@graphom/migrate`
--   `@graphom/doctor`
--   `@graphom/testing`
--   `@graphom/query-inspector`
--   `@graphom/studio`
--   `@graphom/observe`
--   `@graphom/ai`
--   `@graphom/mcp`
+-   `@graphkit/core`
+-   `@graphkit/compiler`
+-   `@graphkit/neo4j`
+-   `@graphkit/validation`
+-   `@graphkit/cli`
+-   `@graphkit/migrate`
+-   `@graphkit/doctor`
+-   `@graphkit/testing`
+-   `@graphkit/query-inspector`
+-   `@graphkit/studio`
+-   `@graphkit/observe`
+-   `@graphkit/ai`
+-   `@graphkit/mcp`
 
 These are **candidate boundaries, not a mandate to create thirteen
 packages now**. First map the existing four-package architecture and
@@ -237,13 +237,13 @@ reason to change them.
 
 ### 3.4 Naming and compatibility
 
--   Product name: **GraphOM**.
--   Repository/CLI convention: `graph-om` / `graphom`, chosen
+-   Product name: **GraphKit**.
+-   Repository/CLI convention: `graph-kit` / `graphkit`, chosen
     consistently after checking current repository and npm naming
     constraints.
--   Proposed package scope: `@graphom/*`, subject to availability and
+-   Proposed package scope: `@graphkit/*`, subject to availability and
     ownership verification.
--   Plan a compatibility path from `metal` to GraphOM: package rename,
+-   Plan a compatibility path from `metal` to GraphKit: package rename,
     import migration, CLI migration, documentation links, release notes
     and deprecation policy.
 -   Do not break existing consumers silently. If the project is
@@ -284,9 +284,9 @@ compile-time, runtime, database-enforced or test-only.
 Command concept:
 
 ``` bash
-npx graph-om doctor
-npx graph-om doctor --json
-npx graph-om doctor --explain
+npx graph-kit doctor
+npx graph-kit doctor --json
+npx graph-kit doctor --explain
 ```
 
 Potential checks, subject to technical feasibility and explicit scope: -
@@ -313,15 +313,15 @@ cases. - Avoid false certainty: a check that cannot be completed reports
 Illustrative output (not a claim about current implementation):
 
 ``` text
-GraphOM Doctor
+GraphKit Doctor
   ERROR   Missing uniqueness constraint: User.email
   WARNING Schema drift: undeclared relationship type REVIEWED
   WARNING Data invariant: 42 User nodes missing required property email
 
 Suggested next steps:
-  graph-om doctor --explain
-  graph-om migrate plan
-  graph-om validate
+  graph-kit doctor --explain
+  graph-kit migrate plan
+  graph-kit validate
 ```
 
 ### 4.3 Safe Graph Migrations --- production adoption capability
@@ -329,10 +329,10 @@ Suggested next steps:
 Command concepts:
 
 ``` bash
-graph-om migrate diff
-graph-om migrate plan
-graph-om migrate apply
-graph-om migrate status
+graph-kit migrate diff
+graph-kit migrate plan
+graph-kit migrate apply
+graph-kit migrate status
 ```
 
 Required capabilities, staged: - Schema snapshots. - Contract diffs. -
@@ -371,7 +371,7 @@ applying changes.
 
 Two separate modes must be exposed:
 
-1.  **Static analysis:** inspect GraphOM query AST/generated Cypher and
+1.  **Static analysis:** inspect GraphKit query AST/generated Cypher and
     known contract metadata without running the query.
 2.  **Database-backed inspection:** use Neo4j `EXPLAIN` / `PROFILE` and
     report actual plan/runtime data when available.
@@ -424,7 +424,7 @@ all parents.
 Potential API concepts:
 
 ``` ts
-import { graphTest } from "@graphom/testing";
+import { graphTest } from "@graphkit/testing";
 
 await graphTest(client)
   .createNode("User", { id: "u1" })
@@ -477,7 +477,7 @@ A coding agent should be able to understand the project's graph
 contract, propose a change, implement it, run deterministic checks and
 present a safe migration plan.
 
-GraphOM is not a replacement for Claude Code, Codex, Cursor, VS Code
+GraphKit is not a replacement for Claude Code, Codex, Cursor, VS Code
 agents or Neo4j MCP. It is the graph-specific engineering and
 verification layer they can use.
 
@@ -496,11 +496,11 @@ verification layer they can use.
 
 ### 5.3 MCP tool design
 
-Candidate read/analysis tools: - `graphom.get_project_context` -
-`graphom.get_schema` - `graphom.inspect_database` -
-`graphom.validate_contract` - `graphom.analyze_change` -
-`graphom.plan_migration` - `graphom.explain_query` -
-`graphom.run_graph_tests` - `graphom.check_drift`
+Candidate read/analysis tools: - `graphkit.get_project_context` -
+`graphkit.get_schema` - `graphkit.inspect_database` -
+`graphkit.validate_contract` - `graphkit.analyze_change` -
+`graphkit.plan_migration` - `graphkit.explain_query` -
+`graphkit.run_graph_tests` - `graphkit.check_drift`
 
 Separate read-only analysis from mutation tools. If mutation tools are
 added later: - Require explicit environment and operation scope. -
@@ -510,7 +510,7 @@ production authorization.
 
 ### 5.4 Skills and agent instructions
 
-Ship: - A GraphOM Agent Skill with workflows for modeling, queries,
+Ship: - A GraphKit Agent Skill with workflows for modeling, queries,
 migrations, diagnostics and testing. - `AGENTS.md` guidance and
 examples. - Provider-specific setup documentation only where tested. -
 CLI commands with stable machine-readable JSON output and meaningful
@@ -540,19 +540,19 @@ database. - The agent reports checks and unresolved risks honestly.
 Candidate commands (adapt to existing conventions):
 
 ``` bash
-graph-om init
-graph-om introspect
-graph-om generate
-graph-om validate
-graph-om doctor
-graph-om migrate diff
-graph-om migrate plan
-graph-om migrate apply
-graph-om migrate status
-graph-om inspect
-graph-om query explain
-graph-om studio
-graph-om test
+graph-kit init
+graph-kit introspect
+graph-kit generate
+graph-kit validate
+graph-kit doctor
+graph-kit migrate diff
+graph-kit migrate plan
+graph-kit migrate apply
+graph-kit migrate status
+graph-kit inspect
+graph-kit query explain
+graph-kit studio
+graph-kit test
 ```
 
 Requirements: - `--help` and actionable errors. - Human and JSON
@@ -631,7 +631,7 @@ repository audit and team-capacity review.
 **Exit gate:** The team can explain what exists, what is missing, what
 can be reused and how to test changes safely.
 
-### Phase 1 --- Core correctness and GraphOM identity (approximately weeks 3--7)
+### Phase 1 --- Core correctness and GraphKit identity (approximately weeks 3--7)
 
 -   Fix compiler/AST correctness issues.
 -   Verify generated Cypher and parameterization.
@@ -639,7 +639,7 @@ can be reused and how to test changes safely.
 -   Establish or formalize canonical schema IR.
 -   Establish type-generation correctness.
 -   Add deterministic compiler tests and public API tests.
--   Introduce GraphOM naming in docs/internal metadata with a
+-   Introduce GraphKit naming in docs/internal metadata with a
     compatibility plan.
 
 **Exit gate:** Reliable core, repeatable builds, meaningful tests,
@@ -720,7 +720,7 @@ security, documentation and adoption evidence.
 -   [ ] Transaction/session lifecycle audit.
 -   [ ] Disposable Neo4j integration test environment.
 -   [ ] Canonical IR decision.
--   [ ] GraphOM naming and compatibility decision.
+-   [ ] GraphKit naming and compatibility decision.
 
 ### P1 --- First differentiated release
 
@@ -746,7 +746,7 @@ security, documentation and adoption evidence.
 ### P3 --- Agent/ecosystem expansion
 
 -   [ ] MCP read/analysis server.
--   [ ] Portable GraphOM Agent Skill.
+-   [ ] Portable GraphKit Agent Skill.
 -   [ ] `AGENTS.md` templates.
 -   [ ] Agent end-to-end tests.
 -   [ ] Studio.
@@ -796,7 +796,7 @@ security, documentation and adoption evidence.
 -   Query inspection modes.
 -   Agent/MCP setup.
 -   Security and production deployment.
--   Metal-to-GraphOM upgrade path.
+-   Metal-to-GraphKit upgrade path.
 
 ------------------------------------------------------------------------
 
@@ -820,9 +820,9 @@ Measure: - Time to complete representative tasks. - Issues detected
 before deployment. - False-positive and false-negative rates. -
 Migration plan accuracy and recovery outcomes. - Agent task completion
 rate. - Human interventions required. - Developer trust and willingness
-to keep using GraphOM.
+to keep using GraphKit.
 
-A key product test: **Would developers miss GraphOM if they returned to
+A key product test: **Would developers miss GraphKit if they returned to
 their previous workflow?**
 
 ------------------------------------------------------------------------
@@ -856,7 +856,7 @@ items as `UNKNOWN` and investigate them.
 Use this as the initial task for the primary coding agent:
 
 > You are the lead engineer responsible for evolving the existing Metal
-> TypeScript/Neo4j project into GraphOM.
+> TypeScript/Neo4j project into GraphKit.
 >
 > Read `GRAPHOM_AGENT_IMPLEMENTATION_PLAN.md` completely before changing
 > code.
@@ -891,7 +891,7 @@ Use this as the initial task for the primary coding agent:
 > Keep static query analysis separate from actual Neo4j
 > `EXPLAIN`/`PROFILE` measurements. Do not overstate estimates. Treat
 > MCP/agent output and graph data as untrusted. Do not let an AI agent
-> bypass GraphOM's validation or authorization.
+> bypass GraphKit's validation or authorization.
 >
 > Do not attempt all roadmap phases in one task. Work in small vertical
 > slices with tests, documentation and reviewable commits. Stop and ask
@@ -929,9 +929,9 @@ edits to shared compiler, package manifests or generated files.
 
 ------------------------------------------------------------------------
 
-## 15. Definition of GraphOM 1.0
+## 15. Definition of GraphKit 1.0
 
-Do not call GraphOM 1.0 ready until:
+Do not call GraphKit 1.0 ready until:
 
 -   The core TypeScript API and compiler are stable and documented.
 -   Neo4j support and supported versions are explicit.
@@ -944,9 +944,9 @@ Do not call GraphOM 1.0 ready until:
 -   Graph-aware tests can run safely in CI.
 -   Agent/MCP workflows are documented and permission-scoped.
 -   Security, compatibility and release procedures are tested.
--   A developer can adopt GraphOM on an existing Neo4j project without
+-   A developer can adopt GraphKit on an existing Neo4j project without
     an unsafe rewrite.
 
-**Final product principle:** GraphOM should make graph applications
+**Final product principle:** GraphKit should make graph applications
 easier to understand, safer to change, easier to debug and more
 predictable to operate --- for both humans and AI coding agents.

@@ -1,7 +1,7 @@
-// @graph-om/zod/src/schema/types.ts
+// @graph-kit/zod/src/schema/types.ts
 // Type aliases for Zod schema generation
 
-import type { PropertyType } from '@graph-om/sdk';
+import type { PropertyType } from '@graph-kit/sdk';
 import type { z } from 'zod';
 
 export type PropertyTypeToZodType<T extends PropertyType> = T extends 'string'

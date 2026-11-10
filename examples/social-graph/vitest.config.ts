@@ -13,18 +13,18 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@graph-om/sdk': path.resolve(__dirname, '../../packages/sdk/src/index.ts'),
-      '@graph-om/sdk/driver/neo4j': path.resolve(
+      '@graph-kit/sdk': path.resolve(__dirname, '../../packages/sdk/src/index.ts'),
+      '@graph-kit/sdk/driver/neo4j': path.resolve(
         __dirname,
         '../../packages/sdk/src/driver/neo4j.ts',
       ),
-      '@graph-om/zod': path.resolve(__dirname, '../../packages/zod/src/index.ts'),
-      '@graph-om/testing': path.resolve(__dirname, '../../packages/sdk/src/testing/index.ts'),
-      '@graph-om/sdk/migration': path.resolve(
+      '@graph-kit/zod': path.resolve(__dirname, '../../packages/zod/src/index.ts'),
+      '@graph-kit/testing': path.resolve(__dirname, '../../packages/sdk/src/testing/index.ts'),
+      '@graph-kit/sdk/migration': path.resolve(
         __dirname,
         '../../packages/sdk/src/migration/index.ts',
       ),
-      '@graph-om/sdk/graphql': path.resolve(__dirname, '../../packages/sdk/src/graphql/index.ts'),
+      '@graph-kit/sdk/graphql': path.resolve(__dirname, '../../packages/sdk/src/graphql/index.ts'),
     },
   },
 });

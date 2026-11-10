@@ -13,9 +13,9 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
-  external: ['@graph-om/sdk'],
+  external: ['@graph-kit/sdk'],
   banner: { js: '#!/usr/bin/env node' },
   define: {
-    __GRAPH_OM_CLI_VERSION__: JSON.stringify(pkg.version),
+    __GRAPH_KIT_CLI_VERSION__: JSON.stringify(pkg.version),
   },
 });

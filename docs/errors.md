@@ -1,13 +1,13 @@
 # Errors
 
-Every failure graph-om throws is a `GraphError`. It extends `Error`, so `instanceof Error` and `.message` keep working, and it adds three things you can rely on:
+Every failure graph-kit throws is a `GraphError`. It extends `Error`, so `instanceof Error` and `.message` keep working, and it adds three things you can rely on:
 
 - **`code`**: a stable identifier, such as `record_not_found`. Branch on it, not on the message.
 - **`statusCode`**: an HTTP-style status (400–599) for surfaces that map errors to responses.
 - **`retry`**: `{ retryable: boolean }`. Only retry when `retryable` is `true`, and only if the operation is safe to repeat.
 
 ```ts
-import { hasCode } from '@graph-om/sdk/errors';
+import { hasCode } from '@graph-kit/sdk/errors';
 
 try {
   await client.update('Person', { where: { id }, data });
@@ -92,7 +92,7 @@ Anchors below match the `link` that each error carries.
 ## query_failed
 
 - **Status:** 500 · **Retryable:** no
-- **Meaning:** the database failed a query for a reason graph-om does not classify further.
+- **Meaning:** the database failed a query for a reason graph-kit does not classify further.
 - **Typical cause:** a driver error with no specific code, or an unexpected response.
 - **Fix:** read `cause` and `metadata.driverCode` for the native error.
 
@@ -106,7 +106,7 @@ Anchors below match the `link` that each error carries.
 ## invalid_argument
 
 - **Status:** 400 · **Retryable:** no
-- **Meaning:** an argument has a value graph-om cannot use.
+- **Meaning:** an argument has a value graph-kit cannot use.
 - **Typical cause:** an identifier that is not a valid label or property name, a non-date value for a `DateTime`, or an empty array passed where one item is needed.
 - **Fix:** correct the argument.
 
@@ -156,4 +156,4 @@ Anchors below match the `link` that each error carries.
 
 ## Surfaces that face clients
 
-Errors from the SDK carry developer detail (`message`, `cause`, `metadata`). Before sending an error to a client, convert it with `toPublic` from `@graph-om/sdk/errors`. The MCP server and the generated GraphQL resolvers already do this. The client receives only `scope`, `code` and a fixed public message, and never Cypher text, labels, values or URIs.
+Errors from the SDK carry developer detail (`message`, `cause`, `metadata`). Before sending an error to a client, convert it with `toPublic` from `@graph-kit/sdk/errors`. The MCP server and the generated GraphQL resolvers already do this. The client receives only `scope`, `code` and a fixed public message, and never Cypher text, labels, values or URIs.

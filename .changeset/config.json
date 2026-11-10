@@ -5,12 +5,12 @@
   "fixed": [],
   "linked": [
     [
-      "@graph-om/sdk",
-      "@graph-om/cli",
-      "@graph-om/zod",
-      "@graph-om/mcp",
-      "@graph-om/migrate",
-      "@graph-om/testing"
+      "@graph-kit/sdk",
+      "@graph-kit/cli",
+      "@graph-kit/zod",
+      "@graph-kit/mcp",
+      "@graph-kit/migrate",
+      "@graph-kit/testing"
     ]
   ],
   "access": "public",

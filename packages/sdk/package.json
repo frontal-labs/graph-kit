@@ -1,16 +1,16 @@
 {
-  "name": "@graph-om/sdk",
+  "name": "@graph-kit/sdk",
   "version": "0.0.1",
-  "description": "Graph-OM - Prisma-like DX for graph databases",
+  "description": "Graph-Kit - Prisma-like DX for graph databases",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/frontal-labs/graph-om.git",
+    "url": "https://github.com/frontal-labs/graph-kit.git",
     "directory": "packages/sdk"
   },
-  "homepage": "https://github.com/frontal-labs/graph-om/tree/master/packages/sdk#readme",
+  "homepage": "https://github.com/frontal-labs/graph-kit/tree/master/packages/sdk#readme",
   "bugs": {
-    "url": "https://github.com/frontal-labs/graph-om/issues"
+    "url": "https://github.com/frontal-labs/graph-kit/issues"
   },
   "keywords": [
     "ogm",

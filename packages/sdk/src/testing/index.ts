@@ -1,5 +1,5 @@
-// @graph-om/sdk/src/testing/index.ts
-// Testing utilities for Graph-OM - mock driver, test helpers, fixtures
+// @graph-kit/sdk/src/testing/index.ts
+// Testing utilities for Graph-Kit - mock driver, test helpers, fixtures
 
 import type { DriverCapabilities } from '../driver';
 import type {
@@ -496,7 +496,7 @@ export function generateTestData<T>(options: GeneratorOptions<T>): T[] {
   return Array.from({ length: count }, (_, i) => factory(i));
 }
 
-// Vitest/Jest matchers for Graph-OM
+// Vitest/Jest matchers for Graph-Kit
 export const graphMatchers = {
   toBeValidNode(received: unknown, label: string): { pass: boolean; message: () => string } {
     const pass =

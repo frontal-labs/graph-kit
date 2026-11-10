@@ -1,7 +1,7 @@
-// @graph-om/zod/src/schema/factory.ts
+// @graph-kit/zod/src/schema/factory.ts
 // Zod schema factory functions for node configs
 
-import type { NodeConfig, PropertyConfig, PropertyType } from '@graph-om/sdk';
+import type { NodeConfig, PropertyConfig, PropertyType } from '@graph-kit/sdk';
 import { z } from 'zod';
 import { propertiesToZodShape, propertyTypeToZod } from './property';
 

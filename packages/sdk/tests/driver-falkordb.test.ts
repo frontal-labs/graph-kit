@@ -1,4 +1,4 @@
-// @graph-om/sdk/tests/driver-falkordb.test.ts
+// @graph-kit/sdk/tests/driver-falkordb.test.ts
 // The FalkorDB adapter talks Redis through `ioredis`, so these tests replace it with a fake
 // that records every command.
 import { beforeEach, describe, expect, it, vi } from 'vitest';

@@ -27,7 +27,7 @@ describe('client-facing error payloads', () => {
     expect(status).toBe(404);
     expect(Object.keys(data.error).sort()).toEqual(['code', 'message', 'scope']);
     expect(data.error).toEqual({
-      scope: 'graph-om',
+      scope: 'graph-kit',
       code: 'record_not_found',
       message: 'The requested record does not exist',
     });
@@ -78,7 +78,7 @@ describe('GraphQL resolver errors', () => {
 
     expect(error.message).toBe('The requested record does not exist');
     expect(error.extensions).toEqual({
-      scope: 'graph-om',
+      scope: 'graph-kit',
       code: 'record_not_found',
       message: 'The requested record does not exist',
     });

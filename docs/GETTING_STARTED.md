@@ -1,16 +1,16 @@
-# Graph-OM — Prisma-like DX for Graph Databases
+# Graph-Kit — Prisma-like DX for Graph Databases
 
-Graph-OM is a TypeScript OGM (Object-Graph Mapper) for graph databases, starting with Neo4j. It provides a schema DSL, Cypher query compiler, type-safe client, and CLI tooling for init and code generation.
+Graph-Kit is a TypeScript OGM (Object-Graph Mapper) for graph databases, starting with Neo4j. It provides a schema DSL, Cypher query compiler, type-safe client, and CLI tooling for init and code generation.
 
 ## Project Layout
 
 ```
-graph-om/
-│   ├── cli/              # @graph-om/cli — graph-om init / graph-om generate
+graph-kit/
+│   ├── cli/              # @graph-kit/cli — graph-kit init / graph-kit generate
 ├── packages/
-│   ├── sdk/              # @graph-om/sdk — schema DSL, Cypher compiler, client, config, drivers
+│   ├── sdk/              # @graph-kit/sdk — schema DSL, Cypher compiler, client, config, drivers
 │   │   └── src/driver/   #   Neo4j, Memgraph, Kuzu and FalkorDB adapters
-│   └── zod/              # @graph-om/zod — Zod validation integration
+│   └── zod/              # @graph-kit/zod — Zod validation integration
 ├── examples/
 │   └── social-graph/     # End-to-end example app
 ├── docs/                 # This documentation
@@ -31,8 +31,8 @@ graph-om/
 ### Installation
 
 ```bash
-git clone https://github.com/frontal-labs/graph-om.git
-cd graph-om
+git clone https://github.com/frontal-labs/graph-kit.git
+cd graph-kit
 pnpm install
 pnpm build
 ```
@@ -40,7 +40,7 @@ pnpm build
 ### Initialize a New Project
 
 ```bash
-npx @graph-om/cli init my-graph
+npx @graph-kit/cli init my-graph
 cd my-graph
 pnpm install
 cp .env.example .env
@@ -53,16 +53,16 @@ npx tsx src/index.ts
 
 ### Environment Variables
 
-All environment variables are validated through `@t3-oss/env-core` + zod in `packages/sdk/src/config/keys.ts`. Export `env` from `@graph-om/sdk`:
+All environment variables are validated through `@t3-oss/env-core` + zod in `packages/sdk/src/config/keys.ts`. Export `env` from `@graph-kit/sdk`:
 
 ```ts
-import { env } from '@graph-om/sdk';
+import { env } from '@graph-kit/sdk';
 
 console.log(env.NEO4J_URI);      // bolt://localhost:7687 (default)
 console.log(env.NEO4J_USER);     // neo4j (default)
 console.log(env.NEO4J_PASSWORD); // password (default)
 console.log(env.NEO4J_DATABASE); // optional
-console.log(env.GRAPH_OM_DEBUG);    // boolean, from GRAPH_OM_DEBUG=true
+console.log(env.GRAPH_KIT_DEBUG);    // boolean, from GRAPH_KIT_DEBUG=true
 ```
 
 | Variable | Type | Default | Required |
@@ -71,12 +71,12 @@ console.log(env.GRAPH_OM_DEBUG);    // boolean, from GRAPH_OM_DEBUG=true
 | `NEO4J_USER` | string | `neo4j` | No |
 | `NEO4J_PASSWORD` | string | `password` | No |
 | `NEO4J_DATABASE` | string \| undefined | `undefined` | No |
-| `GRAPH_OM_DEBUG` | boolean | `false` | No |
+| `GRAPH_KIT_DEBUG` | boolean | `false` | No |
 
-### graph-om.config.ts
+### graph-kit.config.ts
 
 ```ts
-import { defineConfig, env } from '@graph-om/sdk';
+import { defineConfig, env } from '@graph-kit/sdk';
 
 export default defineConfig({
   schema: './src/schema.ts',
@@ -91,7 +91,7 @@ export default defineConfig({
     password: env.NEO4J_PASSWORD,
     database: env.NEO4J_DATABASE,
   },
-  debug: env.GRAPH_OM_DEBUG,
+  debug: env.GRAPH_KIT_DEBUG,
   exclude: [],
 });
 ```
@@ -101,7 +101,7 @@ export default defineConfig({
 Define your graph schema with the `node`, `defineRel`, and `schema` helpers:
 
 ```ts
-import { node, defineRel, schema, string, number, date } from '@graph-om/sdk';
+import { node, defineRel, schema, string, number, date } from '@graph-kit/sdk';
 
 const User = node('User')
   .add('id', string({ primary: true }))
@@ -130,8 +130,8 @@ const graph = schema()
 ## Client
 
 ```ts
-import { GraphClient } from '@graph-om/sdk';
-import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
+import { GraphClient } from '@graph-kit/sdk';
+import { createNeo4jDriver } from '@graph-kit/sdk/driver/neo4j';
 import { graph } from './schema.js';
 
 const driver = createNeo4jDriver({
@@ -149,11 +149,11 @@ await client.disconnect();
 
 ## CLI
 
-### `graph-om init <directory>`
+### `graph-kit init <directory>`
 
-Scaffolds a new Graph-OM project with schema, config, env example, and entrypoint.
+Scaffolds a new Graph-Kit project with schema, config, env example, and entrypoint.
 
-### `graph-om generate`
+### `graph-kit generate`
 
 Generates types and client code from your schema. Supports `--watch` for auto-regeneration.
 

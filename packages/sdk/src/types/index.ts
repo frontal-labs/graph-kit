@@ -1,5 +1,5 @@
-// @graph-om/sdk/src/types/index.ts
-// Core type definitions for Graph-OM
+// @graph-kit/sdk/src/types/index.ts
+// Core type definitions for Graph-Kit
 
 export type PropertyType =
   | 'string'

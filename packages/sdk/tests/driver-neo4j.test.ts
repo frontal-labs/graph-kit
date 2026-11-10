@@ -1,4 +1,4 @@
-// @graph-om/sdk/tests/driver-neo4j.test.ts
+// @graph-kit/sdk/tests/driver-neo4j.test.ts
 
 import neo4j from 'neo4j-driver';
 import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
@@ -362,11 +362,11 @@ describe('Neo4jDriverAdapter error classification', () => {
     ).rejects.toBe(userError);
   });
 
-  it('passes a graph-om error from the user callback through unchanged', async () => {
+  it('passes a graph-kit error from the user callback through unchanged', async () => {
     session().executeWrite.mockImplementationOnce(
       async (work: (txc: unknown) => Promise<unknown>) => work({ run: vi.fn() }),
     );
-    const { GraphError } = await import('@graph-om/sdk/errors');
+    const { GraphError } = await import('@graph-kit/sdk/errors');
     const own = new GraphError('own', { code: 'invalid_argument', statusCode: 400 });
 
     await expect(

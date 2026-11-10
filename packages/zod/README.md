@@ -1,23 +1,23 @@
-# @graph-om/zod
+# @graph-kit/zod
 
-Zod validation integration for Graph-OM. Converts `NodeConfig` objects into Zod schemas and provides create/update validators and validation hooks for type-safe graph node input.
+Zod validation integration for Graph-Kit. Converts `NodeConfig` objects into Zod schemas and provides create/update validators and validation hooks for type-safe graph node input.
 
 ## Installation
 
 ```bash
-pnpm add @graph-om/zod zod
+pnpm add @graph-kit/zod zod
 ```
 
-`@graph-om/sdk` is a peer dependency — install it alongside:
+`@graph-kit/sdk` is a peer dependency — install it alongside:
 
 ```bash
-pnpm add @graph-om/sdk
+pnpm add @graph-kit/sdk
 ```
 
 ## Quick start
 
 ```ts
-import { toZodSchema, toCreateSchema, toUpdateSchema, validateCreate, validateUpdate, validationHooks } from '@graph-om/zod';
+import { toZodSchema, toCreateSchema, toUpdateSchema, validateCreate, validateUpdate, validationHooks } from '@graph-kit/zod';
 import { User } from './schema.js';
 
 const schema = toZodSchema(User);
@@ -60,7 +60,7 @@ Modifiers:
 
 ## Peer dependency
 
-`@graph-om/sdk` (`workspace:^`) provides the `NodeConfig`, `PropertyConfig`, `PropertyType`, `CreateInput`, and `UpdateInput` types used by this package.
+`@graph-kit/sdk` (`workspace:^`) provides the `NodeConfig`, `PropertyConfig`, `PropertyType`, `CreateInput`, and `UpdateInput` types used by this package.
 
 ## License
 

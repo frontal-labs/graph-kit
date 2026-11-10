@@ -34,6 +34,6 @@ export default defineConfig({
   // @frontal-labs/error is ESM-only; bundle it so the CJS build keeps working.
   noExternal: ['@frontal-labs/error'],
   banner: {
-    js: '// @graph-om/sdk - Prisma-like DX for graph databases',
+    js: '// @graph-kit/sdk - Prisma-like DX for graph databases',
   },
 });

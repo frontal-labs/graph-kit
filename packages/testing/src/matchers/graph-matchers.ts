@@ -1,5 +1,5 @@
-// @graph-om/testing/src/matchers/graph-matchers.ts
-// Vitest/Jest matchers for Graph-OM
+// @graph-kit/testing/src/matchers/graph-matchers.ts
+// Vitest/Jest matchers for Graph-Kit
 
 type MatchableNode = { label?: unknown; relations?: Record<string, unknown> } | null | undefined;
 

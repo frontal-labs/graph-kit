@@ -1,21 +1,21 @@
 {
-  "name": "@graph-om/mcp",
+  "name": "@graph-kit/mcp",
   "version": "0.0.1",
-  "description": "Graph-OM MCP (Model Context Protocol) server",
+  "description": "Graph-Kit MCP (Model Context Protocol) server",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/frontal-labs/graph-om.git",
+    "url": "https://github.com/frontal-labs/graph-kit.git",
     "directory": "packages/mcp"
   },
-  "homepage": "https://github.com/frontal-labs/graph-om/tree/master/packages/mcp#readme",
+  "homepage": "https://github.com/frontal-labs/graph-kit/tree/master/packages/mcp#readme",
   "bugs": {
-    "url": "https://github.com/frontal-labs/graph-om/issues"
+    "url": "https://github.com/frontal-labs/graph-kit/issues"
   },
   "keywords": [
     "mcp",
     "model-context-protocol",
-    "graph-om",
+    "graph-kit",
     "graph-database"
   ],
   "sideEffects": false,
@@ -46,7 +46,7 @@
     "@modelcontextprotocol/sdk": "^1.32.2"
   },
   "devDependencies": {
-    "@graph-om/sdk": "workspace:*",
+    "@graph-kit/sdk": "workspace:*",
     "@types/node": "^20.10.0",
     "tsup": "^8.0.0",
     "typescript": "^5.9.3",

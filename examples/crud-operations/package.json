@@ -1,0 +1,25 @@
+{
+  "name": "example-crud-operations",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Create, read, update, delete, upsert (requires Neo4j)",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "generate": "graph-kit generate",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "clean": "rm -rf .turbo dist"
+  },
+  "dependencies": {
+    "@graph-kit/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@graph-kit/cli": "workspace:*",
+    "@types/node": "^20.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vite": "^7.0.0",
+    "vitest": "^4.1.12"
+  }
+}

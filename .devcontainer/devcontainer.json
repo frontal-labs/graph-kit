@@ -1,5 +1,5 @@
 {
-  "name": "Graph-OM Development",
+  "name": "Graph-Kit Development",
   "build": {
     "dockerfile": "Dockerfile",
     "context": ".."
@@ -47,5 +47,5 @@
   "forwardPorts": [7687, 7474, 3000],
   "postCreateCommand": "pnpm install && pnpm build",
   "remoteUser": "node",
-  "workspaceFolder": "/workspaces/graph-om"
+  "workspaceFolder": "/workspaces/graph-kit"
 }

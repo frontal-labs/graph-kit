@@ -2,9 +2,9 @@
 ARG NODE_VERSION=20
 FROM node:${NODE_VERSION}-slim AS base
 
-LABEL org.opencontainers.image.description="Graph-OM - Prisma-like DX for graph databases"
-LABEL org.opencontainers.image.url="https://github.com/frontal-labs/graph-om"
-LABEL org.opencontainers.image.source="https://github.com/frontal-labs/graph-om.git"
+LABEL org.opencontainers.image.description="Graph-Kit - Prisma-like DX for graph databases"
+LABEL org.opencontainers.image.url="https://github.com/frontal-labs/graph-kit"
+LABEL org.opencontainers.image.source="https://github.com/frontal-labs/graph-kit.git"
 
 WORKDIR /app
 
@@ -48,7 +48,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 RUN addgroup --system --gid 1001 nodejs \
-    && adduser --system --uid 1001 graph-om
+    && adduser --system --uid 1001 graph-kit
 
 COPY --from=builder /app/packages ./packages
 COPY --from=builder /app/packages/cli ./packages/cli
@@ -57,7 +57,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
-USER graph-om
+USER graph-kit
 
 EXPOSE 3000
 

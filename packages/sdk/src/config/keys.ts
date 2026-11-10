@@ -1,4 +1,4 @@
-// @graph-om/sdk/src/config/keys.ts
+// @graph-kit/sdk/src/config/keys.ts
 // Validated environment variables powered by @t3-oss/env-core + zod.
 // All process.env values are parsed through this single schema, so the app
 // fails fast on missing/invalid config instead of silently using undefined.
@@ -12,7 +12,7 @@ export const env = createEnv({
     NEO4J_USER: z.string().default('neo4j'),
     NEO4J_PASSWORD: z.string().default('password'),
     NEO4J_DATABASE: z.string().optional(),
-    GRAPH_OM_DEBUG: z
+    GRAPH_KIT_DEBUG: z
       .string()
       .optional()
       .transform((val) => val === 'true'),

@@ -1,4 +1,4 @@
-// @graph-om/testing/src/fixtures/test-fixtures.ts
+// @graph-kit/testing/src/fixtures/test-fixtures.ts
 // Test fixtures and data generation helpers
 
 export interface TestFixture {

@@ -1,10 +1,10 @@
-// @graph-om/cli/src/commands/migrate.ts
+// @graph-kit/cli/src/commands/migrate.ts
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { env } from '@graph-om/sdk';
-import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j';
-import { raiseGraphError } from '@graph-om/sdk/errors';
+import { env } from '@graph-kit/sdk';
+import { createNeo4jDriver } from '@graph-kit/sdk/driver/neo4j';
+import { raiseGraphError } from '@graph-kit/sdk/errors';
 import {
   createMigrationRunner,
   createMigrationTemplate,
@@ -12,7 +12,7 @@ import {
   type Migration,
   type RelationDiff,
   type SchemaDiff,
-} from '@graph-om/sdk/migration';
+} from '@graph-kit/sdk/migration';
 import { Command } from 'commander';
 import { loadProjectConfig } from './generate.js';
 
@@ -91,7 +91,7 @@ async function runMigrateUp(migrationsDir: string): Promise<void> {
   const { schemaPath } = config;
 
   // Load schema to pass to migration runner
-  const { parseSchemaFile } = await import('@graph-om/sdk/schema');
+  const { parseSchemaFile } = await import('@graph-kit/sdk/schema');
   const result = parseSchemaFile(schemaPath);
   const schema = result.schema;
 
@@ -133,7 +133,7 @@ async function runMigrateDown(migrationsDir: string, steps: number): Promise<voi
   const config = loadProjectConfig(projectRoot);
   const { schemaPath } = config;
 
-  const { parseSchemaFile } = await import('@graph-om/sdk/schema');
+  const { parseSchemaFile } = await import('@graph-kit/sdk/schema');
   const result = parseSchemaFile(schemaPath);
   const schema = result.schema;
 
@@ -173,7 +173,7 @@ async function runMigrateStatus(migrationsDir: string): Promise<void> {
   const config = loadProjectConfig(projectRoot);
   const { schemaPath } = config;
 
-  const { parseSchemaFile } = await import('@graph-om/sdk/schema');
+  const { parseSchemaFile } = await import('@graph-kit/sdk/schema');
   const result = parseSchemaFile(schemaPath);
   const schema = result.schema;
 
@@ -227,7 +227,7 @@ async function runMigrateDiff(name: string, migrationsDir: string): Promise<void
   const config = loadProjectConfig(projectRoot);
   const { schemaPath } = config;
 
-  const { parseSchemaFile } = await import('@graph-om/sdk/schema');
+  const { parseSchemaFile } = await import('@graph-kit/sdk/schema');
   const result = parseSchemaFile(schemaPath);
   const newSchema = result.schema;
 
@@ -245,7 +245,7 @@ async function runMigrateDiff(name: string, migrationsDir: string): Promise<void
     oldSchema = snapshot;
   }
 
-  const { diffSchemas, generateMigrationFromDiff } = await import('@graph-om/sdk/migration');
+  const { diffSchemas, generateMigrationFromDiff } = await import('@graph-kit/sdk/migration');
   const diff = diffSchemas(oldSchema, newSchema);
   const migration = generateMigrationFromDiff(diff, name);
 
@@ -384,8 +384,8 @@ function generateMigrationFile(migration: Migration, diff: SchemaDiff): string {
 // Version: ${migration.version}
 // Created: ${new Date().toISOString()}
 
-import { QueryCompiler } from '@graph-om/sdk/query';
-import type { Migration } from '@graph-om/sdk/migration';
+import { QueryCompiler } from '@graph-kit/sdk/query';
+import type { Migration } from '@graph-kit/sdk/migration';
 
 export const migration: Migration = {
   version: ${JSON.stringify(migration.version)},

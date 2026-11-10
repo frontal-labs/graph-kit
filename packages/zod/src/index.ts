@@ -1,5 +1,5 @@
-// @graph-om/zod/src/index.ts
-// Zod validation integration for Graph-OM
+// @graph-kit/zod/src/index.ts
+// Zod validation integration for Graph-Kit
 // Barrel export - manually selects and re-exports public API
 
 // Schema generation domain

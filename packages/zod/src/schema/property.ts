@@ -1,7 +1,7 @@
-// @graph-om/zod/src/schema/property.ts
+// @graph-kit/zod/src/schema/property.ts
 // Property-level Zod schema conversion
 
-import type { PropertyConfig, PropertyType } from '@graph-om/sdk';
+import type { PropertyConfig, PropertyType } from '@graph-kit/sdk';
 import { z } from 'zod';
 import type { PropertyTypeToZodType } from './types';
 

@@ -1,4 +1,4 @@
-// @graph-om/sdk/src/driver/kuzu.ts
+// @graph-kit/sdk/src/driver/kuzu.ts
 // Kuzu driver adapter - Kuzu is an embedded graph database, used through the `kuzu` npm package
 
 import {

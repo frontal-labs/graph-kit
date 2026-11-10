@@ -1,7 +1,7 @@
-// @graph-om/zod/src/validation/hooks.ts
+// @graph-kit/zod/src/validation/hooks.ts
 // Validation hooks for create and update lifecycle events
 
-import type { CreateInput, NodeConfig, PropertyConfig, UpdateInput } from '@graph-om/sdk';
+import type { CreateInput, NodeConfig, PropertyConfig, UpdateInput } from '@graph-kit/sdk';
 import { validateCreate, validateUpdate } from './validate';
 
 export function validationHooks<T extends string>(

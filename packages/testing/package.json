@@ -1,22 +1,22 @@
 {
-  "name": "@graph-om/testing",
+  "name": "@graph-kit/testing",
   "version": "0.0.1",
-  "description": "Graph-OM testing utilities - mock driver, test helpers, fixtures",
+  "description": "Graph-Kit testing utilities - mock driver, test helpers, fixtures",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/frontal-labs/graph-om.git",
+    "url": "https://github.com/frontal-labs/graph-kit.git",
     "directory": "packages/testing"
   },
-  "homepage": "https://github.com/frontal-labs/graph-om/tree/master/packages/testing#readme",
+  "homepage": "https://github.com/frontal-labs/graph-kit/tree/master/packages/testing#readme",
   "bugs": {
-    "url": "https://github.com/frontal-labs/graph-om/issues"
+    "url": "https://github.com/frontal-labs/graph-kit/issues"
   },
   "keywords": [
     "testing",
     "mock",
     "fixtures",
-    "graph-om"
+    "graph-kit"
   ],
   "sideEffects": false,
   "files": [
@@ -44,7 +44,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@graph-om/sdk": "workspace:*",
+    "@graph-kit/sdk": "workspace:*",
     "@types/node": "^20.10.0",
     "tsup": "^8.0.0",
     "typescript": "^5.9.3",

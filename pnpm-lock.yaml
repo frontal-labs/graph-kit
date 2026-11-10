@@ -64,12 +64,465 @@ importers:
         specifier: ^4.6.7
         version: 4.6.7
 
-  examples/social-graph:
+  examples/aggregations:
     dependencies:
-      '@graph-om/sdk':
+      '@graph-kit/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      '@graph-om/zod':
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/bulk-operations:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/configuration:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/crud-operations:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/error-handling:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/graphql-schema:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@apollo/server':
+        specifier: ^5.5.1
+        version: 5.5.1(graphql@16.15.0)
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/migrations:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/mock-driver-testing:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/multi-driver:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/observability:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/pagination:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/path-traversal:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/query-filters:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/raw-cypher:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/relations:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/schema-definition:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/seeding:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/selective-fields:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/social-graph:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@graph-kit/zod':
         specifier: workspace:*
         version: link:../../packages/zod
       zod:
@@ -79,7 +532,63 @@ importers:
       '@apollo/server':
         specifier: ^5.5.1
         version: 5.5.1(graphql@16.15.0)
-      '@graph-om/cli':
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/transactions:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@graph-kit/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1)
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
+
+  examples/zod-validation:
+    dependencies:
+      '@graph-kit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@graph-kit/zod':
+        specifier: workspace:*
+        version: link:../../packages/zod
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@graph-kit/cli':
         specifier: workspace:*
         version: link:../../packages/cli
       '@types/node':
@@ -100,7 +609,7 @@ importers:
 
   packages/cli:
     dependencies:
-      '@graph-om/sdk':
+      '@graph-kit/sdk':
         specifier: workspace:*
         version: link:../sdk
       commander:
@@ -129,7 +638,7 @@ importers:
         specifier: ^1.32.2
         version: 1.32.2(zod@4.6.7)
     devDependencies:
-      '@graph-om/sdk':
+      '@graph-kit/sdk':
         specifier: workspace:*
         version: link:../sdk
       '@types/node':
@@ -150,7 +659,7 @@ importers:
 
   packages/migrate:
     devDependencies:
-      '@graph-om/sdk':
+      '@graph-kit/sdk':
         specifier: workspace:*
         version: link:../sdk
       '@types/node':
@@ -248,7 +757,7 @@ importers:
 
   packages/testing:
     devDependencies:
-      '@graph-om/sdk':
+      '@graph-kit/sdk':
         specifier: workspace:*
         version: link:../sdk
       '@types/node':
@@ -273,7 +782,7 @@ importers:
         specifier: ^4.6.7
         version: 4.6.7
     devDependencies:
-      '@graph-om/sdk':
+      '@graph-kit/sdk':
         specifier: workspace:*
         version: link:../sdk
       '@types/node':

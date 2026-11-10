@@ -1,4 +1,4 @@
-// @graph-om/sdk/src/schema/index.ts
+// @graph-kit/sdk/src/schema/index.ts
 // Schema definition API - Drizzle-style fluent API
 
 import type {

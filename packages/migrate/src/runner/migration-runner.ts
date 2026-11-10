@@ -1,9 +1,9 @@
-// @graph-om/migrate/src/runner/migration-runner.ts
+// @graph-kit/migrate/src/runner/migration-runner.ts
 // Migration execution engine - applies, rolls back, and reports migration status
 
-import type { DriverAdapter } from '@graph-om/sdk';
-import { QueryCompiler } from '@graph-om/sdk';
-import { raiseGraphError } from '@graph-om/sdk/errors';
+import type { DriverAdapter } from '@graph-kit/sdk';
+import { QueryCompiler } from '@graph-kit/sdk';
+import { raiseGraphError } from '@graph-kit/sdk/errors';
 import type { Migration } from '../model/migration';
 import type { MigrationOptions, MigrationStatus } from './migration-options';
 
@@ -12,13 +12,13 @@ export class MigrationRunner {
   private compiler: QueryCompiler;
   private migrationsDir: string;
   private tableName: string;
-  private schema?: import('@graph-om/sdk').GraphSchemaRegistry;
+  private schema?: import('@graph-kit/sdk').GraphSchemaRegistry;
 
   constructor(options: MigrationOptions) {
     this.driver = options.driver;
     this.compiler = new QueryCompiler();
     this.migrationsDir = options.migrationsDir ?? './migrations';
-    this.tableName = options.tableName ?? '_graph_om_migrations';
+    this.tableName = options.tableName ?? '_graph_kit_migrations';
     this.schema = options.schema;
   }
 

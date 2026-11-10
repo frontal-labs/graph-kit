@@ -1,23 +1,23 @@
 {
-  "name": "@graph-om/cli",
+  "name": "@graph-kit/cli",
   "version": "0.0.1",
-  "description": "CLI for Graph-OM - init and generate",
+  "description": "CLI for Graph-Kit - init and generate",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/frontal-labs/graph-om.git",
+    "url": "https://github.com/frontal-labs/graph-kit.git",
     "directory": "packages/cli"
   },
-  "homepage": "https://github.com/frontal-labs/graph-om/tree/master/cli#readme",
+  "homepage": "https://github.com/frontal-labs/graph-kit/tree/master/cli#readme",
   "bugs": {
-    "url": "https://github.com/frontal-labs/graph-om/issues"
+    "url": "https://github.com/frontal-labs/graph-kit/issues"
   },
   "keywords": [
     "ogm",
     "cli",
     "codegen",
     "neo4j",
-    "graph-om"
+    "graph-kit"
   ],
   "sideEffects": false,
   "files": [
@@ -28,7 +28,7 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "bin": {
-    "graph-om": "./dist/index.mjs"
+    "graph-kit": "./dist/index.mjs"
   },
   "exports": {
     ".": {
@@ -48,7 +48,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@graph-om/sdk": "workspace:*",
+    "@graph-kit/sdk": "workspace:*",
     "commander": "^15.0.0"
   },
   "devDependencies": {

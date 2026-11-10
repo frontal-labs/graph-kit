@@ -1,4 +1,4 @@
-// @graph-om/sdk/tests/integration-memgraph.test.ts
+// @graph-kit/sdk/tests/integration-memgraph.test.ts
 // Runs against a live Memgraph over Bolt. Set MEMGRAPH_URI (for example bolt://127.0.0.1:7688).
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createMemgraphDriver } from '../src/driver/memgraph';

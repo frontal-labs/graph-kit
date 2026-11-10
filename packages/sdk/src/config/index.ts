@@ -1,5 +1,5 @@
-// @graph-om/sdk/src/config/index.ts
-// Graph-OM configuration system — inspired by Vite's defineConfig, Prisma schema, Drizzle config
+// @graph-kit/sdk/src/config/index.ts
+// Graph-Kit configuration system — inspired by Vite's defineConfig, Prisma schema, Drizzle config
 
 import type { GraphConfig, GraphDriverConfig, GraphOutputConfig } from '../types';
 
@@ -36,7 +36,8 @@ export function resolveConfig(
 
 /**
  * Try to load a config file from the project root.
- * Supports graph-om.config.ts, graph-om.config.mjs, graph-om.config.js, graph-om.config.json.
+ * Supports graph.config.ts (preferred), graph.config.mjs, graph.config.js, graph.config.json,
+ * and the legacy graph-kit.config.* names.
  */
 export async function loadConfig(cwd?: string): Promise<GraphConfig | null> {
   const path = await import('node:path');
@@ -44,10 +45,14 @@ export async function loadConfig(cwd?: string): Promise<GraphConfig | null> {
   const root = cwd ?? process.cwd();
 
   const candidates = [
-    'graph-om.config.ts',
-    'graph-om.config.mjs',
-    'graph-om.config.js',
-    'graph-om.config.json',
+    'graph.config.ts',
+    'graph.config.mjs',
+    'graph.config.js',
+    'graph.config.json',
+    'graph-kit.config.ts',
+    'graph-kit.config.mjs',
+    'graph-kit.config.js',
+    'graph-kit.config.json',
   ];
 
   for (const file of candidates) {

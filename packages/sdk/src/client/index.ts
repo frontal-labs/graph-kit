@@ -1,4 +1,4 @@
-// @graph-om/sdk/src/client/index.ts
+// @graph-kit/sdk/src/client/index.ts
 // GraphClient - Type-safe graph database client
 
 import { raiseGraphError } from '../errors';
@@ -57,7 +57,7 @@ export class GraphClient {
    *
    * @example
    * ```ts
-   * import { createNeo4jDriver } from '@graph-om/sdk/driver/neo4j'
+   * import { createNeo4jDriver } from '@graph-kit/sdk/driver/neo4j'
    * const client = GraphClient.fromConfig(driver, { schema: './src/schema.ts' })
    * ```
    */

@@ -1,4 +1,4 @@
-// @graph-om/sdk/src/driver/falkordb.ts
+// @graph-kit/sdk/src/driver/falkordb.ts
 // FalkorDB driver adapter - FalkorDB is Redis-based graph database
 // Uses Redis Stack / RedisGraph protocol (Redis modules)
 

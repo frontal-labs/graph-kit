@@ -1,18 +1,18 @@
-# @graph-om/testing
+# @graph-kit/testing
 
-Graph-OM testing utilities — mock driver, test helpers, matchers, and fixtures for unit testing Graph-OM applications without a live graph database.
+Graph-Kit testing utilities — mock driver, test helpers, matchers, and fixtures for unit testing Graph-Kit applications without a live graph database.
 
 ## Installation
 
 ```bash
-pnpm add -D @graph-om/testing @graph-om/sdk
+pnpm add -D @graph-kit/testing @graph-kit/sdk
 ```
 
 ## Quick start
 
 ```ts
-import { createMockDriver, graphMatchers, generateTestData } from '@graph-om/testing';
-import { GraphClient } from '@graph-om/sdk';
+import { createMockDriver, graphMatchers, generateTestData } from '@graph-kit/testing';
+import { GraphClient } from '@graph-kit/sdk';
 
 const mock = createMockDriver();
 const client = new GraphClient(mock, graph);
@@ -59,7 +59,7 @@ Vitest/Jest-style matchers:
 Usage:
 
 ```ts
-import { graphMatchers } from '@graph-om/testing';
+import { graphMatchers } from '@graph-kit/testing';
 // extend expect or call directly
 expect(graphMatchers.toBeValidNode(node, 'User').pass).toBe(true);
 ```
@@ -81,7 +81,7 @@ expect(graphMatchers.toBeValidNode(node, 'User').pass).toBe(true);
 
 ## Re-exported types
 
-The package re-exports core types from `@graph-om/sdk`: `DriverAdapter`, `DriverCapabilities`, `GraphConfig`, `GraphSchemaRegistry`, `NodeConfig`, `PropertyConfig`, `QueryRecord`, `QueryResult`, `RelationConfig`, `TransactionContext`, `WhereCondition`.
+The package re-exports core types from `@graph-kit/sdk`: `DriverAdapter`, `DriverCapabilities`, `GraphConfig`, `GraphSchemaRegistry`, `NodeConfig`, `PropertyConfig`, `QueryRecord`, `QueryResult`, `RelationConfig`, `TransactionContext`, `WhereCondition`.
 
 ## License
 

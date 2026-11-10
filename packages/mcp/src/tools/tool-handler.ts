@@ -1,8 +1,8 @@
-// @graph-om/mcp/src/tools/tool-handler.ts
+// @graph-kit/mcp/src/tools/tool-handler.ts
 // MCP tool definitions and call-tool dispatch logic
 
-import type { DriverAdapter } from '@graph-om/sdk';
-import { raiseGraphError } from '@graph-om/sdk/errors';
+import type { DriverAdapter } from '@graph-kit/sdk';
+import { raiseGraphError } from '@graph-kit/sdk/errors';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
 export interface ToolDefinition {

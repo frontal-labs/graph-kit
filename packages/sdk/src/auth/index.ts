@@ -1,5 +1,5 @@
-// @graph-om/sdk/src/auth/index.ts
-// Authentication and authorization helpers for Graph-OM
+// @graph-kit/sdk/src/auth/index.ts
+// Authentication and authorization helpers for Graph-Kit
 
 import { GraphClient } from '../client';
 import { raiseGraphError } from '../errors';

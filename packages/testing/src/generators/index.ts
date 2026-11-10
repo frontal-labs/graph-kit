@@ -1,4 +1,4 @@
-// @graph-om/testing/src/generators/index.ts
+// @graph-kit/testing/src/generators/index.ts
 // Generators domain barrel
 
 export {

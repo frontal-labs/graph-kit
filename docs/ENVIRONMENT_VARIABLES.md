@@ -1,6 +1,6 @@
 # Environment Variables
 
-Graph-OM uses [@t3-oss/env-core](https://env.t3.gg/) with [zod](https://zod.dev/) to validate and type environment variables. All env access goes through the `env` export from `@graph-om/sdk`.
+Graph-Kit uses [@t3-oss/env-core](https://env.t3.gg/) with [zod](https://zod.dev/) to validate and type environment variables. All env access goes through the `env` export from `@graph-kit/sdk`.
 
 ## Schema Definition
 
@@ -16,7 +16,7 @@ export const env = createEnv({
     NEO4J_USER: z.string().default('neo4j'),
     NEO4J_PASSWORD: z.string().default('password'),
     NEO4J_DATABASE: z.string().optional(),
-    GRAPH_OM_DEBUG: z.string().optional().transform((val) => val === 'true'),
+    GRAPH_KIT_DEBUG: z.string().optional().transform((val) => val === 'true'),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
@@ -31,18 +31,18 @@ export const env = createEnv({
 | `NEO4J_USER` | string | `neo4j` | Neo4j username |
 | `NEO4J_PASSWORD` | string | `password` | Neo4j password |
 | `NEO4J_DATABASE` | string \| undefined | `undefined` | Neo4j database name |
-| `GRAPH_OM_DEBUG` | boolean | `false` | Enable debug mode when `true` |
+| `GRAPH_KIT_DEBUG` | boolean | `false` | Enable debug mode when `true` |
 
 ## Usage
 
 ```ts
-import { env } from '@graph-om/sdk';
+import { env } from '@graph-kit/sdk';
 
 // Typed access — no process.env checks needed
 const uri = env.NEO4J_URI;
-const debug = env.GRAPH_OM_DEBUG;
+const debug = env.GRAPH_KIT_DEBUG;
 
-// In graph-om.config.ts
+// In graph-kit.config.ts
 export default defineConfig({
   driver: {
     uri: env.NEO4J_URI,
@@ -50,7 +50,7 @@ export default defineConfig({
     password: env.NEO4J_PASSWORD,
     database: env.NEO4J_DATABASE,
   },
-  debug: env.GRAPH_OM_DEBUG,
+  debug: env.GRAPH_KIT_DEBUG,
 });
 ```
 
@@ -61,7 +61,7 @@ NEO4J_URI=bolt://localhost:7687
 NEO4J_USER=neo4j
 NEO4J_PASSWORD=password
 NEO4J_DATABASE=neo4j
-GRAPH_OM_DEBUG=false
+GRAPH_KIT_DEBUG=false
 ```
 
 ## Validation Behavior

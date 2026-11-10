@@ -1,7 +1,7 @@
-// @graph-om/migrate/src/schema/schema-diff.ts
+// @graph-kit/migrate/src/schema/schema-diff.ts
 // Schema diffing and migration generation from diffs
 
-import type { GraphSchemaRegistry, QueryCompiler } from '@graph-om/sdk';
+import type { GraphSchemaRegistry, QueryCompiler } from '@graph-kit/sdk';
 import type { Migration } from '../model/migration';
 import { generateVersion } from '../version/version';
 

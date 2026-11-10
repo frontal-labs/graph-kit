@@ -3,8 +3,8 @@
 ## Getting Started
 
 ```bash
-git clone https://github.com/frontal-labs/graph-om.git
-cd graph-om
+git clone https://github.com/frontal-labs/graph-kit.git
+cd graph-kit
 pnpm install
 pnpm build
 pnpm test
@@ -43,10 +43,10 @@ Requirements: Node.js ≥ 20, pnpm 9 (`corepack enable` recommended).
 
 ## Project Layout
 
-- `packages/cli/` — `@graph-om/cli` — `graph-om init` / `graph-om generate`
-- `packages/sdk/` — `@graph-om/sdk` — schema DSL, Cypher compiler, client, config
-- `packages/sdk/src/driver/` — `@graph-om/sdk/driver/*` — DriverAdapter implementations (Neo4j, Memgraph, Kuzu, FalkorDB)
-- `packages/zod/` — `@graph-om/zod` — Zod validation integration
+- `packages/cli/` — `@graph-kit/cli` — `graph-kit init` / `graph-kit generate`
+- `packages/sdk/` — `@graph-kit/sdk` — schema DSL, Cypher compiler, client, config
+- `packages/sdk/src/driver/` — `@graph-kit/sdk/driver/*` — DriverAdapter implementations (Neo4j, Memgraph, Kuzu, FalkorDB)
+- `packages/zod/` — `@graph-kit/zod` — Zod validation integration
 - `examples/social-graph/` — end-to-end example app
 - `docs/` — documentation (uppercase snake_case file names)
 

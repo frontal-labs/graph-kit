@@ -1,10 +1,10 @@
-// @graph-om/cli/src/commands/studio.ts
+// @graph-kit/cli/src/commands/studio.ts
 
 import { exec } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { parseSchemaFile } from '@graph-om/sdk/schema';
-import { generateDocumentation, generateERDiagram } from '@graph-om/sdk/visualization';
+import { parseSchemaFile } from '@graph-kit/sdk/schema';
+import { generateDocumentation, generateERDiagram } from '@graph-kit/sdk/visualization';
 import { Command } from 'commander';
 import { loadProjectConfig } from './generate.js';
 
