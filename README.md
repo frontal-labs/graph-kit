@@ -1,6 +1,6 @@
-# GraphKit
+# Graph Kit
 
-![Frontal Banner](./banner.jpg)
+![Frontal Banner](banner.jpg)
 
 **A modern, type-safe data access layer for graph databases.**
 
