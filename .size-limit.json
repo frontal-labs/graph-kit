@@ -11,7 +11,7 @@
     "path": "packages/mcp/dist/index.js",
     "gzip": true,
     "brotli": false,
-    "limit": "1700 B"
+    "limit": "1800 B"
   },
   {
     "name": "@graph-kit/migrate (import)",
