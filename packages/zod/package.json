@@ -1,6 +1,7 @@
 {
   "name": "@graph-kit/zod",
   "version": "0.0.1",
+  "private": true,
   "description": "Zod validation integration for Graph-Kit",
   "license": "Apache-2.0",
   "repository": {
