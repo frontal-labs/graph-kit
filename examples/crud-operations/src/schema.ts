@@ -1,5 +1,5 @@
 // schema.ts - CRUD example schema
-import { date, node, number, relation, schema as sch, string } from '@graph-kit/sdk';
+import { date, node, number, schema as sch, string } from '@graph-kit/sdk';
 
 export const User = node('User')
   .add('id', string({ primary: true }))

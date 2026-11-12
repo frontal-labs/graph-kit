@@ -74,6 +74,7 @@ async function main() {
 
   console.log('\n--- createDriver registry ---');
   const { createDriver } = await import('@graph-kit/sdk/driver');
+  void createDriver; // keeps the dynamic import (and its factory) as a live check
   console.log('drivers available via the createDriver() factory');
 
   console.log('\nMulti-driver example complete.');

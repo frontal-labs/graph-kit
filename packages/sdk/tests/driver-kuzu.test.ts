@@ -28,7 +28,6 @@ const fake = vi.hoisted(() => {
 
   // Like the real package: parameters only go through prepare and execute
   class FakeConnection {
-    constructor(_db: unknown) {}
     async query(cypher: string) {
       state.statements.push({ cypher });
       if (state.queryError) throw state.queryError;

@@ -25,9 +25,9 @@ const config = defineConfig({
 
 console.log('--- defineConfig ---');
 console.log('  schema:', config.schema);
-console.log('  output.directory:', config.output!.directory);
-console.log('  output.zod:', config.output!.zod);
-console.log('  driver.type:', config.driver!.type);
+console.log('  output.directory:', config.output?.directory);
+console.log('  output.zod:', config.output?.zod);
+console.log('  driver.type:', config.driver?.type);
 console.log('  debug:', config.debug);
 
 // ---------------------------------------------------------------------------
@@ -47,7 +47,7 @@ console.log('\n--- loadConfig ---');
 const loaded = await loadConfig('./graph.config.ts');
 if (loaded) {
   console.log('  loaded schema:', loaded.schema);
-  console.log('  loaded driver type:', loaded.driver!.type);
+  console.log('  loaded driver type:', loaded.driver?.type);
 } else {
   console.log('  no config file found (skipped)');
 }
