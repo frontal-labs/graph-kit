@@ -23,6 +23,65 @@ patchedDependencies:
 importers:
 
   .:
+    dependencies:
+      '@frontal-labs/error':
+        specifier: 0.7.0
+        version: 0.7.0
+      '@t3-oss/env-core':
+        specifier: ^0.13.11
+        version: 0.13.11(typescript@5.9.3)(zod@4.6.7)
+      neo4j-driver:
+        specifier: ^5.14.0
+        version: 5.28.3
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
+    optionalDependencies:
+      '@opentelemetry/api':
+        specifier: ^1.9.1
+        version: 1.10.0
+      '@opentelemetry/exporter-metrics-otlp-http':
+        specifier: ^0.200.0
+        version: 0.200.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/exporter-trace-otlp-http':
+        specifier: ^0.200.0
+        version: 0.200.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/instrumentation':
+        specifier: ^0.200.0
+        version: 0.200.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/instrumentation-dns':
+        specifier: ^0.66.0
+        version: 0.66.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/instrumentation-grpc':
+        specifier: ^0.200.0
+        version: 0.200.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/instrumentation-http':
+        specifier: ^0.200.0
+        version: 0.200.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/resources':
+        specifier: ^2.12.0
+        version: 2.12.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/sdk-metrics':
+        specifier: ^2.12.0
+        version: 2.12.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/sdk-trace-base':
+        specifier: ^2.12.0
+        version: 2.12.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/sdk-trace-node':
+        specifier: ^2.12.0
+        version: 2.12.0(@opentelemetry/api@1.10.0)
+      '@opentelemetry/semantic-conventions':
+        specifier: ^1.45.0
+        version: 1.45.0
+      '@redis/client':
+        specifier: ^1.5.0
+        version: 1.6.1
+      ioredis:
+        specifier: ^5.3.0
+        version: 5.11.1
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.5.15
@@ -33,9 +92,6 @@ importers:
       '@size-limit/file':
         specifier: ^14.3.0
         version: 14.3.0(size-limit@14.3.0)
-      '@t3-oss/env-core':
-        specifier: ^0.13.11
-        version: 0.13.11(typescript@5.9.3)(zod@4.6.7)
       '@types/node':
         specifier: ^20.10.0
         version: 20.19.43
@@ -45,12 +101,12 @@ importers:
       size-limit:
         specifier: ^14.3.0
         version: 14.3.0
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(postcss@8.5.32)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.1)
       turbo:
         specifier: ^2.11.10
         version: 2.11.10
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
       ultracite:
         specifier: ^8.0.1
         version: 8.0.1(@biomejs/biome@2.5.15)
@@ -60,9 +116,6 @@ importers:
       vitest:
         specifier: ^4.1.12
         version: 4.1.12(@opentelemetry/api@1.10.0)(@types/node@20.19.43)(vite@7.3.7(@types/node@20.19.43)(tsx@4.23.15)(yaml@2.9.1))
-      zod:
-        specifier: ^4.6.7
-        version: 4.6.7
 
   examples/aggregations:
     dependencies:
@@ -2565,10 +2618,6 @@ packages:
     resolution: {integrity: sha512-4+hD3Y+YMV3e0uiqTv1/GUal47D04l8qluw1WFWg8Nx3k7rLsHG1Pmq9WHIOlf1742svxQvTYQiuY6oS1qxAZA==}
     deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
-  lilconfig@3.1.3:
-    resolution: {integrity: sha512-/vlFKAoH5Cgt3Ie+JLhRbwOsCQePABiU3tJ1egGvyQ+33R/vcwM2Zl2QR/LzjsBeItPt3oSVXapn+m4nQDvpzw==}
-    engines: {node: '>=14'}
-
   lilconfig@3.1.4:
     resolution: {integrity: sha512-zJZyBmQhArDRefuWTypZxwDpFDIYmrj8ypSBvwGD5P13Y95s6DjzKgu4DVdGbeQa5PDEsAOCAPNk4X+QOR006w==}
     engines: {node: '>=14'}
@@ -4517,9 +4566,9 @@ snapshots:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  bundle-require@5.1.0(esbuild@0.28.1):
+  bundle-require@5.1.0(esbuild@0.28.2):
     dependencies:
-      esbuild: 0.28.1
+      esbuild: 0.28.2
       load-tsconfig: 0.2.5
 
   bytes@3.1.2: {}
@@ -5188,8 +5237,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  lilconfig@3.1.3: {}
-
   lilconfig@3.1.4: {}
 
   lines-and-columns@1.2.4: {}
@@ -5418,7 +5465,7 @@ snapshots:
 
   postcss-load-config@6.0.1(postcss@8.5.32)(tsx@4.23.15)(yaml@2.9.1):
     dependencies:
-      lilconfig: 3.1.3
+      lilconfig: 3.1.4
     optionalDependencies:
       postcss: 8.5.32
       tsx: 4.23.15
@@ -5817,12 +5864,12 @@ snapshots:
 
   tsup@8.5.1(postcss@8.5.32)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.1):
     dependencies:
-      bundle-require: 5.1.0(esbuild@0.28.1)
+      bundle-require: 5.1.0(esbuild@0.28.2)
       cac: 6.7.14
       chokidar: 4.0.3
       consola: 3.4.2
       debug: 4.4.3
-      esbuild: 0.28.1
+      esbuild: 0.28.2
       fix-dts-default-cjs-exports: 1.0.1
       joycon: 3.1.1
       picocolors: 1.1.1

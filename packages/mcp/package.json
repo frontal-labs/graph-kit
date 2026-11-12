@@ -1,6 +1,7 @@
 {
   "name": "@graph-kit/mcp",
   "version": "0.0.1",
+  "private": true,
   "description": "Graph-Kit MCP (Model Context Protocol) server",
   "license": "Apache-2.0",
   "repository": {

@@ -1,6 +1,7 @@
 {
   "name": "@graph-kit/migrate",
   "version": "0.0.1",
+  "private": true,
   "description": "Graph-Kit migration system - schema versioning and database migrations",
   "license": "Apache-2.0",
   "repository": {

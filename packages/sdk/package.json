@@ -1,6 +1,7 @@
 {
   "name": "@graph-kit/sdk",
   "version": "0.0.1",
+  "private": true,
   "description": "Graph-Kit - Prisma-like DX for graph databases",
   "license": "Apache-2.0",
   "repository": {

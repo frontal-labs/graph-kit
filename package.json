@@ -1,19 +1,22 @@
 {
   "name": "graph-kit",
   "version": "1.0.0",
-  "private": true,
-  "description": "Graph-Kit - Prisma-like DX for graph databases (monorepo)",
+  "private": false,
+  "description": "Graph-Kit - Prisma-like DX for graph databases",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/frontal-labs/graph-kit.git"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "prepare": "husky",
-    "build": "turbo run build",
+    "build": "turbo run build && tsup && tsc -p tsconfig.decl.json",
     "size": "pnpm build && size-limit",
     "dev": "turbo run dev",
-    "clean": "turbo run clean && rm -rf node_modules .turbo",
+    "clean": "turbo run clean && rm -rf node_modules .turbo dist",
     "test": "turbo run test",
     "test:ci": "turbo run test:ci",
     "test:coverage": "turbo run test:coverage",
@@ -27,7 +30,7 @@
     "format:check": "ultracite check",
     "changeset": "changeset",
     "version": "changeset version",
-    "release": "turbo run build && changeset publish"
+    "release": "pnpm build && changeset publish"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
@@ -37,6 +40,7 @@
     "@types/node": "^20.10.0",
     "husky": "^9.1.7",
     "size-limit": "^14.3.0",
+    "tsup": "^8.0.0",
     "turbo": "^2.11.10",
     "typescript": "^5.9.3",
     "ultracite": "^8.0.1",
@@ -65,6 +69,70 @@
     }
   },
   "bin": {
-    "graph-kit": "./bin/index.js"
+    "graph-kit": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./driver": {
+      "types": "./dist/driver/index.d.ts",
+      "import": "./dist/driver.mjs",
+      "require": "./dist/driver.js"
+    },
+    "./neo4j": {
+      "types": "./dist/driver/neo4j.d.ts",
+      "import": "./dist/neo4j.mjs",
+      "require": "./dist/neo4j.js"
+    },
+    "./memgraph": {
+      "types": "./dist/driver/memgraph.d.ts",
+      "import": "./dist/memgraph.mjs",
+      "require": "./dist/memgraph.js"
+    },
+    "./kuzu": {
+      "types": "./dist/driver/kuzu.d.ts",
+      "import": "./dist/kuzu.mjs",
+      "require": "./dist/kuzu.js"
+    },
+    "./falkordb": {
+      "types": "./dist/driver/falkordb.d.ts",
+      "import": "./dist/falkordb.mjs",
+      "require": "./dist/falkordb.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "LICENSE.md",
+    "README.md"
+  ],
+  "dependencies": {
+    "@frontal-labs/error": "0.7.0",
+    "@t3-oss/env-core": "^0.13.11",
+    "neo4j-driver": "^5.14.0",
+    "typescript": "^5.9.3",
+    "zod": "^4.6.7"
+  },
+  "optionalDependencies": {
+    "@opentelemetry/api": "^1.9.1",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.200.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.200.0",
+    "@opentelemetry/instrumentation": "^0.200.0",
+    "@opentelemetry/instrumentation-dns": "^0.66.0",
+    "@opentelemetry/instrumentation-grpc": "^0.200.0",
+    "@opentelemetry/instrumentation-http": "^0.200.0",
+    "@opentelemetry/resources": "^2.12.0",
+    "@opentelemetry/sdk-metrics": "^2.12.0",
+    "@opentelemetry/sdk-trace-base": "^2.12.0",
+    "@opentelemetry/sdk-trace-node": "^2.12.0",
+    "@opentelemetry/semantic-conventions": "^1.45.0",
+    "@redis/client": "^1.5.0",
+    "ioredis": "^5.3.0"
   }
 }

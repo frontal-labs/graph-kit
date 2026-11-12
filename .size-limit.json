@@ -1,233 +1,65 @@
 [
   {
-    "name": "@graph-kit/mcp (import)",
-    "path": "packages/mcp/dist/index.mjs",
+    "name": "graph-kit (import)",
+    "path": "dist/index.mjs",
     "gzip": true,
     "brotli": false,
-    "limit": "1650 B"
+    "limit": "247000 B"
   },
   {
-    "name": "@graph-kit/mcp (require)",
-    "path": "packages/mcp/dist/index.js",
+    "name": "graph-kit (require)",
+    "path": "dist/index.js",
     "gzip": true,
     "brotli": false,
-    "limit": "1800 B"
+    "limit": "248000 B"
   },
   {
-    "name": "@graph-kit/migrate (import)",
-    "path": "packages/migrate/dist/index.mjs",
+    "name": "graph-kit/cli (import)",
+    "path": "dist/cli.mjs",
     "gzip": true,
     "brotli": false,
-    "limit": "2700 B"
+    "limit": "56000 B"
   },
   {
-    "name": "@graph-kit/migrate (require)",
-    "path": "packages/migrate/dist/index.js",
+    "name": "graph-kit/cli (require)",
+    "path": "dist/cli.js",
     "gzip": true,
     "brotli": false,
-    "limit": "2750 B"
+    "limit": "56500 B"
   },
   {
-    "name": "@graph-kit/sdk (import)",
-    "path": "packages/sdk/dist/index.mjs",
+    "name": "graph-kit/driver (import)",
+    "path": "dist/driver.mjs",
     "gzip": true,
     "brotli": false,
-    "limit": "246900 B"
+    "limit": "8500 B"
   },
   {
-    "name": "@graph-kit/sdk/schema (import)",
-    "path": "packages/sdk/dist/schema/index.mjs",
+    "name": "graph-kit/neo4j (import)",
+    "path": "dist/neo4j.mjs",
     "gzip": true,
     "brotli": false,
-    "limit": "3200 B"
+    "limit": "3500 B"
   },
   {
-    "name": "@graph-kit/sdk/client (import)",
-    "path": "packages/sdk/dist/client/index.mjs",
+    "name": "graph-kit/memgraph (import)",
+    "path": "dist/memgraph.mjs",
     "gzip": true,
     "brotli": false,
-    "limit": "10750 B"
+    "limit": "3800 B"
   },
   {
-    "name": "@graph-kit/sdk/errors (import)",
-    "path": "packages/sdk/dist/errors/index.mjs",
+    "name": "graph-kit/kuzu (import)",
+    "path": "dist/kuzu.mjs",
     "gzip": true,
     "brotli": false,
-    "limit": "7050 B"
+    "limit": "2800 B"
   },
   {
-    "name": "@graph-kit/sdk/query (import)",
-    "path": "packages/sdk/dist/query/index.mjs",
+    "name": "graph-kit/falkordb (import)",
+    "path": "dist/falkordb.mjs",
     "gzip": true,
     "brotli": false,
-    "limit": "8150 B"
-  },
-  {
-    "name": "@graph-kit/sdk/config (import)",
-    "path": "packages/sdk/dist/config/index.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "1050 B"
-  },
-  {
-    "name": "@graph-kit/sdk/driver (import)",
-    "path": "packages/sdk/dist/driver/index.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "11350 B"
-  },
-  {
-    "name": "@graph-kit/sdk/driver/neo4j (import)",
-    "path": "packages/sdk/dist/driver/neo4j.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "6350 B"
-  },
-  {
-    "name": "@graph-kit/sdk/driver/memgraph (import)",
-    "path": "packages/sdk/dist/driver/memgraph.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "6650 B"
-  },
-  {
-    "name": "@graph-kit/sdk/driver/kuzu (import)",
-    "path": "packages/sdk/dist/driver/kuzu.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "5900 B"
-  },
-  {
-    "name": "@graph-kit/sdk/driver/falkordb (import)",
-    "path": "packages/sdk/dist/driver/falkordb.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "8000 B"
-  },
-  {
-    "name": "@graph-kit/sdk/migration (import)",
-    "path": "packages/sdk/dist/migration/index.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "11300 B"
-  },
-  {
-    "name": "@graph-kit/sdk/schema/parser (import)",
-    "path": "packages/sdk/dist/schema/parser.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "2600 B"
-  },
-  {
-    "name": "@graph-kit/sdk/seed (import)",
-    "path": "packages/sdk/dist/seed/index.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "6550 B"
-  },
-  {
-    "name": "@graph-kit/sdk/observability (import)",
-    "path": "packages/sdk/dist/observability/index.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "7100 B"
-  },
-  {
-    "name": "@graph-kit/sdk/graphql (import)",
-    "path": "packages/sdk/dist/graphql/index.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "8650 B"
-  },
-  {
-    "name": "@graph-kit/sdk/visualization (import)",
-    "path": "packages/sdk/dist/visualization/index.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "7050 B"
-  },
-  {
-    "name": "@graph-kit/sdk/batch (import)",
-    "path": "packages/sdk/dist/batch/index.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "2900 B"
-  },
-  {
-    "name": "@graph-kit/sdk/auth (import)",
-    "path": "packages/sdk/dist/auth/index.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "13700 B"
-  },
-  {
-    "name": "@graph-kit/sdk/testing (import)",
-    "path": "packages/sdk/dist/testing/index.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "3550 B"
-  },
-  {
-    "name": "@graph-kit/sdk/otel (import)",
-    "path": "packages/sdk/dist/otel/index.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "207850 B"
-  },
-  {
-    "name": "@graph-kit/sdk/benchmark (import)",
-    "path": "packages/sdk/dist/benchmark/index.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "11400 B"
-  },
-  {
-    "name": "@graph-kit/sdk (require)",
-    "path": "packages/sdk/dist/index.js",
-    "gzip": true,
-    "brotli": false,
-    "limit": "247650 B"
-  },
-  {
-    "name": "@graph-kit/testing (import)",
-    "path": "packages/testing/dist/index.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "2250 B"
-  },
-  {
-    "name": "@graph-kit/testing (require)",
-    "path": "packages/testing/dist/index.js",
-    "gzip": true,
-    "brotli": false,
-    "limit": "2300 B"
-  },
-  {
-    "name": "@graph-kit/zod (import)",
-    "path": "packages/zod/dist/index.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "900 B"
-  },
-  {
-    "name": "@graph-kit/zod (require)",
-    "path": "packages/zod/dist/index.js",
-    "gzip": true,
-    "brotli": false,
-    "limit": "950 B"
-  },
-  {
-    "name": "@graph-kit/cli bin (import)",
-    "path": "packages/cli/dist/index.mjs",
-    "gzip": true,
-    "brotli": false,
-    "limit": "13300 B"
-  },
-  {
-    "name": "@graph-kit/cli (require)",
-    "path": "packages/cli/dist/index.js",
-    "gzip": true,
-    "brotli": false,
-    "limit": "13500 B"
+    "limit": "5200 B"
   }
 ]
