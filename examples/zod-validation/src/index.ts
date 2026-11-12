@@ -3,7 +3,7 @@
 // Does NOT require a database.
 
 import { date, node, number, schema as sch, string } from '@graph-kit/sdk';
-import { toCreateSchema, toUpdateSchema, validateCreate, validateUpdate } from '@graph-kit/zod';
+import { toCreateSchema, validateCreate, validateUpdate } from '@graph-kit/zod';
 import type { z } from 'zod';
 
 // ---------------------------------------------------------------------------
@@ -25,7 +25,6 @@ const graph = sch().add('User', User).build();
 // ---------------------------------------------------------------------------
 
 const createSchema = toCreateSchema(User);
-const updateSchema = toUpdateSchema(User);
 
 // Custom Zod refinement: email must contain "@"
 const createSchemaWithRefine = createSchema.refine(
