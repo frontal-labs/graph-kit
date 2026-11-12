@@ -20,16 +20,16 @@ async function main() {
   try {
     await client.raw("MATCH (n) WHERE n.id STARTS WITH 'rel-' DETACH DELETE n");
 
-    const alice = await client.create<UserRow>('User', {
+    await client.create<UserRow>('User', {
       data: { id: 'rel-alice', name: 'Alice', email: 'alice@example.com' },
     });
-    const bob = await client.create<UserRow>('User', {
+    await client.create<UserRow>('User', {
       data: { id: 'rel-bob', name: 'Bob', email: 'bob@example.com' },
     });
-    const carol = await client.create<UserRow>('User', {
+    await client.create<UserRow>('User', {
       data: { id: 'rel-carol', name: 'Carol', email: 'carol@example.com' },
     });
-    const post = await client.create<PostRow>('Post', {
+    await client.create<PostRow>('Post', {
       data: { id: 'rel-post-1', title: 'Hello Graph', published: true },
     });
 
