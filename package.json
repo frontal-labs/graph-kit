@@ -13,7 +13,7 @@
   },
   "scripts": {
     "prepare": "husky",
-    "build": "tsup && tsc -p tsconfig.decl.json",
+    "build": "turbo run build && tsup && tsc -p tsconfig.decl.json",
     "size": "pnpm build && size-limit",
     "dev": "turbo run dev",
     "clean": "turbo run clean && rm -rf node_modules .turbo dist",
